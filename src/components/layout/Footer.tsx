@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, Twitter, Github } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -127,26 +127,20 @@ export default function Footer() {
         <div className="mt-12 pt-6 border-t border-border">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} LightningTalks. All rights reserved.
+              © {new Date().getFullYear()} lvncer. All rights reserved.
             </p>
             <div className="flex space-x-4 mt-4 md:mt-0">
               <Link
                 href="#"
                 className="text-muted-foreground hover:text-foreground"
               >
-                Twitter
+                <Twitter />
               </Link>
               <Link
-                href="#"
+                href="https://github.com/lvncer/lt"
                 className="text-muted-foreground hover:text-foreground"
               >
-                GitHub
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                LinkedIn
+                <Github />
               </Link>
             </div>
           </div>

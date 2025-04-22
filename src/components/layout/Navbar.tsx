@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Zap, Menu, X, Home, List, PlusCircle, Shield } from "lucide-react";
+import { Zap, Menu, X, Home, List, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  SignUpButton,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -36,7 +43,7 @@ export default function Navbar() {
           : "bg-transparent"
       )}
     >
-      <div className="container mx-auto px-4 py-3 md:py-4">
+      <div className="container mx-auto px-4 py-1 md:py-4">
         <div className="flex items-center justify-between">
           <Link
             href="/"
@@ -66,12 +73,19 @@ export default function Navbar() {
             >
               Submit Talk
             </Link>
-            <Button
-              size="sm"
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              Sign In
-            </Button>
+            <div className="flex justify-end items-center gap-4 h-16">
+              <SignedOut>
+                <span className="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-md">
+                  <SignUpButton />
+                </span>
+                <span className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md">
+                  <SignInButton />
+                </span>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -112,14 +126,6 @@ export default function Navbar() {
             >
               <PlusCircle size={18} />
               <span>Submit Talk</span>
-            </Link>
-            <Link
-              href="/admin"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
-            >
-              <Shield size={18} />
-              <span>Admin</span>
             </Link>
             <Button className="w-full bg-purple-600 hover:bg-purple-700">
               Sign In

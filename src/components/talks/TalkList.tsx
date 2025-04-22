@@ -96,7 +96,7 @@ export default function TalkList({ talks }: TalkListProps) {
                 <span className="hidden md:inline">Sort</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent className="backdrop-blur-md" align="end">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
@@ -141,7 +141,7 @@ export default function TalkList({ talks }: TalkListProps) {
                 <span>Filter Topics</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 backdrop-blur-md">
               <DropdownMenuLabel>Filter by topic</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {TALK_TOPICS.map((topic) => (

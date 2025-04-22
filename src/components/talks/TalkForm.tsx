@@ -38,12 +38,6 @@ const formSchema = z.object({
     .max(100, {
       message: "Title must not exceed 100 characters",
     }),
-  presenter: z.string().min(2, {
-    message: "Presenter name is required",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }),
   duration: z.coerce
     .number()
     .min(5, {
@@ -73,8 +67,6 @@ export default function TalkForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      presenter: "",
-      email: "",
       duration: 10,
       topic: "",
       description: "",
@@ -113,101 +105,62 @@ export default function TalkForm() {
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="presenter"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Presenter Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Your full name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="your.email@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Talk Duration (minutes)</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    defaultValue={field.value.toString()}
-                    className="flex flex-wrap space-y-1"
-                  >
-                    {TALK_DURATIONS.map((duration) => (
-                      <FormItem
-                        key={duration}
-                        className="flex items-center space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <RadioGroupItem value={duration.toString()} />
-                        </FormControl>
-                        <FormLabel className="font-normal cursor-pointer">
-                          {duration} minutes
-                        </FormLabel>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="topic"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Topic Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+        <FormField
+          control={form.control}
+          name="duration"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel>Talk Duration (minutes)</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={(value) => field.onChange(parseInt(value))}
+                  defaultValue={field.value.toString()}
+                  className="flex flex-wrap space-y-1"
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a topic" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {TALK_TOPICS.map((topic) => (
-                      <SelectItem key={topic} value={topic}>
-                        {topic}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                  {TALK_DURATIONS.map((duration) => (
+                    <FormItem
+                      key={duration}
+                      className="mt-2 flex items-center space-x-3 space-y-0"
+                    >
+                      <FormControl>
+                        <RadioGroupItem value={duration.toString()} />
+                      </FormControl>
+                      <FormLabel className="font-normal cursor-pointer">
+                        {duration} minutes
+                      </FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="topic"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Topic Category</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a topic" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="bg-white">
+                  {TALK_TOPICS.map((topic) => (
+                    <SelectItem key={topic} value={topic}>
+                      {topic}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -243,13 +196,15 @@ export default function TalkForm() {
           </div>
         </div>
 
-        <Button
-          type="submit"
-          className="w-full md:w-auto"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Submit Lightning Talk"}
-        </Button>
+        <div className="mt-10 flex items-center justify-center space-x-4">
+          <Button
+            type="submit"
+            className="w-full md:w-auto bg-blue-600 text-white hover:bg-blue-800"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Lightning Talk"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -11,67 +11,67 @@ const container = {
     opacity: 1,
     transition: {
       staggerChildren: 0.2,
-      delayChildren: 0.3
-    }
-  }
+      delayChildren: 0.3,
+    },
+  },
 };
 
 const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
+  show: { opacity: 1, y: 0 },
 };
 
 const stats = [
   { number: "180+", label: "Talks Submitted", color: "text-purple-600" },
   { number: "45+", label: "Topics Covered", color: "text-blue-600" },
   { number: "120+", label: "Speakers", color: "text-teal-600" },
-  { number: "12+", label: "Events Per Year", color: "text-orange-500" }
+  { number: "12+", label: "Events Per Year", color: "text-orange-500" },
 ];
 
 export default function HeroSection() {
   return (
-    <div className="relative overflow-hidden">
+    <div className="mt-8 relative overflow-hidden">
       {/* Background decorative elements */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 -z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <motion.div 
+        <motion.div
           className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-purple-300/20 to-blue-300/20 blur-3xl"
-          animate={{ 
+          animate={{
             scale: [1, 1.2, 1],
-            rotate: [0, 90, 0]
+            rotate: [0, 90, 0],
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
-        <motion.div 
+        <motion.div
           className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 rounded-full bg-gradient-to-tr from-teal-300/20 to-blue-300/20 blur-3xl"
-          animate={{ 
+          animate={{
             scale: [1, 1.2, 1],
-            rotate: [0, -90, 0]
+            rotate: [0, -90, 0],
           }}
-          transition={{ 
+          transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear"
+            ease: "linear",
           }}
         />
       </motion.div>
 
-      <div className="container mx-auto px-4 py-20 md:py-32">
-        <motion.div 
+      <div className="container mx-auto px-4 py-60 md:py-32">
+        <motion.div
           className="flex flex-col items-center text-center"
           variants={container}
           initial="hidden"
           animate="show"
         >
-          <motion.div 
+          <motion.div
             variants={item}
             className="inline-flex items-center px-3 py-1 rounded-full border border-border bg-background/50 backdrop-blur-sm text-sm font-medium mb-6"
           >
@@ -79,26 +79,28 @@ export default function HeroSection() {
             <span>Registration Now Open</span>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             variants={item}
             className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
           >
             Share Your Expertise in Lightning&nbsp;Talks
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             variants={item}
             className="text-lg md:text-xl text-muted-foreground max-w-3xl mb-8"
           >
-            Quick, impactful presentations to spread knowledge, spark discussions, and connect with the tech community — all in 20 minutes or less.
+            Quick, impactful presentations to spread knowledge, spark
+            discussions, and connect with the tech community — all in 20 minutes
+            or less.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             variants={item}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-purple-600 hover:bg-purple-700 text-white group"
             >
               <Link href="/register" className="flex items-center gap-2">
@@ -111,7 +113,7 @@ export default function HeroSection() {
             </Button>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             variants={container}
             initial="hidden"
             animate="show"
