@@ -14,8 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export default function TalkPage({ params }: { params: { id: string } }) {
-  const talk = getTalkById(params.id);
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function TalkPage({ params }: PageProps) {
+  const { id } = await params;
+  const talk = getTalkById(id);
 
   if (!talk) {
     notFound();
