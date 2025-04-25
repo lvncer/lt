@@ -1,4 +1,3 @@
-import { SAMPLE_TALKS } from "@/lib/data";
 import TalkList from "@/components/talks/TalkList";
 
 export default function TalksPage() {
@@ -14,7 +13,7 @@ export default function TalksPage() {
         </p>
       </div>
 
-      <TalkList talks={SAMPLE_TALKS} />
+      <TalkList />
     </div>
   );
 }

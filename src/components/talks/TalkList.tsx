@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Talk } from "@/lib/types";
 import TalkCard from "./TalkCard";
 import { TALK_TOPICS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
@@ -16,12 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTalks } from "@/hooks/useTalks";
+import { Talk } from "@/types/talk";
 
-interface TalkListProps {
-  talks: Talk[];
-}
-
-export default function TalkList({ talks }: TalkListProps) {
+export default function TalkList() {
+  const { talks } = useTalks();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "duration">(
@@ -30,7 +28,7 @@ export default function TalkList({ talks }: TalkListProps) {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   // Filter talks based on search query and selected topics
-  const filteredTalks = talks.filter((talk) => {
+  const filteredTalks = talks.filter((talk: Talk) => {
     const matchesSearch =
       talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       talk.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

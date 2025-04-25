@@ -3,10 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Clock, Calendar, ChevronRight } from "lucide-react";
-import { Talk } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Talk } from "@/types/talk";
 
 interface TalkCardProps {
   talk: Talk;
@@ -25,7 +25,7 @@ export default function TalkCard({
     rejected: "bg-red-100 text-red-800 border-red-200",
   };
 
-  const date = new Date(talk.dateSubmitted);
+  const date = new Date(talk.date_submitted);
   const formattedDate = date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -39,17 +39,17 @@ export default function TalkCard({
       transition={{ duration: 0.3, delay: index * 0.1 }}
       whileHover={{ y: -5 }}
     >
-      <Link href={`/talks/${talk.id}`}>
+      <Link href={`/talk/${talk.id}`}>
         <div
           className={cn(
             "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-md",
             variant === "featured" ? "h-full" : "h-full"
           )}
         >
-          {talk.imageUrl && (
+          {talk.image_url && (
             <div className="relative w-full aspect-video overflow-hidden">
               <Image
-                src={talk.imageUrl}
+                src={talk.image_url}
                 alt={talk.title}
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 fill

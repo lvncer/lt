@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,24 +10,24 @@ import {
   ExternalLink,
   Share2,
 } from "lucide-react";
-import { getTalkById } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTalk } from "@/hooks/useTalk";
+import * as React from "react";
+import { notFound, useParams } from "next/navigation";
 
-type PageProps = {
-  params: Promise<{ id: string }>;
-};
+export default function TalkPage() {
+  const params = useParams();
+  const id = params?.id as string | undefined;
+  const { talk, isLoading } = useTalk(id);
 
-export default async function TalkPage({ params }: PageProps) {
-  const { id } = await params;
-  const talk = getTalkById(id);
-
-  if (!talk) {
+  if (isLoading) return <div>Loading...</div>;
+  if (!talk || !talk.id) {
     notFound();
   }
 
-  const date = new Date(talk.dateSubmitted);
+  const date = new Date(talk.date_submitted);
   const formattedDate = date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -55,7 +56,7 @@ export default async function TalkPage({ params }: PageProps) {
               variant="outline"
               className={cn("text-sm", statusColors[talk.status])}
             >
-              {talk.status.charAt(0).toUpperCase() + talk.status.slice(1)}
+              {talk.status?.charAt(0).toUpperCase() + talk.status.slice(1)}
             </Badge>
             <Badge variant="secondary">{talk.topic}</Badge>
             <Badge
@@ -76,10 +77,10 @@ export default async function TalkPage({ params }: PageProps) {
             <span>Submitted on {formattedDate}</span>
           </div>
 
-          {talk.imageUrl && (
+          {talk.image_url && (
             <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
               <Image
-                src={talk.imageUrl}
+                src={talk.image_url}
                 alt={talk.title}
                 fill
                 className="object-cover"
@@ -91,21 +92,6 @@ export default async function TalkPage({ params }: PageProps) {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h2>Description</h2>
             <p className="text-lg">{talk.description}</p>
-
-            <h2>What You will Learn</h2>
-            <p>
-              This lightning talk will cover key concepts and practical insights
-              related to {talk.topic}. Attendees will gain a better
-              understanding of best practices, common pitfalls, and emerging
-              trends.
-            </p>
-
-            <h3>Key Takeaways</h3>
-            <ul>
-              <li>Understanding fundamental concepts of {talk.topic}</li>
-              <li>Practical tips for implementation in real-world scenarios</li>
-              <li>Resources for further exploration and learning</li>
-            </ul>
           </div>
         </div>
 

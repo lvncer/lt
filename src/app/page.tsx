@@ -1,7 +1,6 @@
 import HeroSection from "@/components/ui/heroSection";
 import FeaturedTalks from "@/components/ui/featuredTalks";
 import HowItWorks from "@/components/ui/howItWorks";
-import { SAMPLE_TALKS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Zap } from "lucide-react";
@@ -11,7 +10,7 @@ export default function Home() {
     <>
       <HeroSection />
 
-      <FeaturedTalks talks={SAMPLE_TALKS} />
+      <FeaturedTalks />
 
       <HowItWorks />
 

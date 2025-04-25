@@ -28,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useUserId } from "@/hooks/useUserId";
+import { useUser } from "@clerk/nextjs";
 
 const formSchema = z.object({
   title: z
@@ -62,6 +64,8 @@ const formSchema = z.object({
 export default function TalkForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { neonid } = useUserId();
+  const { user, isLoaded, isSignedIn } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,16 +77,41 @@ export default function TalkForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isLoaded || !isSignedIn || !user) return;
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log(values);
+    console.log("Submitting talk:", values);
+    console.log("User ID:", neonid);
+
+    try {
+      const res = await fetch("/api/talks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          presenter: user.username || user.fullName || "anonymous",
+          email: user.primaryEmailAddress?.emailAddress,
+          ...values,
+          image_url:
+            "https://images.pexels.com/photos/7108/notebook-computer-chill-relax.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+          neonuuid: neonid,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit");
+      }
+
       toast.success("Talk submitted successfully!");
-      setIsSubmitting(false);
       router.push("/talks");
-    }, 1500);
+    } catch (err) {
+      toast.error("Failed to submit talk.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (

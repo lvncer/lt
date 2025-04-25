@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Zap, Menu, X, Home, List, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  useUser,
   SignUpButton,
   SignInButton,
   SignedIn,
@@ -16,6 +17,30 @@ import {
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isLoaded, isSignedIn } = useUser();
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return;
+
+    const syncUser = async () => {
+      try {
+        await fetch("/api/sync-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clerk_user_id: user.id,
+            username: user.username || user.fullName || "anonymous",
+            email: user.primaryEmailAddress?.emailAddress,
+            imageUrl: user.imageUrl,
+          }),
+        });
+      } catch (err) {
+        console.error("ユーザー同期失敗", err);
+      }
+    };
+
+    syncUser();
+  }, [isLoaded, isSignedIn, user]);
 
   useEffect(() => {
     const handleScroll = () => {
