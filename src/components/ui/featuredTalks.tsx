@@ -32,7 +32,7 @@ export default function FeaturedTalks() {
               Featured Talks
             </h2>
             <p className="text-muted-foreground max-w-2xl">
-              Discover popular lightning talks from our community of speakers
+              コミュニティのスピーカーたちによる人気のライトニングトークを発見しよう！
             </p>
           </div>
           <Button variant="ghost" size="sm" asChild className="mt-4 md:mt-0">
@@ -53,7 +53,7 @@ export default function FeaturedTalks() {
           <div className="text-center py-12 bg-background rounded-lg border border-border">
             <h3 className="text-lg font-medium">No featured talks yet</h3>
             <p className="text-muted-foreground mt-2 mb-6">
-              Be the first to submit an amazing lightning talk!
+              今なら素晴らしいライトニングトークを提出できる最初の一人です！
             </p>
             <Button asChild>
               <Link href="/register">Submit a Talk</Link>

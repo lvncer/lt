@@ -233,7 +233,7 @@ export default function TalkList() {
           >
             <h3 className="text-lg font-medium">No talks found</h3>
             <p className="text-muted-foreground mt-2">
-              Try adjusting your search or filter criteria
+              検索やフィルターの条件を変えてみてください。
             </p>
           </motion.div>
         )}

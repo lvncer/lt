@@ -30,9 +30,7 @@ export default function RegisterPage() {
             Submit a Lightning Talk
           </h1>
           <p className="text-muted-foreground">
-            Share your knowledge with the community through a concise and
-            impactful lightning talk. Fill out the form below to submit your
-            talk for consideration.
+            簡潔でインパクトのあるライトニングトークを通じて、コミュニティと知識を共有しましょう。以下のフォームに記入して、トークを提出してください。
           </p>
         </div>
 

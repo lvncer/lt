@@ -22,7 +22,7 @@ export default function Home() {
               Popular Topics
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our community covers a wide range of technical topics
+              私たちのコミュニティは、幅広い技術的なトピックをカバーしています。
             </p>
           </div>
 
@@ -58,9 +58,7 @@ export default function Home() {
                 Ready to Share Your Knowledge?
               </h2>
               <p className="text-lg text-white/80 mb-8">
-                Lightning talks are a fantastic way to share your expertise,
-                practice public speaking, and connect with like-minded
-                professionals.
+                ライトニングトークは、自分の専門知識を共有し、プレゼンテーションスキルを磨き、志を同じくするプロフェッショナルたちとつながる素晴らしい機会です！
               </p>
               <Button
                 size="lg"
@@ -77,21 +75,21 @@ export default function Home() {
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                 <div className="font-medium mb-1">Quick and Impactful</div>
                 <p className="text-sm text-white/80">
-                  Share focused insights in just 5-20 minutes
+                  たった5〜20分で、鋭い知見や体験を共有できる
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                 <div className="font-medium mb-1">Build Your Profile</div>
                 <p className="text-sm text-white/80">
-                  Establish yourself as a thought leader in your field
+                  得意な分野での「思想的リーダー」としての地位を確立できる
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                 <div className="font-medium mb-1">Connect with Others</div>
                 <p className="text-sm text-white/80">
-                  Network with peers and potential collaborators
+                  仲間や将来のコラボレーターとネットワークを築ける
                 </p>
               </div>
             </div>

@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="ja">
         <body className={inter.className}>
           <Navbar />
           <main className="min-h-screen pt-16">{children}</main>

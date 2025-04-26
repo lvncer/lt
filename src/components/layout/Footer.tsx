@@ -12,8 +12,7 @@ export default function Footer() {
               <span className="font-semibold text-lg">LightningTalks</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              A platform for sharing quick, insightful tech presentations with
-              your community.
+              コミュニティとともに、迅速で知識に満ちた技術プレゼンテーションを共有するためのプラットフォームです。
             </p>
           </div>
 

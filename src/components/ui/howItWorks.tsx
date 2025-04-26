@@ -8,27 +8,26 @@ import {
 const steps = [
   {
     icon: <PresentationChart className="h-10 w-10 text-purple-600" />,
-    title: "1. Submit Your Talk",
+    title: "1. Submit",
     description:
-      "Fill out a simple form with your talk details, including title, duration, and topic.",
+      "簡単なフォームに、トークの詳細（タイトル、発表時間、トピックなど）を記入してください。",
   },
   {
     icon: <CheckCircle className="h-10 w-10 text-teal-600" />,
     title: "2. Get Approved",
     description:
-      "Our team reviews your submission. Most talks are approved within 48 hours.",
+      "私たちのチームがあなたの提出内容を確認します。ほとんどのトークは48時間以内に承認されます。",
   },
   {
     icon: <Calendar className="h-10 w-10 text-blue-600" />,
-    title: "3. Schedule Presentation",
-    description:
-      "Once approved, you'll be notified of upcoming events where you can present.",
+    title: "3. Schedule",
+    description: "承認されると、発表できる今後のイベントについて通知されます。",
   },
   {
     icon: <Clock className="h-10 w-10 text-orange-500" />,
-    title: "4. Present Your Talk",
+    title: "4. Present",
     description:
-      "Deliver your lightning talk in the allocated time slot and engage with the audience.",
+      "指定された時間枠でライトニングトークを発表し、観客との交流を楽しんでください。",
   },
 ];
 
@@ -41,8 +40,7 @@ export default function HowItWorks() {
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            From submission to presentation, weve made the process simple and
-            straightforward
+            提出から発表まで、シンプルで分かりやすいプロセスで設計されています。
           </p>
         </div>
 
