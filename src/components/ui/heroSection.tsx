@@ -22,10 +22,10 @@ const item = {
 };
 
 const stats = [
-  { number: "180+", label: "Talks Submitted", color: "text-purple-600" },
-  { number: "45+", label: "Topics Covered", color: "text-blue-600" },
-  { number: "120+", label: "Speakers", color: "text-teal-600" },
-  { number: "12+", label: "Events Per Year", color: "text-orange-500" },
+  { number: "1+", label: "Talks Submitted", color: "text-purple-600" },
+  { number: "100+", label: "Topics Covered", color: "text-blue-600" },
+  { number: "1+", label: "Speakers", color: "text-teal-600" },
+  { number: "0+", label: "Events Per Year", color: "text-orange-500" },
 ];
 
 export default function HeroSection() {
