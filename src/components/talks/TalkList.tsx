@@ -94,7 +94,7 @@ export default function TalkList() {
                 <span className="hidden md:inline">Sort</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="backdrop-blur-md" align="end">
+            <DropdownMenuContent className="bg-white" align="end">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
@@ -139,7 +139,7 @@ export default function TalkList() {
                 <span>Filter Topics</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 backdrop-blur-md">
+            <DropdownMenuContent align="end" className="w-56 bg-white">
               <DropdownMenuLabel>Filter by topic</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {TALK_TOPICS.map((topic) => (
