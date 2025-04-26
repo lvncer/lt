@@ -79,7 +79,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
               className="text-sm text-foreground/80 hover:text-foreground transition-colors"
@@ -90,13 +90,13 @@ export default function Navbar() {
               href="/talks"
               className="text-sm text-foreground/80 hover:text-foreground transition-colors"
             >
-              Browse Talks
+              Talks
             </Link>
             <Link
               href="/register"
               className="text-sm text-foreground/80 hover:text-foreground transition-colors"
             >
-              Submit Talk
+              Submit
             </Link>
             <div className="flex justify-end items-center gap-4 h-16">
               <SignedOut>

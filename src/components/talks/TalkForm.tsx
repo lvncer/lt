@@ -35,29 +35,29 @@ const formSchema = z.object({
   title: z
     .string()
     .min(5, {
-      message: "Title must be at least 5 characters",
+      message: "タイトルは5文字以上で入力してください",
     })
-    .max(100, {
-      message: "Title must not exceed 100 characters",
+    .max(30, {
+      message: "タイトルは30文字以下で入力してください",
     }),
   duration: z.coerce
     .number()
     .min(5, {
-      message: "Duration must be at least 5 minutes",
+      message: "発表時間は5分以上を選択してください",
     })
     .max(20, {
-      message: "Duration must not exceed 20 minutes",
+      message: "発表時間は20分以下を選択してください",
     }),
   topic: z.string().min(1, {
-    message: "Please select a topic",
+    message: "カテゴリーを選択してください",
   }),
   description: z
     .string()
-    .min(20, {
-      message: "Description must be at least 20 characters",
+    .min(10, {
+      message: "内容は10文字以上で入力してください",
     })
-    .max(500, {
-      message: "Description must not exceed 500 characters",
+    .max(100, {
+      message: "内容は100文字以下で入力してください",
     }),
 });
 
@@ -80,9 +80,6 @@ export default function TalkForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!isLoaded || !isSignedIn || !user) return;
     setIsSubmitting(true);
-
-    console.log("Submitting talk:", values);
-    console.log("User ID:", neonid);
 
     try {
       const res = await fetch("/api/talks", {
@@ -123,13 +120,14 @@ export default function TalkForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Talk Title</FormLabel>
+              <div className="mb-1" />
               <FormControl>
                 <Input placeholder="Enter your talk title" {...field} />
               </FormControl>
               <FormDescription>
-                A catchy title that describes your talk
+                魅力的に伝えるキャッチーなタイトルを考えましょう。
               </FormDescription>
-              <FormMessage />
+              <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
         />
@@ -161,7 +159,7 @@ export default function TalkForm() {
                   ))}
                 </RadioGroup>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
         />
@@ -172,6 +170,7 @@ export default function TalkForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Topic Category</FormLabel>
+              <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
@@ -186,7 +185,7 @@ export default function TalkForm() {
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
         />
@@ -197,6 +196,7 @@ export default function TalkForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Talk Description</FormLabel>
+              <div className="mb-1" />
               <FormControl>
                 <Textarea
                   placeholder="Describe what your lightning talk will cover..."
@@ -205,9 +205,9 @@ export default function TalkForm() {
                 />
               </FormControl>
               <FormDescription>
-                Provide a clear overview of what attendees will learn
+                参加者が学べる内容を明確に説明してください。
               </FormDescription>
-              <FormMessage />
+              <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
         />
@@ -215,12 +215,14 @@ export default function TalkForm() {
         <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-4 flex gap-3">
           <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-700 dark:text-blue-300">
-            <p className="font-medium">Submission Guidelines</p>
+            <p className="font-medium">提出する際に確認するべきガイドライン</p>
             <ul className="list-disc pl-5 mt-1 space-y-1">
-              <li>Lightning talks should be concise and focused</li>
-              <li>Prepare visual aids that are easy to read</li>
-              <li>Practice your timing to fit within your selected duration</li>
-              <li>Submissions are reviewed within 48 hours</li>
+              <li>
+                ライトニングトークは簡潔で焦点を絞った内容にしてください。
+              </li>
+              <li>読みやすいビジュアル資料を準備してください。</li>
+              <li>選択した時間内に収まるようにしてください。</li>
+              <li>提出内容は48時間以内にレビューされます。</li>
             </ul>
           </div>
         </div>
@@ -231,7 +233,7 @@ export default function TalkForm() {
             className="w-full md:w-auto bg-blue-600 text-white hover:bg-blue-800"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Lightning Talk"}
+            {isSubmitting ? "提出中です..." : "Submit Lightning Talk"}
           </Button>
         </div>
       </form>

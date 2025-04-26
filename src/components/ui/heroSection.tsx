@@ -90,9 +90,11 @@ export default function HeroSection() {
             variants={item}
             className="text-lg md:text-xl text-muted-foreground max-w-3xl mb-8"
           >
-            Quick, impactful presentations to spread knowledge, spark
-            discussions, and connect with the tech community — all in 20 minutes
-            or less.
+            短時間で知識を共有し、議論を活性化し、
+            <br />
+            技術コミュニティとつながるためのプレゼンテーション
+            <br />
+            すべて20分以内で完結します。
           </motion.p>
 
           <motion.div

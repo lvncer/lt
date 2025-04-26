@@ -8,8 +8,7 @@ export default function TalksPage() {
           Lightning Talks
         </h1>
         <p className="text-muted-foreground max-w-3xl">
-          Browse through all submitted lightning talks. Filter by topic, search
-          for specific content, or sort by various criteria.
+          すべての提出されたライトニングトークを閲覧できます。トピックでフィルタリングしたり、特定の内容を検索したりして、並べ替えすることが可能です。
         </p>
       </div>
 
