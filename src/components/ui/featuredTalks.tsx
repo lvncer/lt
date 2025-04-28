@@ -5,24 +5,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Talk } from "@/types/talk";
-import { useTalks } from "@/hooks/useTalks";
 
-export default function FeaturedTalks() {
-  const { talks } = useTalks();
-  // Filter only approved talks
-  const approvedTalks = talks.filter(
-    (talk: Talk) => talk.status === "approved"
-  );
+interface FeaturedTalksProps {
+  featuredTalks: Talk[];
+}
 
-  // Get 3 most recent approved talks
-  const featuredTalks = approvedTalks
-    .sort(
-      (a: Talk, b: Talk) =>
-        new Date(b.date_submitted).getTime() -
-        new Date(a.date_submitted).getTime()
-    )
-    .slice(0, 3);
-
+export default function FeaturedTalks({ featuredTalks }: FeaturedTalksProps) {
   return (
     <section className="py-16 md:py-24 bg-accent/50">
       <div className="container mx-auto px-4">
@@ -32,7 +20,7 @@ export default function FeaturedTalks() {
               Featured Talks
             </h2>
             <p className="text-muted-foreground max-w-2xl">
-              コミュニティのスピーカーたちによる人気のライトニングトークを発見しよう！
+              コミュニティのスピーカーたちによる人気のライトニングトークを発見しましょう！
             </p>
           </div>
           <Button variant="ghost" size="sm" asChild className="mt-4 md:mt-0">
@@ -48,18 +36,6 @@ export default function FeaturedTalks() {
             <TalkCard key={talk.id} talk={talk} />
           ))}
         </div>
-
-        {featuredTalks.length === 0 && (
-          <div className="text-center py-12 bg-background rounded-lg border border-border">
-            <h3 className="text-lg font-medium">No featured talks yet</h3>
-            <p className="text-muted-foreground mt-2 mb-6">
-              今なら素晴らしいライトニングトークを提出できる最初の一人です！
-            </p>
-            <Button asChild>
-              <Link href="/register">Submit a Talk</Link>
-            </Button>
-          </div>
-        )}
       </div>
     </section>
   );

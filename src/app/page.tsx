@@ -4,13 +4,14 @@ import HowItWorks from "@/components/ui/howItWorks";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Zap } from "lucide-react";
+import { SAMPLE_TALKS } from "@/lib/data";
 
 export default function Home() {
   return (
     <>
       <HeroSection />
 
-      <FeaturedTalks />
+      <FeaturedTalks featuredTalks={SAMPLE_TALKS} />
 
       <HowItWorks />
 
