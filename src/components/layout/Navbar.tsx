@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Zap, Menu, X, Home, List, PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   useUser,
   SignUpButton,
@@ -98,15 +97,19 @@ export default function Navbar() {
             >
               Submit
             </Link>
-            <div className="flex justify-end items-center gap-4 h-16">
-              <SignedOut>
-                <span className="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-md">
-                  <SignUpButton />
-                </span>
-                <span className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md">
-                  <SignInButton />
-                </span>
-              </SignedOut>
+            <SignedOut>
+              <SignInButton>
+                <button className="ml-3 hover:bg-gray-100 p-2 rounded-md">
+                  Sign in
+                </button>
+              </SignInButton>
+              <SignUpButton>
+                <button className="-ml-3 border hover:bg-gray-100 p-2 rounded-md">
+                  Sign up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <div className="ml-1 flex justify-end items-center gap-4 h-16">
               <SignedIn>
                 <UserButton />
               </SignedIn>
@@ -114,19 +117,35 @@ export default function Navbar() {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-foreground p-2"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="md:hidden flex items-center">
+            <div className="flex justify-start items-center gap-4 h-16 mr-3">
+              <SignedOut>
+                <SignInButton>
+                  <button className="-mr-1 border hover:bg-gray-100 p-1 rounded-md">
+                    Sign in
+                  </button>
+                </SignInButton>
+              </SignedOut>
+            </div>
+            <div className="flex justify-start items-center gap-4 h-16 mr-3">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
+            <button
+              className="text-foreground p-2"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-background/98 backdrop-blur-md shadow-lg">
+        <div className="md:hidden bg-gray-100 shadow-lg">
           <nav className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link
               href="/"
@@ -152,10 +171,16 @@ export default function Navbar() {
               <PlusCircle size={18} />
               <span>Submit Talk</span>
             </Link>
-            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-              Sign In
-            </Button>
           </nav>
+          <SignedOut>
+            <div className="container mx-auto mt-2 px-4 pb-6">
+              <SignUpButton>
+                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-md text-center">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
+          </SignedOut>
         </div>
       )}
     </header>
