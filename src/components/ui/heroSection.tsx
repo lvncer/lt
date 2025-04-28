@@ -64,7 +64,7 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      <div className="container mx-auto px-4 py-60 md:py-32">
+      <div className="container mx-auto px-4 py-20 sm:py-32 md:py-38 lg:py-44">
         <motion.div
           className="flex flex-col items-center text-center"
           variants={container}
@@ -81,14 +81,14 @@ export default function HeroSection() {
 
           <motion.h1
             variants={item}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
           >
             Share Your Expertise in Lightning&nbsp;Talks
           </motion.h1>
 
           <motion.p
             variants={item}
-            className="text-lg md:text-xl text-muted-foreground max-w-3xl mb-8"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl sm:max-w-2xl md:max-w-3xl mb-8"
           >
             短時間で知識を共有し、議論を活性化し、
             <br />
