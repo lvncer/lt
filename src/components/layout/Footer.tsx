@@ -4,8 +4,8 @@ import { Zap, Twitter, Github } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="text-gray-400 bg-slate-50 dark:bg-slate-900 border-t">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto px-12 py-18">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-purple-500" />
@@ -21,7 +21,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="#"
+                  href="/resources/talk-guidelines"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Talk Guidelines
@@ -29,7 +29,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/resources/presentation-tips"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Presentation Tips
@@ -37,15 +37,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Example Talks
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
+                  href="/resources/faq"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   FAQ
@@ -59,7 +51,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="#"
+                  href="/company/about"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   About Us
@@ -67,23 +59,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
+                  href="/company/contact"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Contact
@@ -97,7 +73,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
-                  href="#"
+                  href="/legal/terms"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Terms of Service
@@ -105,7 +81,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/legal/privacy"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Privacy Policy
@@ -113,7 +89,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/legal/cookies"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cookie Policy
