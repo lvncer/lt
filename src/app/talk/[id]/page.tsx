@@ -28,7 +28,7 @@ export default function TalkPage() {
   }
 
   const date = new Date(talk.date_submitted);
-  const formattedDate = date.toLocaleDateString("en-US", {
+  const formattedDate = date.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -89,9 +89,9 @@ export default function TalkPage() {
             </div>
           )}
 
-          <div className="prose prose-slate dark:prose-invert max-w-none">
-            <h2>Description</h2>
-            <p className="text-lg">{talk.description}</p>
+          <div className="prose prose-slate dark:prose-invert max-w-none wrap-break-word text-wrap">
+            <h2 className="text-lg">説明</h2>
+            <p className="p-1 mt-1 text-md md:text-lg">{talk.description}</p>
           </div>
         </div>
 

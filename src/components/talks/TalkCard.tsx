@@ -26,7 +26,7 @@ export default function TalkCard({
   };
 
   const date = new Date(talk.date_submitted);
-  const formattedDate = date.toLocaleDateString("en-US", {
+  const formattedDate = date.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "short",
     day: "numeric",
