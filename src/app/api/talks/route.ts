@@ -13,6 +13,8 @@ export async function POST(req: Request) {
       topic,
       description,
       image_url,
+      presentation_date,
+      venue,
       neonuuid,
     } = body;
 
@@ -20,11 +22,29 @@ export async function POST(req: Request) {
 
     await sql`
       INSERT INTO talks (
-        presenter, email, title, duration, topic,
-        description, image_url, date_submitted, user_id
+        presenter,
+        email,
+        title,
+        duration,
+        topic,
+        description,
+        date_submitted,
+        image_url,
+        presentation_date,
+        venue,
+        user_id
       ) VALUES (
-        ${presenter}, ${email}, ${title},  ${duration}, ${topic},
-        ${description}, ${image_url}, ${date_submitted}, ${neonuuid}
+        ${presenter},
+        ${email},
+        ${title},
+        ${duration},
+        ${topic},
+        ${description},
+        ${date_submitted},
+        ${image_url},
+        ${presentation_date},
+        ${venue},
+        ${neonuuid}
       );
     `;
 

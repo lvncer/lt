@@ -14,6 +14,8 @@ export const SAMPLE_TALKS: Talk[] = [
     date_submitted: "2025-01-15T12:00:00Z",
     image_url:
       "https://images.pexels.com/photos/4974915/pexels-photo-4974915.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    presentation_date: "2025-04-28",
+    venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 1,
   },
   {
@@ -29,13 +31,15 @@ export const SAMPLE_TALKS: Talk[] = [
     date_submitted: "2025-01-18T14:30:00Z",
     image_url:
       "https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    presentation_date: "2025-04-28",
+    venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 2,
   },
   {
     id: 3,
-    title: "Next.Jsから始めよ",
+    title: "5分で最高のWebアプリをデプロイせよ",
     presenter: "lvncer",
-    email: "negimasa58@gmail.com",
+    email: "siw23010025@class.siw.ac.jp",
     duration: 5,
     topic: "Next.js",
     description:
@@ -44,9 +48,21 @@ export const SAMPLE_TALKS: Talk[] = [
     date_submitted: "2025-04-20T09:15:00Z",
     image_url:
       "https://images.pexels.com/photos/7108/notebook-computer-chill-relax.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    presentation_date: "2025-04-28",
+    venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 3,
   },
 ];
+
+export const TALK_IMAGE_URLS = [
+  "https://images.pexels.com/photos/4974915/pexels-photo-4974915.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "https://images.pexels.com/photos/7108/notebook-computer-chill-relax.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "https://images.pexels.com/photos/7115104/pexels-photo-7115104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+];
+
+export const TALK_VENUES = ["さいたまIT・WEB専門学校 PBLルーム", "その他"];
 
 // Topics for the dropdown
 export const TALK_TOPICS = [

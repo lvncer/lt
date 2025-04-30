@@ -25,8 +25,8 @@ export default function TalkCard({
     rejected: "bg-red-100 text-red-800 border-red-200",
   };
 
-  const date = new Date(talk.date_submitted);
-  const formattedDate = date.toLocaleDateString("ja-JP", {
+  const presention_date = new Date(talk.presentation_date);
+  const formattedPresentionDate = presention_date.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -91,7 +91,7 @@ export default function TalkCard({
               <span>{talk.duration} min</span>
               <div className="mx-2 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
               <Calendar className="w-4 h-4 mr-1" />
-              <span>{formattedDate}</span>
+              <span>{formattedPresentionDate}</span>
             </div>
 
             <div className="flex items-center justify-between">
