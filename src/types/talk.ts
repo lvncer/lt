@@ -9,5 +9,7 @@ export type Talk = {
   status: "pending" | "approved" | "rejected";
   date_submitted: string;
   image_url: string;
+  presentation_date: string;
+  venue: string;
   user_id: number;
 };

@@ -2,14 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Clock,
-  Calendar,
-  Mail,
-  ExternalLink,
-  Share2,
-} from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Mail, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -27,12 +20,22 @@ export default function TalkPage() {
     notFound();
   }
 
-  const date = new Date(talk.date_submitted);
-  const formattedDate = date.toLocaleDateString("ja-JP", {
+  const submitted_date = new Date(talk.date_submitted);
+  const formattedSubmittedDate = submitted_date.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
+
+  const presentaton_date = new Date(talk.presentation_date);
+  const formattedPresentationDate = presentaton_date.toLocaleDateString(
+    "ja-JP",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
 
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -74,7 +77,7 @@ export default function TalkPage() {
 
           <div className="flex items-center text-sm text-muted-foreground mb-8">
             <Calendar className="h-4 w-4 mr-1" />
-            <span>Submitted on {formattedDate}</span>
+            <span>提出日: {formattedSubmittedDate}</span>
           </div>
 
           {talk.image_url && (
@@ -97,66 +100,57 @@ export default function TalkPage() {
 
         <div className="lg:col-span-1">
           <div className="sticky top-24 rounded-lg border bg-card p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Presenter Information
-            </h2>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-lg font-medium">
-                {talk.presenter.charAt(0)}
-              </div>
-              <div>
-                <div className="font-medium">{talk.presenter}</div>
-                <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <Mail className="h-3.5 w-3.5" />
-                  {talk.email}
+            <div className="mb-3">
+              <h2 className="text-xl font-medium mb-2">
+                Upcoming Presentations
+              </h2>
+              <div className="rounded-md bg-accent p-3">
+                <div className="text-sm text-muted-foreground mt-1">
+                  {formattedPresentationDate} - PM 4:30
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  {talk.venue}
                 </div>
               </div>
             </div>
 
-            {talk.status === "approved" && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium mb-2">
-                  Upcoming Presentations
-                </h3>
-                <div className="rounded-md bg-accent p-3">
-                  <div className="font-medium">Tech Conference 2025</div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    June 15, 2025 - 2:30 PM
+            <div className="mb-1">
+              <h2 className="text-xl font-medium mb-4">
+                Presenter Information
+              </h2>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-lg font-medium">
+                  {talk.presenter.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-medium">{talk.presenter}</div>
+                  <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                    <Mail className="h-3.5 w-3.5" />
+                    {talk.email}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Room 42B
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full mt-3 flex items-center gap-2"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    View Event Details
-                  </Button>
                 </div>
               </div>
-            )}
 
-            <div className="flex flex-col gap-3">
-              {talk.status === "approved" && (
-                <Button className="w-full">Register to Attend</Button>
-              )}
+              <div className="flex flex-col gap-3">
+                {talk.status === "approved" && (
+                  <Button className="w-full">Register to Attend</Button>
+                )}
 
-              <Button
-                variant="outline"
-                className="w-full flex items-center gap-2"
-              >
-                <Share2 className="h-4 w-4" />
-                Share This Talk
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share This Talk
+                </Button>
 
-              {talk.status === "approved" && (
-                <div className="text-xs text-center text-muted-foreground mt-2">
-                  Limited seats available. Register early to secure your spot.
-                </div>
-              )}
+                {talk.status === "approved" && (
+                  <div className="text-xs text-center text-muted-foreground mt-2">
+                    Limited seats available. Register early to secure your spot.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

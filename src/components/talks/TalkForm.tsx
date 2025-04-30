@@ -6,7 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Info } from "lucide-react";
-import { TALK_TOPICS, TALK_DURATIONS } from "@/lib/data";
+import {
+  TALK_TOPICS,
+  TALK_DURATIONS,
+  TALK_IMAGE_URLS,
+  TALK_VENUES,
+} from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -51,6 +56,15 @@ const formSchema = z.object({
   topic: z.string().min(1, {
     message: "カテゴリーを選択してください",
   }),
+  image_url: z.string().min(1, {
+    message: "画像を選択してください",
+  }),
+  presentation_date: z.string().min(1, {
+    message: "発表日を選択してください",
+  }),
+  venue: z.string().min(1, {
+    message: "発表場所を選択してください",
+  }),
   description: z
     .string()
     .min(10, {
@@ -73,6 +87,9 @@ export default function TalkForm() {
       title: "",
       duration: 10,
       topic: "",
+      image_url: "",
+      presentation_date: new Date().toISOString(),
+      venue: "",
       description: "",
     },
   });
@@ -91,8 +108,6 @@ export default function TalkForm() {
           presenter: user.username || user.fullName || "anonymous",
           email: user.primaryEmailAddress?.emailAddress,
           ...values,
-          image_url:
-            "https://images.pexels.com/photos/7108/notebook-computer-chill-relax.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
           neonuuid: neonid,
         }),
       });
@@ -119,7 +134,7 @@ export default function TalkForm() {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Talk Title</FormLabel>
+              <FormLabel>トークタイトル</FormLabel>
               <div className="mb-1" />
               <FormControl>
                 <Input placeholder="Enter your talk title" {...field} />
@@ -137,7 +152,7 @@ export default function TalkForm() {
           name="duration"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Talk Duration (minutes)</FormLabel>
+              <FormLabel>トーク時間 (minutes)</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={(value) => field.onChange(parseInt(value))}
@@ -169,12 +184,12 @@ export default function TalkForm() {
           name="topic"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Topic Category</FormLabel>
+              <FormLabel>トピックカテゴリー</FormLabel>
               <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a topic" />
+                    <SelectValue placeholder="カテゴリーを選択してください" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-white">
@@ -192,10 +207,84 @@ export default function TalkForm() {
 
         <FormField
           control={form.control}
+          name="image_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>トークのイメージ画像</FormLabel>
+              <div className="mb-1" />
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="画像を選択してください" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="bg-white">
+                  {TALK_IMAGE_URLS.map((image_url) => (
+                    <SelectItem key={image_url} value={image_url}>
+                      {image_url}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="presentation_date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>発表日</FormLabel>
+              <div className="mb-1" />
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              </FormControl>
+              <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="venue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>発表場所</FormLabel>
+              <div className="mb-1" />
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="場所を選択してください" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="bg-white">
+                  {TALK_VENUES.map((venue) => (
+                    <SelectItem key={venue} value={venue}>
+                      {venue}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Talk Description</FormLabel>
+              <FormLabel>トーク内容</FormLabel>
               <div className="mb-1" />
               <FormControl>
                 <Textarea
