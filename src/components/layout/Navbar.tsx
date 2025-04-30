@@ -91,12 +91,6 @@ export default function Navbar() {
             >
               Talks
             </Link>
-            <Link
-              href="/register"
-              className="text-sm text-foreground/80 hover:text-foreground transition-colors"
-            >
-              Submit
-            </Link>
             <SignedOut>
               <SignInButton>
                 <button className="ml-3 hover:bg-gray-100 p-2 rounded-md">
@@ -109,8 +103,20 @@ export default function Navbar() {
                 </button>
               </SignUpButton>
             </SignedOut>
-            <div className="ml-1 flex justify-end items-center gap-4 h-16">
+            <div className="ml-1 flex justify-end items-center gap-8 h-16">
               <SignedIn>
+                <Link
+                  href="/register"
+                  className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+                >
+                  Submit
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
                 <UserButton />
               </SignedIn>
             </div>
