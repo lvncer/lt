@@ -3,7 +3,7 @@ import { Zap, Twitter, Github } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="text-gray-400 bg-slate-50 dark:bg-slate-900 border-t">
+    <footer className="text-gray-200 bg-gray-800 dark:bg-slate-900 border-t">
       <div className="container mx-auto px-12 py-18">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
           <div className="space-y-4">
