@@ -11,13 +11,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SAMPLE_TALKS } from "@/lib/data";
 import EditableTalkCard from "@/components/talks/EditableTalkCard";
+import { useUserTalks } from "@/hooks/useTalks";
+import { notFound } from "next/navigation";
+import { Talk } from "@/types/talk";
+import { useUser } from "@clerk/nextjs";
+import { useUserId } from "@/hooks/useUserId";
 
 export default function DashboardPage() {
-  const userTalks = SAMPLE_TALKS.filter(
-    (talk) => talk.email === "alex.j@example.com"
-  );
+  const { user } = useUser();
+  const { neonid: userId, isLoading: isUserIdLoading } = useUserId();
+  const { talks: userTalks, isLoading, isError } = useUserTalks(userId);
+
+  const typedUserTalks: Talk[] = Array.isArray(userTalks) ? userTalks : [];
+
+  if (isUserIdLoading) {
+    return <div className="text-center py-12">Loading user ID...</div>;
+  }
+
+  if (!userId) {
+    return <div className="text-center py-12">User ID not found</div>;
+  }
+
+  if (isLoading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  if (isError) {
+    return <div className="text-center py-12">Failed to load talks</div>;
+  }
+
+  if (!user) return;
+
+  if (!userTalks) {
+    notFound();
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -35,10 +63,10 @@ export default function DashboardPage() {
               My Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Manage your lightning talks and track their status
+              ライトニングトークを管理し、ステータスを確認できます。
             </p>
           </div>
-          <Button asChild>
+          <Button variant={"outline"} className="hover:bg-gray-100">
             <Link href="/register">Submit New Talk</Link>
           </Button>
         </div>
@@ -49,7 +77,7 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-medium">Total Talks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{userTalks.length}</div>
+              <div className="text-2xl font-bold">{typedUserTalks.length}</div>
               <CardDescription>提出済み</CardDescription>
             </CardContent>
           </Card>
@@ -60,7 +88,11 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {userTalks.filter((talk) => talk.status === "approved").length}
+                {
+                  typedUserTalks.filter(
+                    (talk: Talk) => talk.status === "approved"
+                  ).length
+                }
               </div>
               <CardDescription>準備済み</CardDescription>
             </CardContent>
@@ -72,7 +104,11 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {userTalks.filter((talk) => talk.status === "pending").length}
+                {
+                  typedUserTalks.filter(
+                    (talk: Talk) => talk.status === "pending"
+                  ).length
+                }
               </div>
               <CardDescription>レビュー待ち</CardDescription>
             </CardContent>
@@ -89,11 +125,11 @@ export default function DashboardPage() {
 
           <TabsContent value="all">
             <div className="space-y-6">
-              {userTalks.map((talk) => (
+              {typedUserTalks.map((talk: Talk) => (
                 <EditableTalkCard key={talk.id} talk={talk} />
               ))}
 
-              {userTalks.length === 0 && (
+              {typedUserTalks.length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No talks found</p>
                 </div>
@@ -103,14 +139,14 @@ export default function DashboardPage() {
 
           <TabsContent value="approved">
             <div className="space-y-6">
-              {userTalks
-                .filter((talk) => talk.status === "approved")
-                .map((talk) => (
+              {typedUserTalks
+                .filter((talk: Talk) => talk.status === "approved")
+                .map((talk: Talk) => (
                   <EditableTalkCard key={talk.id} talk={talk} />
                 ))}
 
-              {userTalks.filter((talk) => talk.status === "approved").length ===
-                0 && (
+              {typedUserTalks.filter((talk: Talk) => talk.status === "approved")
+                .length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No talks found</p>
                 </div>
@@ -120,14 +156,14 @@ export default function DashboardPage() {
 
           <TabsContent value="pending">
             <div className="space-y-6">
-              {userTalks
-                .filter((talk) => talk.status === "pending")
-                .map((talk) => (
+              {typedUserTalks
+                .filter((talk: Talk) => talk.status === "pending")
+                .map((talk: Talk) => (
                   <EditableTalkCard key={talk.id} talk={talk} />
                 ))}
 
-              {userTalks.filter((talk) => talk.status === "pending").length ===
-                0 && (
+              {typedUserTalks.filter((talk: Talk) => talk.status === "pending")
+                .length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No talks found</p>
                 </div>
@@ -137,14 +173,14 @@ export default function DashboardPage() {
 
           <TabsContent value="rejected">
             <div className="space-y-6">
-              {userTalks
-                .filter((talk) => talk.status === "rejected")
-                .map((talk) => (
+              {typedUserTalks
+                .filter((talk: Talk) => talk.status === "rejected")
+                .map((talk: Talk) => (
                   <EditableTalkCard key={talk.id} talk={talk} />
                 ))}
 
-              {userTalks.filter((talk) => talk.status === "rejected").length ===
-                0 && (
+              {typedUserTalks.filter((talk: Talk) => talk.status === "rejected")
+                .length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">No talks found</p>
                 </div>
