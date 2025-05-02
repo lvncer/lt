@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Talk } from "@/types/talk";
-import { SAMPLE_TALKS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,43 +30,55 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import Link from "next/link";
+import { useTalks } from "@/hooks/useTalks";
+import { useUpdateTalkStatus } from "@/hooks/useUpdateTalkStatus";
 
 export default function AdminPage() {
-  const [talks, setTalks] = useState<Talk[]>(SAMPLE_TALKS);
+  const { talks: fetchedTalks } = useTalks();
+  const [talks, setTalks] = useState<Talk[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { updateTalkStatus } = useUpdateTalkStatus();
+
+  const handleStatusUpdate = async (
+    id: number,
+    status: "approved" | "rejected" | "pending"
+  ) => {
+    const updatedTalk = await updateTalkStatus(id, status);
+    if (updatedTalk) {
+      setTalks((prevTalks) =>
+        prevTalks.map((talk) =>
+          talk.id === updatedTalk.id ? updatedTalk : talk
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (fetchedTalks) {
+      setTalks(fetchedTalks);
+    }
+  }, [fetchedTalks]);
 
   // Filter talks based on search query
   const filteredTalks = talks.filter(
-    (talk) =>
+    (talk: Talk) =>
       talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       talk.presenter.toLowerCase().includes(searchQuery.toLowerCase()) ||
       talk.topic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Count by status
-  const pendingCount = talks.filter((talk) => talk.status === "pending").length;
+  const pendingCount = talks.filter(
+    (talk: Talk) => talk.status === "pending"
+  ).length;
   const approvedCount = talks.filter(
-    (talk) => talk.status === "approved"
+    (talk: Talk) => talk.status === "approved"
   ).length;
   const rejectedCount = talks.filter(
-    (talk) => talk.status === "rejected"
+    (talk: Talk) => talk.status === "rejected"
   ).length;
-
-  // Change talk status
-  const updateTalkStatus = (
-    id: number,
-    status: "approved" | "rejected" | "pending"
-  ) => {
-    setTalks(
-      talks.map((talk) => (talk.id === id ? { ...talk, status } : talk))
-    );
-
-    toast.success(
-      `Talk ${status === "approved" ? "approved" : "rejected"} successfully`
-    );
-  };
 
   const renderStatusBadge = (status: string) => {
     if (status === "approved") {
@@ -221,7 +232,7 @@ export default function AdminPage() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button size="sm" variant="ghost" asChild>
-                            <Link href={`/talks/${talk.id}`} target="_blank">
+                            <Link href={`/talk/${talk.id}`} target="_blank">
                               <ExternalLink className="h-4 w-4" />
                             </Link>
                           </Button>
@@ -232,7 +243,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "approved")
+                                handleStatusUpdate(talk.id, "approved")
                               }
                             >
                               <CheckCircle2 className="h-4 w-4" />
@@ -245,7 +256,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "rejected")
+                                handleStatusUpdate(talk.id, "rejected")
                               }
                             >
                               <XCircle className="h-4 w-4" />
@@ -309,7 +320,7 @@ export default function AdminPage() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talks/${talk.id}`} target="_blank">
+                              <Link href={`/talk/${talk.id}`} target="_blank">
                                 <ExternalLink className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -318,7 +329,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "approved")
+                                handleStatusUpdate(talk.id, "approved")
                               }
                             >
                               <CheckCircle2 className="h-4 w-4" />
@@ -328,7 +339,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "rejected")
+                                handleStatusUpdate(talk.id, "rejected")
                               }
                             >
                               <XCircle className="h-4 w-4" />
@@ -392,7 +403,7 @@ export default function AdminPage() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talks/${talk.id}`} target="_blank">
+                              <Link href={`/talk/${talk.id}`} target="_blank">
                                 <ExternalLink className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -401,7 +412,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "rejected")
+                                handleStatusUpdate(talk.id, "rejected")
                               }
                             >
                               <XCircle className="h-4 w-4" />
@@ -465,7 +476,7 @@ export default function AdminPage() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talks/${talk.id}`} target="_blank">
+                              <Link href={`/talk/${talk.id}`} target="_blank">
                                 <ExternalLink className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -474,7 +485,7 @@ export default function AdminPage() {
                               variant="outline"
                               className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
                               onClick={() =>
-                                updateTalkStatus(talk.id, "approved")
+                                handleStatusUpdate(talk.id, "approved")
                               }
                             >
                               <CheckCircle2 className="h-4 w-4" />
