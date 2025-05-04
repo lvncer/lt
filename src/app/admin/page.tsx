@@ -33,13 +33,27 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useTalks } from "@/hooks/useTalks";
 import { useUpdateTalkStatus } from "@/hooks/useUpdateTalkStatus";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   const { talks: fetchedTalks } = useTalks();
   const [talks, setTalks] = useState<Talk[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { isLoaded, user } = useUser();
+  const router = useRouter();
   const { updateTalkStatus } = useUpdateTalkStatus();
+
+  // Redirect to home if user is not admin
+  useEffect(() => {
+    if (isLoaded) {
+      const role = user?.publicMetadata?.role;
+      if (role !== "admin") {
+        alert("You are not authorized to access this page.");
+        router.replace("/");
+      }
+    }
+  }, [isLoaded, user, router]);
 
   const handleStatusUpdate = async (
     id: number,
