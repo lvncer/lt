@@ -16,6 +16,7 @@ export async function POST(req: Request) {
       presentation_date,
       venue,
       neonuuid,
+      fullname,
     } = body;
 
     const date_submitted = new Date().toISOString();
@@ -32,7 +33,8 @@ export async function POST(req: Request) {
         image_url,
         presentation_date,
         venue,
-        user_id
+        user_id,
+        fullname
       ) VALUES (
         ${presenter},
         ${email},
@@ -44,7 +46,8 @@ export async function POST(req: Request) {
         ${image_url},
         ${presentation_date},
         ${venue},
-        ${neonuuid}
+        ${neonuuid},
+        ${fullname}
       );
     `;
 

@@ -35,6 +35,7 @@ import {
 import { toast } from "sonner";
 import { useUserId } from "@/hooks/useUserId";
 import { useUser } from "@clerk/nextjs";
+import { useGetFullname } from "@/hooks/useGetFullname";
 
 const formSchema = z.object({
   title: z
@@ -80,6 +81,9 @@ export default function TalkForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { neonid } = useUserId();
   const { user, isLoaded, isSignedIn } = useUser();
+  const { fullname, isLoading: isLoadingFullname } = useGetFullname(
+    user?.id || ""
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -94,8 +98,19 @@ export default function TalkForm() {
     },
   });
 
+  if (isLoadingFullname) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Button variant="ghost" disabled>
+          <Info className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
+        </Button>
+      </div>
+    );
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!isLoaded || !isSignedIn || !user) return;
+    if (!isLoaded || !isSignedIn || !user || !fullname) return;
     setIsSubmitting(true);
 
     try {
@@ -107,6 +122,7 @@ export default function TalkForm() {
         body: JSON.stringify({
           presenter: user.username || user.fullName || "anonymous",
           email: user.primaryEmailAddress?.emailAddress,
+          fullname: fullname,
           ...values,
           neonuuid: neonid,
         }),

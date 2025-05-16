@@ -2,20 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar, Mail, Share2 } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Mail, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTalk } from "@/hooks/useTalk";
 import * as React from "react";
 import { notFound, useParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function TalkPage() {
   const params = useParams();
   const id = params?.id as string | undefined;
   const { talk, isLoading } = useTalk(id);
+  const { user } = useUser();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <Info className="h-10 w-10 animate-spin text-blue-500" />
+          <p className="mt-4 text-lg">データを読み込んでいます...</p>
+        </div>
+      </div>
+    );
+
   if (!talk || !talk.id) {
     notFound();
   }
@@ -43,12 +54,24 @@ export default function TalkPage() {
     rejected: "bg-red-100 text-red-800 border-red-200",
   };
 
+  // ユーザーのメールアドレスとトークのメールアドレスが条件を満たすかチェック
+  const isSIWUser =
+    user?.primaryEmailAddress?.emailAddress &&
+    talk.email &&
+    user.primaryEmailAddress.emailAddress.startsWith("siw") &&
+    user.primaryEmailAddress.emailAddress.endsWith("@class.siw.ac.jp") &&
+    talk.email.startsWith("siw") &&
+    talk.email.endsWith("@class.siw.ac.jp");
+
+  // 表示する名前を決定
+  const displayName = isSIWUser ? talk.fullname : talk.presenter;
+
   return (
     <div className="container mx-auto px-4 py-12">
       <Button variant="ghost" size="sm" asChild className="mb-8">
         <Link href="/talks" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
-          Back to all talks
+          トークの一覧に戻る
         </Link>
       </Button>
 
@@ -101,38 +124,33 @@ export default function TalkPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-24 rounded-lg border bg-card p-6">
             <div className="mb-3">
-              <h2 className="text-xl font-medium mb-2">
-                Upcoming Presentations
-              </h2>
-              <div className="rounded-md bg-accent p-3">
-                <div className="text-sm text-muted-foreground mt-1">
+              <h2 className="text-xl font-medium p-1">開催予定のトーク日程</h2>
+              <div className="rounded-md bg-accent p-4">
+                <div className="text-sm text-muted-foreground">
                   {formattedPresentationDate} - PM 4:30
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className="mb-1" />
+                <div className="text-sm text-muted-foreground">
                   {talk.venue}
                 </div>
               </div>
             </div>
 
-            <div className="mb-1">
-              <h2 className="text-xl font-medium mb-4">
-                Presenter Information
-              </h2>
+            <div>
+              <h2 className="text-xl font-medium p-1">プレゼンターの情報</h2>
 
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-lg font-medium">
-                  {talk.presenter.charAt(0)}
-                </div>
+              <div className="flex items-center gap-4 p-4">
                 <div>
-                  <div className="font-medium">{talk.presenter}</div>
+                  <div className="font-medium">{displayName}</div>
                   <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                    <Mail className="h-3.5 w-3.5" />
+                    <Mail className="h-3.5 w-3.5 mr-1" />
+                    <div className="mb-2" />
                     {talk.email}
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3">
+              {/* <div className="flex flex-col gap-3 mt-6">
                 {talk.status === "approved" && (
                   <Button className="w-full">Register to Attend</Button>
                 )}
@@ -150,7 +168,7 @@ export default function TalkPage() {
                     Limited seats available. Register early to secure your spot.
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

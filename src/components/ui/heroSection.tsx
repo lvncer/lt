@@ -25,7 +25,7 @@ const stats = [
   { number: "1+", label: "Talks Submitted", color: "text-purple-600" },
   { number: "100+", label: "Topics Covered", color: "text-blue-600" },
   { number: "1+", label: "Speakers", color: "text-teal-600" },
-  { number: "0+", label: "Events Per Year", color: "text-orange-500" },
+  // { number: "0+", label: "Events Per Year", color: "text-orange-500" },
 ];
 
 export default function HeroSection() {
@@ -119,7 +119,7 @@ export default function HeroSection() {
             variants={container}
             initial="hidden"
             animate="show"
-            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+            className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-8 text-center"
           >
             {stats.map((stat, index) => (
               <motion.div

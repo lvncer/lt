@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Zap, Menu, X, Home, List, PlusCircle } from "lucide-react";
+import {
+  Zap,
+  Menu,
+  X,
+  Home,
+  List,
+  PlusCircle,
+  UserRound,
+  Bookmark,
+} from "lucide-react";
 import {
   useUser,
   SignUpButton,
@@ -117,6 +126,7 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
+                <div className="mr-1" />
                 <UserButton />
               </SignedIn>
             </div>
@@ -176,6 +186,22 @@ export default function Navbar() {
             >
               <PlusCircle size={18} />
               <span>Submit Talk</span>
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
+            >
+              <Bookmark size={18} />
+              <span>Dashboard</span>
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
+            >
+              <UserRound size={18} />
+              <span>Profile</span>
             </Link>
           </nav>
           <SignedOut>
