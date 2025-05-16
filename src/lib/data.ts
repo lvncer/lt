@@ -17,6 +17,7 @@ export const SAMPLE_TALKS: Talk[] = [
     presentation_date: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 1,
+    fullname: "",
   },
   {
     id: 2,
@@ -34,6 +35,7 @@ export const SAMPLE_TALKS: Talk[] = [
     presentation_date: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 2,
+    fullname: "",
   },
   {
     id: 3,
@@ -51,6 +53,7 @@ export const SAMPLE_TALKS: Talk[] = [
     presentation_date: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 3,
+    fullname: "",
   },
 ];
 

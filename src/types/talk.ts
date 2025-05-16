@@ -12,4 +12,5 @@ export type Talk = {
   presentation_date: string;
   venue: string;
   user_id: number;
+  fullname: string;
 };

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Talk } from "@/types/talk";
+import { useUser } from "@clerk/nextjs";
 
 interface TalkCardProps {
   talk: Talk;
@@ -19,6 +20,8 @@ export default function TalkCard({
   variant = "default",
   index = 0,
 }: TalkCardProps) {
+  const { user } = useUser();
+
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
     approved: "bg-green-100 text-green-800 border-green-200",
@@ -31,6 +34,18 @@ export default function TalkCard({
     month: "short",
     day: "numeric",
   });
+
+  // ユーザーのメールアドレスとトークのメールアドレスが条件を満たすかチェック
+  const isSIWUser =
+    user?.primaryEmailAddress?.emailAddress &&
+    talk.email &&
+    user.primaryEmailAddress.emailAddress.startsWith("siw") &&
+    user.primaryEmailAddress.emailAddress.endsWith("@class.siw.ac.jp") &&
+    talk.email.startsWith("siw") &&
+    talk.email.endsWith("@class.siw.ac.jp");
+
+  // 表示する名前を決定
+  const displayName = isSIWUser ? talk.fullname : talk.presenter;
 
   return (
     <motion.div
@@ -96,7 +111,7 @@ export default function TalkCard({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="text-sm font-medium">{talk.presenter}</div>
+                <div className="text-sm font-medium">{displayName}</div>
               </div>
               <motion.div
                 whileHover={{ x: 5 }}

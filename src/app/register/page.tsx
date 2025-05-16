@@ -1,25 +1,73 @@
 "use client";
 
 import TalkForm from "@/components/talks/TalkForm";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { useGetFullname } from "@/hooks/useGetFullname";
+
+// SIWメールアドレスのチェック関数
+const isSIWEmail = (email: string) => {
+  return email.startsWith("siw") && email.endsWith("@class.siw.ac.jp");
+};
 
 export default function RegisterPage() {
+  const { user } = useUser();
   const { isSignedIn } = useAuth();
   const router = useRouter();
+  const { fullname, isLoading: isLoadingFullname } = useGetFullname(
+    user?.id || ""
+  );
 
-  // サインインしてなかったらログインページへリダイレクト
   useEffect(() => {
     if (isSignedIn === false) {
-      alert("Please sign in to submit a talk.");
       router.push("/");
+      return;
     }
-  }, [isSignedIn, router]);
 
-  // リダイレクト中には何も表示しない
+    // ユーザーがSIWメールアドレスを持っているかチェック
+    const hasSIWEmail = user?.emailAddresses?.some((email) =>
+      isSIWEmail(email.emailAddress)
+    );
+
+    if (hasSIWEmail && user && !isLoadingFullname) {
+      // SIWユーザーで、fullnameが未設定の場合は名前認証ページへ
+      if (!fullname) {
+        router.push("/verify/name");
+        return;
+      }
+    }
+  }, [isSignedIn, user, router, fullname, isLoadingFullname]);
+
+  // ローディング状態の表示（認証情報またはフルネーム取得中）
+  if (isSignedIn === undefined || !user || isLoadingFullname) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Button variant="ghost" disabled>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
+        </Button>
+      </div>
+    );
+  }
+
+  // 未認証状態の表示
   if (isSignedIn === false) {
-    return null;
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-3xl font-bold tracking-tight mb-4">
+            認証が必要です
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            トークを投稿するにはサインインが必要です。
+          </p>
+          <Button onClick={() => router.push("/")}>ホームページへ戻る</Button>
+        </div>
+      </div>
+    );
   }
 
   return (
