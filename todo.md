@@ -9,26 +9,26 @@
 
 ### サブタスク
 
-- [ ] Prisma スキーマに新しいフィールドを追加
+- [ ] Neon データベースに新しいカラムを追加する SQL を作成
 
-  - hasPresentation (プレゼン資料共有有無)
-  - presentationUrl (資料 URL、hasPresentation=true の場合のみ)
-  - allowArchive (アーカイブ公開有無)
-  - presentationDuration (発表時間、分単位)
+  - has_presentation (プレゼン資料共有有無、boolean 型)
+  - presentation_url (資料 URL、text 型、has_presentation=true の場合のみ)
+  - allow_archive (アーカイブ公開有無、boolean 型)
+  - presentation_start_time (発表開始時刻、time 型)
 
-- [ ] マイグレーションを実行してデータベースを更新
+- [ ] SQL を実行してデータベースを更新
 
 - [ ] 投稿フォームコンポーネントに新しい入力項目を追加
 
   - チェックボックス (資料共有有無)
   - URL 入力フィールド (条件付き表示)
   - チェックボックス (アーカイブ公開有無)
-  - セレクトボックス (発表時間)
+  - 時間選択フィールド (発表開始時刻)
 
 - [ ] フォームバリデーションを更新
 
   - URL 形式の検証 (資料共有ありの場合)
-  - 発表時間の範囲検証 (5 分〜60 分)
+  - 時間形式の検証 (発表開始時刻)
 
 - [ ] 投稿作成/更新 API の処理を更新
 
