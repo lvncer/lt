@@ -28,6 +28,11 @@ export async function updateTalk(updatedTalk: {
   image_url: string;
   presentation_date: string;
   venue: string;
+  has_presentation?: boolean;
+  presentation_url?: string;
+  allow_archive?: boolean;
+  archive_url?: string;
+  presentation_start_time?: string;
 }): Promise<Response> {
   const response = await fetch(`/api/talks`, {
     method: "PUT",

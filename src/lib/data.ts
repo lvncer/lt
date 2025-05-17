@@ -53,7 +53,7 @@ export const SAMPLE_TALKS: Talk[] = [
     presentation_date: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
     user_id: 3,
-    fullname: "",
+    fullname: "高橋希尋",
   },
 ];
 
@@ -65,7 +65,11 @@ export const TALK_IMAGE_URLS = [
   "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
 ];
 
-export const TALK_VENUES = ["さいたまIT・WEB専門学校 PBLルーム", "その他"];
+export const TALK_VENUES = [
+  "さいたまIT・WEB専門学校 PBLルーム",
+  "さいたまIT・WEB専門学校 2階PC演習室",
+  "その他",
+];
 
 // Topics for the dropdown
 export const TALK_TOPICS = [

@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       has_presentation,
       presentation_url,
       allow_archive,
+      archive_url,
       presentation_start_time,
     } = body;
 
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
         has_presentation,
         presentation_url,
         allow_archive,
+        archive_url,
         presentation_start_time
       ) VALUES (
         ${presenter},
@@ -59,6 +61,7 @@ export async function POST(req: Request) {
         ${has_presentation},
         ${presentation_url},
         ${allow_archive},
+        ${archive_url},
         ${presentation_start_time}
       );
     `;
@@ -108,6 +111,7 @@ export async function PUT(req: Request) {
       has_presentation,
       presentation_url,
       allow_archive,
+      archive_url,
       presentation_start_time,
     } = body;
 
@@ -124,6 +128,7 @@ export async function PUT(req: Request) {
         has_presentation = ${has_presentation},
         presentation_url = ${presentation_url},
         allow_archive = ${allow_archive},
+        archive_url = ${archive_url},
         presentation_start_time = ${presentation_start_time}
       WHERE id = ${id};
     `;

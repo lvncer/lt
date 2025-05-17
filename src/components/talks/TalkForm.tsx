@@ -77,6 +77,7 @@ const formSchema = z.object({
   has_presentation: z.boolean(),
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
+  archive_url: z.string().optional(),
   presentation_start_time: z.string().optional(),
 });
 
@@ -102,6 +103,7 @@ export default function TalkForm() {
       has_presentation: false,
       presentation_url: "",
       allow_archive: false,
+      archive_url: "",
       presentation_start_time: "",
     },
   });
@@ -279,6 +281,29 @@ export default function TalkForm() {
 
         <FormField
           control={form.control}
+          name="presentation_start_time"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>発表開始時刻</FormLabel>
+              <div className="mb-1" />
+              <FormControl>
+                <Input
+                  type="time"
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="w-full"
+                />
+              </FormControl>
+              <FormDescription>
+                発表の開始予定時刻を入力してください。
+              </FormDescription>
+              <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="venue"
           render={({ field }) => (
             <FormItem>
@@ -319,29 +344,6 @@ export default function TalkForm() {
               </FormControl>
               <FormDescription>
                 参加者が学べる内容を明確に説明してください。
-              </FormDescription>
-              <FormMessage className="text-red-400 text-sm" />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="presentation_start_time"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>発表開始時刻</FormLabel>
-              <div className="mb-1" />
-              <FormControl>
-                <Input
-                  type="time"
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  className="w-full"
-                />
-              </FormControl>
-              <FormDescription>
-                発表の開始予定時刻を入力してください。
               </FormDescription>
               <FormMessage className="text-red-400 text-sm" />
             </FormItem>
@@ -410,7 +412,12 @@ export default function TalkForm() {
                 <input
                   type="checkbox"
                   checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                    if (!e.target.checked) {
+                      form.setValue("archive_url", "");
+                    }
+                  }}
                   className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   aria-label="アーカイブとして公開を許可する"
                 />
@@ -424,6 +431,26 @@ export default function TalkForm() {
             </FormItem>
           )}
         />
+
+        {form.watch("allow_archive") && (
+          <FormField
+            control={form.control}
+            name="archive_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>アーカイブURL</FormLabel>
+                <div className="mb-1" />
+                <FormControl>
+                  <Input placeholder="https://example.com/archive" {...field} />
+                </FormControl>
+                <FormDescription>
+                  発表内容のアーカイブURLを入力してください（YouTube、Vimeoなど）。
+                </FormDescription>
+                <FormMessage className="text-red-400 text-sm" />
+              </FormItem>
+            )}
+          />
+        )}
 
         <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-4 flex gap-3">
           <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
@@ -446,7 +473,7 @@ export default function TalkForm() {
             className="w-full md:w-auto bg-blue-600 text-white hover:bg-blue-800"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "提出中です..." : "Submit Lightning Talk"}
+            {isSubmitting ? "提出中です..." : "この内容で提出する"}
           </Button>
         </div>
       </form>
