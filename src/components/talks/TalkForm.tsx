@@ -74,6 +74,10 @@ const formSchema = z.object({
     .max(100, {
       message: "内容は100文字以下で入力してください",
     }),
+  has_presentation: z.boolean(),
+  presentation_url: z.string().optional(),
+  allow_archive: z.boolean(),
+  presentation_start_time: z.string().optional(),
 });
 
 export default function TalkForm() {
@@ -95,6 +99,10 @@ export default function TalkForm() {
       presentation_date: new Date().toISOString(),
       venue: "",
       description: "",
+      has_presentation: false,
+      presentation_url: "",
+      allow_archive: false,
+      presentation_start_time: "",
     },
   });
 
@@ -313,6 +321,106 @@ export default function TalkForm() {
                 参加者が学べる内容を明確に説明してください。
               </FormDescription>
               <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="presentation_start_time"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>発表開始時刻</FormLabel>
+              <div className="mb-1" />
+              <FormControl>
+                <Input
+                  type="time"
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="w-full"
+                />
+              </FormControl>
+              <FormDescription>
+                発表の開始予定時刻を入力してください。
+              </FormDescription>
+              <FormMessage className="text-red-400 text-sm" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="has_presentation"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                    if (!e.target.checked) {
+                      form.setValue("presentation_url", "");
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-label="プレゼン資料を共有する"
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>プレゼン資料を共有する</FormLabel>
+                <FormDescription>
+                  発表で使用する資料を共有する場合はチェックしてください。
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        {form.watch("has_presentation") && (
+          <FormField
+            control={form.control}
+            name="presentation_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>資料URL</FormLabel>
+                <div className="mb-1" />
+                <FormControl>
+                  <Input
+                    placeholder="https://example.com/presentation"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  発表資料のURLを入力してください（Google
+                  Slides、PowerPointなど）。
+                </FormDescription>
+                <FormMessage className="text-red-400 text-sm" />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <FormField
+          control={form.control}
+          name="allow_archive"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-label="アーカイブとして公開を許可する"
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>アーカイブとして公開を許可する</FormLabel>
+                <FormDescription>
+                  発表内容をアーカイブとして公開することを許可する場合はチェックしてください。
+                </FormDescription>
+              </div>
             </FormItem>
           )}
         />
