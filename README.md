@@ -1,38 +1,38 @@
-# LT
+# Lightning Talks in SIW
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+このプロジェクトは、SIW（Shonan Institute of Technology）学生を中心に、誰でも LT（ライトニングトーク）を発表・共有できる Web サイトです。
 
-## Getting Started
+## プロジェクトの目的
 
-First, run the development server:
+LT（ライトニングトーク）を通じて、以下の価値を提供します。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **知識の体系化**
+   発表テーマを第三者視点で振り返ることで、自身の知識を整理・体系化できます。
+2. **知識の共有と深化**
+   参加者同士の対話を通じて、より深く幅広い理解を得られます。
+3. **コミュニティの拡大**
+   外部参加者との交流により、コミュニティを広げ、キャリア形成にも役立ちます。
+4. **プレゼンテーション力の向上**
+   公の場での発表経験を積むことで、コミュニケーション力を高め、他の場面でも活かせます。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 利用条件
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- LT の登録にはメールアドレスによる認証が必要です。
+- SIW 以外の方も LT の登録・編集が可能です。
+- SIW ユーザーが登録する場合は、本名の入力が必須です。
+  ※個人情報の取り扱いは[プライバシーポリシー](https://siw-lt.vercel.app/legal/privacy)をご確認ください。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## LT 登録の流れ
 
-## Learn More
+1. 右上の[登録](https://siw-lt.vercel.app/register)ボタンから LT の詳細を入力してください。
+2. 投稿内容は 48 時間以内にレビューされ、承認をお待ちください。
+3. プレゼンテーションの準備を行い、発表時間内に収めるよう心がけてください。
+4. 発表当日は、質疑応答や参加者との対話を通じて、さらに知識を深めてください。
+   楽しんでご参加ください！
 
-To learn more about Next.js, take a look at the following resources:
+## コントリビューション（貢献）
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+このプロジェクトへの貢献を歓迎します。
+詳細は以下のファイルをご覧ください。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [貢献ガイド](docs/README.md)
