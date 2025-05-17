@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -71,6 +72,11 @@ const formSchema = z.object({
     .max(100, {
       message: "内容は100文字以下で入力してください",
     }),
+  has_presentation: z.boolean(),
+  presentation_url: z.string().optional(),
+  allow_archive: z.boolean(),
+  archive_url: z.string().optional(),
+  presentation_start_time: z.string().optional(),
 });
 
 interface EditableTalkCardProps {
@@ -90,6 +96,11 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       presentation_date: new Date().toISOString(),
       venue: "",
       description: "",
+      has_presentation: false,
+      presentation_url: "",
+      allow_archive: false,
+      archive_url: "",
+      presentation_start_time: "",
     },
   });
 
@@ -109,6 +120,11 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       image_url: talk.image_url,
       presentation_date: talk.presentation_date,
       venue: talk.venue,
+      has_presentation: talk.has_presentation || false,
+      presentation_url: talk.presentation_url || "",
+      allow_archive: talk.allow_archive || false,
+      archive_url: talk.archive_url || "",
+      presentation_start_time: talk.presentation_start_time || "",
     });
   };
 
@@ -304,6 +320,134 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="presentation_start_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>発表開始時刻</FormLabel>
+                    <div className="mb-1" />
+                    <FormControl>
+                      <Input
+                        type="time"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="w-full"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      発表の開始予定時刻を入力してください。
+                    </FormDescription>
+                    <FormMessage className="text-red-400 text-sm" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="has_presentation"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                          if (!e.target.checked) {
+                            form.setValue("presentation_url", "");
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="プレゼン資料を共有する"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>プレゼン資料を共有する</FormLabel>
+                      <FormDescription>
+                        発表で使用する資料を共有する場合はチェックしてください。
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("has_presentation") && (
+                <FormField
+                  control={form.control}
+                  name="presentation_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>資料URL</FormLabel>
+                      <div className="mb-1" />
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/presentation"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        発表資料のURLを入力してください（Google
+                        Slides、PowerPointなど）。
+                      </FormDescription>
+                      <FormMessage className="text-red-400 text-sm" />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="allow_archive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                          if (!e.target.checked) {
+                            form.setValue("archive_url", "");
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="アーカイブとして公開を許可する"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>アーカイブとして公開を許可する</FormLabel>
+                      <FormDescription>
+                        発表内容をアーカイブとして公開することを許可する場合はチェックしてください。
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("allow_archive") && (
+                <FormField
+                  control={form.control}
+                  name="archive_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>アーカイブURL</FormLabel>
+                      <div className="mb-1" />
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/archive"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        発表内容のアーカイブURLを入力してください（YouTube、Vimeoなど）。
+                      </FormDescription>
+                      <FormMessage className="text-red-400 text-sm" />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <div className="mt-8" />
               <div className="flex items-center gap-2">

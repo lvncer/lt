@@ -2,20 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar, Mail, Info } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Mail, Info, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useTalk } from "@/hooks/useTalk";
 import * as React from "react";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { useUserId } from "@/hooks/useUserId";
 
 export default function TalkPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string | undefined;
   const { talk, isLoading } = useTalk(id);
   const { user } = useUser();
+  const { neonid: userId } = useUserId();
 
   if (isLoading)
     return (
@@ -65,6 +68,14 @@ export default function TalkPage() {
 
   // 表示する名前を決定
   const displayName = isSIWUser ? talk.fullname : talk.presenter;
+
+  // 自分のトークかどうかを確認
+  const isOwnTalk = userId && talk.user_id === parseInt(userId);
+
+  // 編集ページへ移動
+  const navigateToDashboard = () => {
+    router.push("/dashboard");
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -127,14 +138,59 @@ export default function TalkPage() {
               <h2 className="text-xl font-medium p-1">開催予定のトーク日程</h2>
               <div className="rounded-md bg-accent p-4">
                 <div className="text-sm text-muted-foreground">
-                  {formattedPresentationDate} - PM 4:30
+                  発表日: {formattedPresentationDate}
                 </div>
                 <div className="mb-1" />
                 <div className="text-sm text-muted-foreground">
-                  {talk.venue}
+                  発表場所: {talk.venue}
                 </div>
+                {talk.presentation_start_time && (
+                  <>
+                    <div className="mb-1" />
+                    <div className="text-sm text-muted-foreground">
+                      開始時刻: {talk.presentation_start_time}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
+
+            {(talk.has_presentation || talk.allow_archive) && (
+              <div className="mb-3">
+                <h2 className="text-xl font-medium p-1">
+                  発表資料・アーカイブ
+                </h2>
+                <div className="rounded-md bg-accent p-4">
+                  {talk.has_presentation && talk.presentation_url && (
+                    <div className="text-sm mb-2">
+                      <div className="font-medium mb-1">プレゼン資料</div>
+                      <a
+                        href={talk.presentation_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {talk.presentation_url}
+                      </a>
+                    </div>
+                  )}
+
+                  {talk.allow_archive && talk.archive_url && (
+                    <div className="text-sm">
+                      <div className="font-medium mb-1">アーカイブ</div>
+                      <a
+                        href={talk.archive_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {talk.archive_url}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div>
               <h2 className="text-xl font-medium p-1">プレゼンターの情報</h2>
@@ -149,6 +205,19 @@ export default function TalkPage() {
                   </div>
                 </div>
               </div>
+
+              {isOwnTalk && (
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    className="w-full flex items-center gap-2"
+                    onClick={navigateToDashboard}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    トークを編集する
+                  </Button>
+                </div>
+              )}
 
               {/* <div className="flex flex-col gap-3 mt-6">
                 {talk.status === "approved" && (

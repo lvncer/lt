@@ -13,4 +13,9 @@ export type Talk = {
   venue: string;
   user_id: number;
   fullname: string;
+  has_presentation?: boolean;
+  presentation_url?: string;
+  allow_archive?: boolean;
+  archive_url?: string;
+  presentation_start_time?: string;
 };

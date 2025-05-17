@@ -17,6 +17,11 @@ export async function POST(req: Request) {
       venue,
       neonuuid,
       fullname,
+      has_presentation,
+      presentation_url,
+      allow_archive,
+      archive_url,
+      presentation_start_time,
     } = body;
 
     const date_submitted = new Date().toISOString();
@@ -34,7 +39,12 @@ export async function POST(req: Request) {
         presentation_date,
         venue,
         user_id,
-        fullname
+        fullname,
+        has_presentation,
+        presentation_url,
+        allow_archive,
+        archive_url,
+        presentation_start_time
       ) VALUES (
         ${presenter},
         ${email},
@@ -47,7 +57,12 @@ export async function POST(req: Request) {
         ${presentation_date},
         ${venue},
         ${neonuuid},
-        ${fullname}
+        ${fullname},
+        ${has_presentation},
+        ${presentation_url},
+        ${allow_archive},
+        ${archive_url},
+        ${presentation_start_time}
       );
     `;
 
@@ -93,6 +108,11 @@ export async function PUT(req: Request) {
       image_url,
       presentation_date,
       venue,
+      has_presentation,
+      presentation_url,
+      allow_archive,
+      archive_url,
+      presentation_start_time,
     } = body;
 
     await sql`
@@ -104,7 +124,12 @@ export async function PUT(req: Request) {
         description = ${description},
         image_url = ${image_url},
         presentation_date = ${presentation_date},
-        venue = ${venue}
+        venue = ${venue},
+        has_presentation = ${has_presentation},
+        presentation_url = ${presentation_url},
+        allow_archive = ${allow_archive},
+        archive_url = ${archive_url},
+        presentation_start_time = ${presentation_start_time}
       WHERE id = ${id};
     `;
 
