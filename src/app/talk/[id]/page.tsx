@@ -2,7 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Clock, Calendar, Mail, Info, Pencil } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Calendar,
+  Mail,
+  Info,
+  Pencil,
+  Radio,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -41,8 +49,8 @@ export default function TalkPage() {
     day: "numeric",
   });
 
-  const presentaton_date = new Date(talk.presentation_date);
-  const formattedPresentationDate = presentaton_date.toLocaleDateString(
+  const presentation_date = new Date(talk.presentation_date);
+  const formattedPresentationDate = presentation_date.toLocaleDateString(
     "ja-JP",
     {
       year: "numeric",
@@ -72,6 +80,42 @@ export default function TalkPage() {
   // 自分のトークかどうかを確認
   const isOwnTalk = userId && talk.user_id === parseInt(userId);
 
+  // ライブ中かどうかを判断するロジック
+  const isLive = (() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const presentationDay = new Date(
+      presentation_date.getFullYear(),
+      presentation_date.getMonth(),
+      presentation_date.getDate()
+    );
+
+    // 日付が一致するか確認
+    if (today.getTime() !== presentationDay.getTime()) {
+      return false;
+    }
+
+    // 開始時刻が設定されているか確認
+    if (!talk.presentation_start_time) {
+      return false;
+    }
+
+    // 開始時刻の時間と分を取得
+    const [hours, minutes] = talk.presentation_start_time
+      .split(":")
+      .map(Number);
+
+    // 発表開始時刻を作成
+    const startTime = new Date(now);
+    startTime.setHours(hours, minutes, 0, 0);
+
+    // 発表終了時刻を計算（開始時刻 + 発表時間）
+    const endTime = new Date(startTime);
+    endTime.setMinutes(endTime.getMinutes() + talk.duration);
+
+    // 現在時刻が開始時刻と終了時刻の間かどうかを確認
+    return now >= startTime && now <= endTime;
+  })();
   // 編集ページへ移動
   const navigateToDashboard = () => {
     router.push("/dashboard");
@@ -103,6 +147,15 @@ export default function TalkPage() {
               <Clock className="h-3.5 w-3.5" />
               {talk.duration} minutes
             </Badge>
+            {isLive && (
+              <Badge
+                variant="destructive"
+                className="flex items-center gap-1 text-sm animate-pulse"
+              >
+                <Radio className="h-3.5 w-3.5" />
+                ライブ配信中
+              </Badge>
+            )}
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
@@ -123,6 +176,12 @@ export default function TalkPage() {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 800px"
               />
+              {isLive && (
+                <div className="absolute top-4 left-4 flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full animate-pulse">
+                  <Radio className="h-4 w-4" />
+                  <span>LIVE</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -155,7 +214,7 @@ export default function TalkPage() {
               </div>
             </div>
 
-            {(talk.has_presentation || talk.allow_archive) && (
+            {talk.has_presentation && (
               <div className="mb-3">
                 <h2 className="text-xl font-medium p-1">
                   発表資料・アーカイブ
@@ -172,6 +231,18 @@ export default function TalkPage() {
                       >
                         {talk.presentation_url}
                       </a>
+                      {talk.archive_url ? (
+                        <a
+                          href={talk.archive_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline break-all"
+                        >
+                          {talk.archive_url}
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">公開予定</span>
+                      )}
                     </div>
                   )}
 

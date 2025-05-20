@@ -57,9 +57,7 @@ const formSchema = z.object({
   topic: z.string().min(1, {
     message: "カテゴリーを選択してください",
   }),
-  image_url: z.string().min(1, {
-    message: "画像を選択してください",
-  }),
+  image_url: z.string(),
   presentation_date: z.string().min(1, {
     message: "発表日を選択してください",
   }),
@@ -90,13 +88,19 @@ export default function TalkForm() {
     user?.id || ""
   );
 
+  // ランダムな画像URLを選択
+  const getRandomImageUrl = () => {
+    const randomIndex = Math.floor(Math.random() * TALK_IMAGE_URLS.length);
+    return TALK_IMAGE_URLS[randomIndex];
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       duration: 10,
       topic: "",
-      image_url: "",
+      image_url: getRandomImageUrl(),
       presentation_date: new Date().toISOString(),
       venue: "",
       description: "",
@@ -235,24 +239,10 @@ export default function TalkForm() {
           control={form.control}
           name="image_url"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>トークのイメージ画像</FormLabel>
-              <div className="mb-1" />
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="画像を選択してください" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-white">
-                  {TALK_IMAGE_URLS.map((image_url) => (
-                    <SelectItem key={image_url} value={image_url}>
-                      {image_url}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage className="text-red-400 text-sm" />
+            <FormItem className="hidden">
+              <FormControl>
+                <Input type="hidden" {...field} />
+              </FormControl>
             </FormItem>
           )}
         />
