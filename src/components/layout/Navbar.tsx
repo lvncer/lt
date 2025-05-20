@@ -100,6 +100,12 @@ export default function Navbar() {
             >
               Talks
             </Link>
+            <Link
+              href="/schedule"
+              className="text-sm text-foreground/80 hover:text-foreground transition-colors"
+            >
+              Schedule
+            </Link>
             <SignedOut>
               <SignInButton>
                 <button className="ml-3 hover:bg-gray-100 p-2 rounded-md">
@@ -112,7 +118,7 @@ export default function Navbar() {
                 </button>
               </SignUpButton>
             </SignedOut>
-            <div className="ml-1 flex justify-end items-center gap-8 h-16">
+            <div className="flex justify-end items-center gap-8 h-16">
               <SignedIn>
                 <Link
                   href="/register"
@@ -126,7 +132,7 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <div className="mr-1" />
+                <div className="mr-0.5" />
                 <UserButton />
               </SignedIn>
             </div>
@@ -178,6 +184,14 @@ export default function Navbar() {
             >
               <List size={18} />
               <span>Browse Talks</span>
+            </Link>
+            <Link
+              href="/schedule"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
+            >
+              <List size={18} />
+              <span>Time Schedule</span>
             </Link>
             <Link
               href="/register"
