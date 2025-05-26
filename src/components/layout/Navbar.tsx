@@ -3,16 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Zap,
-  Menu,
-  X,
-  Home,
-  List,
-  PlusCircle,
-  UserRound,
-  Bookmark,
-} from "lucide-react";
+import { Zap, Menu, X, Home, List, PlusCircle, Bookmark } from "lucide-react";
 import {
   useUser,
   SignUpButton,
@@ -167,7 +158,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-gray-100 shadow-lg">
+        <div className="md:hidden bg-white shadow-lg">
           <nav className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link
               href="/"
@@ -208,14 +199,6 @@ export default function Navbar() {
             >
               <Bookmark size={18} />
               <span>Dashboard</span>
-            </Link>
-            <Link
-              href="/dashboard/profile"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-accent"
-            >
-              <UserRound size={18} />
-              <span>Profile</span>
             </Link>
           </nav>
           <SignedOut>
