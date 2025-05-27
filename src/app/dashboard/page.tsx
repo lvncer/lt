@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Settings } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,9 +66,24 @@ export default function DashboardPage() {
               ライトニングトークを管理し、ステータスを確認できます。
             </p>
           </div>
-          <Button variant={"outline"} className="hover:bg-gray-100">
-            <Link href="/register">Submit New Talk</Link>
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              className="cursor-pointer hover:bg-gray-100"
+            >
+              <Link href="/register">トークを提出する</Link>
+            </Button>
+            <Button
+              variant="outline"
+              asChild
+              className="cursor-pointer hover:bg-gray-100"
+            >
+              <Link href="/settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                ユーザー設定
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
