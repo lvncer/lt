@@ -149,8 +149,33 @@ export async function PUT(req: Request) {
 // DELETE: トークを削除
 export async function DELETE(req: Request) {
   try {
-    const { id } = await req.json();
+    const body = await req.json();
+    const { id, userId: neonUserId } = body;
 
+    if (!neonUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 削除しようとするトークが現在のユーザーのものかチェック
+    const talkResult = await sql`
+      SELECT user_id FROM talks WHERE id = ${id};
+    `;
+
+    if (talkResult.rows.length === 0) {
+      return NextResponse.json({ error: "Talk not found" }, { status: 404 });
+    }
+
+    const talk = talkResult.rows[0];
+
+    // NeonのユーザーIDで比較
+    if (talk.user_id !== neonUserId) {
+      return NextResponse.json(
+        { error: "Forbidden: You can only delete your own talks" },
+        { status: 403 }
+      );
+    }
+
+    // 権限チェックが通った場合のみ削除実行
     await sql`
       DELETE FROM talks
       WHERE id = ${id};

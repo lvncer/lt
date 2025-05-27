@@ -4,7 +4,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { updateTalk } from "@/hooks/useTalk";
+import { useDeleteTalk } from "@/hooks/useDeleteTalk";
 
 const formSchema = z.object({
   title: z
@@ -83,6 +84,8 @@ interface EditableTalkCardProps {
 
 export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { deleteTalk, isDeleting } = useDeleteTalk();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -135,6 +138,21 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     updateTalk({ id: talk.id, ...values });
     setIsEditing(false);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const success = await deleteTalk(talk.id);
+    if (success) {
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
   };
 
   // ランダムな画像URLを選択
@@ -463,14 +481,25 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                   {talk.status.charAt(0).toUpperCase() + talk.status.slice(1)}
                 </Badge>
               </div>
-              <Button
-                variant="outline"
-                onClick={startEditing}
-                className="hover:bg-gray-100"
-              >
-                <Pencil className="h-4 w-4" />
-                Edit
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={startEditing}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  <Pencil className="h-4 w-4" />
+                  編集
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleDeleteClick}
+                  className="cursor-pointer hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {isDeleting ? "削除中..." : "削除"}
+                </Button>
+              </div>
             </div>
 
             <div className="mb-4">
@@ -497,6 +526,38 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 発表日: {new Date(talk.presentation_date).toLocaleDateString()}
               </div>
             </div>
+
+            {/* 削除確認ダイアログ */}
+            {showDeleteConfirm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                  <h3 className="text-lg font-semibold mb-2">
+                    トークを削除しますか？
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    「{talk.title}」を削除します。この操作は取り消せません。
+                  </p>
+                  <div className="flex gap-4 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={handleDeleteCancel}
+                      disabled={isDeleting}
+                      className="cursor-pointer hover:bg-gray-100"
+                    >
+                      キャンセル
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleDeleteConfirm}
+                      disabled={isDeleting}
+                      className="cursor-pointer text-white bg-red-500 hover:bg-red-700"
+                    >
+                      {isDeleting ? "削除中..." : "削除する"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </CardContent>
