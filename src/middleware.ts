@@ -1,6 +1,24 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware();
+// 認証が必要なルートを定義
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/settings(.*)",
+  "/admin(.*)",
+  "/register(.*)",
+  "/verify(.*)",
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
+  // 認証が必要なルートへの未認証アクセスをチェック
+  if (isProtectedRoute(req) && !userId) {
+    const signInUrl = new URL("/", req.url);
+    return NextResponse.redirect(signInUrl);
+  }
+});
 
 export const config = {
   matcher: [

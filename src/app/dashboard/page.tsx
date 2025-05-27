@@ -19,11 +19,20 @@ import { useUser } from "@clerk/nextjs";
 import { useUserId } from "@/hooks/useUserId";
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { neonid: userId, isLoading: isUserIdLoading } = useUserId();
   const { talks: userTalks, isLoading, isError } = useUserTalks(userId);
 
   const typedUserTalks: Talk[] = Array.isArray(userTalks) ? userTalks : [];
+
+  // 認証状態の確認
+  if (!isLoaded) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="text-center py-12">認証が必要です</div>;
+  }
 
   if (isUserIdLoading) {
     return <div className="text-center py-12">Loading user ID...</div>;
@@ -40,8 +49,6 @@ export default function DashboardPage() {
   if (isError) {
     return <div className="text-center py-12">Failed to load talks</div>;
   }
-
-  if (!user) return;
 
   if (!userTalks) {
     notFound();
