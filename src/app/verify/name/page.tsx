@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useUpdateFullname } from "@/hooks/useUpdateFullname";
 import { useUserId } from "@/hooks/useUserId";
@@ -33,17 +33,13 @@ const formSchema = z.object({
 });
 
 export default function ProfilePage() {
-  const { user } = useUser();
-  const { isSignedIn } = useAuth();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const { neonid, isLoading: isLoadingUserId } = useUserId();
   const { updateFullname, isLoading, error: updateError } = useUpdateFullname();
 
   useEffect(() => {
-    if (isSignedIn === false) {
-      router.push("/");
-      return;
-    }
+    if (!isLoaded || !user) return;
 
     const isSIWUser = user?.emailAddresses?.some(
       (email) =>
@@ -54,7 +50,7 @@ export default function ProfilePage() {
     if (!isSIWUser) {
       router.push("/");
     }
-  }, [isSignedIn, user, router]);
+  }, [isLoaded, user, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,7 +74,7 @@ export default function ProfilePage() {
   }
 
   // ローディング状態の表示
-  if (isSignedIn === undefined || !user || isLoadingUserId) {
+  if (!isLoaded || !user || isLoadingUserId) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Button variant="ghost" disabled>

@@ -17,15 +17,19 @@ import { useGetFullname } from "@/hooks/useGetFullname";
 import { useUserId } from "@/hooks/useUserId";
 
 export default function SettingsPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const { deleteUser, isDeleting } = useDeleteUser();
   const { neonid: userId } = useUserId();
   const { fullname } = useGetFullname(userId || "");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
-  if (!user) {
+  if (!isLoaded) {
     return <div className="text-center py-12">Loading...</div>;
+  }
+
+  if (!user) {
+    return <div className="text-center py-12">認証が必要です</div>;
   }
 
   const handleDeleteClick = () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import TalkForm from "@/components/talks/TalkForm";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,35 +14,31 @@ const isSIWEmail = (email: string) => {
 };
 
 export default function RegisterPage() {
-  const { user } = useUser();
-  const { isSignedIn } = useAuth();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const { fullname, isLoading: isLoadingFullname } = useGetFullname(
     user?.id || ""
   );
 
   useEffect(() => {
-    if (isSignedIn === false) {
-      router.push("/");
-      return;
-    }
+    if (!isLoaded || !user) return;
 
     // ユーザーがSIWメールアドレスを持っているかチェック
     const hasSIWEmail = user?.emailAddresses?.some((email) =>
       isSIWEmail(email.emailAddress)
     );
 
-    if (hasSIWEmail && user && !isLoadingFullname) {
+    if (hasSIWEmail && !isLoadingFullname) {
       // SIWユーザーで、fullnameが未設定の場合は名前認証ページへ
       if (!fullname) {
         router.push("/verify/name");
         return;
       }
     }
-  }, [isSignedIn, user, router, fullname, isLoadingFullname]);
+  }, [isLoaded, user, router, fullname, isLoadingFullname]);
 
-  // ローディング状態の表示（認証情報またはフルネーム取得中）
-  if (isSignedIn === undefined || !user || isLoadingFullname) {
+  // 認証状態の確認
+  if (!isLoaded) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Button variant="ghost" disabled>
@@ -54,7 +50,7 @@ export default function RegisterPage() {
   }
 
   // 未認証状態の表示
-  if (isSignedIn === false) {
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto text-center">
@@ -66,6 +62,18 @@ export default function RegisterPage() {
           </p>
           <Button onClick={() => router.push("/")}>ホームページへ戻る</Button>
         </div>
+      </div>
+    );
+  }
+
+  // フルネーム取得中の表示
+  if (isLoadingFullname) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Button variant="ghost" disabled>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading...
+        </Button>
       </div>
     );
   }

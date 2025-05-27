@@ -44,12 +44,12 @@ export default function AdminPage() {
   const router = useRouter();
   const { updateTalkStatus } = useUpdateTalkStatus();
 
-  // Redirect to home if user is not admin
+  // 管理者権限チェック
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && user) {
       const role = user?.publicMetadata?.role;
       if (role !== "admin") {
-        alert("You are not authorized to access this page.");
+        alert("管理者権限が必要です。");
         router.replace("/");
       }
     }
