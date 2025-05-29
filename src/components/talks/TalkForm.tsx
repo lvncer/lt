@@ -76,17 +76,17 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().optional(),
+  presentation_start_time: z.string().min(1, {
+    message: "発表開始時刻を入力してください",
+  }),
 });
 
 export default function TalkForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { neonid } = useUserId();
-  const { user, isLoaded, isSignedIn } = useUser();
-  const { fullname, isLoading: isLoadingFullname } = useGetFullname(
-    user?.id || ""
-  );
+  const { user } = useUser();
+  const { fullname } = useGetFullname(user?.id || "");
 
   // ランダムな画像URLを選択
   const getRandomImageUrl = () => {
@@ -101,56 +101,67 @@ export default function TalkForm() {
       duration: 10,
       topic: "",
       image_url: getRandomImageUrl(),
-      presentation_date: new Date().toISOString(),
+      presentation_date: new Date().toISOString().split("T")[0],
       venue: "",
       description: "",
       has_presentation: false,
       presentation_url: "",
       allow_archive: false,
       archive_url: "",
-      presentation_start_time: "",
+      presentation_start_time: "10:00",
     },
   });
 
-  if (isLoadingFullname) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Button variant="ghost" disabled>
-          <Info className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
-        </Button>
-      </div>
-    );
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!isLoaded || !isSignedIn || !user || !fullname) return;
+    if (!user) {
+      return;
+    }
+
+    // SIWユーザーかどうかをチェック
+    const isSIWUser = user?.emailAddresses?.some(
+      (email) =>
+        email.emailAddress.startsWith("siw") &&
+        email.emailAddress.endsWith("@class.siw.ac.jp")
+    );
+
+    if (isSIWUser && !fullname) {
+      toast.error("SIWユーザーは本名の登録が必要です。");
+      router.push("/verify/name");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const submitData = {
+        presenter: user.username || user.fullName || "anonymous",
+        email: user.primaryEmailAddress?.emailAddress,
+        fullname:
+          fullname || (isSIWUser ? "未登録" : user.fullName || "anonymous"),
+        ...values,
+        // presentation_start_timeは必須項目なので値が保証される
+        presentation_start_time: values.presentation_start_time,
+        neonuuid: neonid,
+      };
+
       const res = await fetch("/api/talks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          presenter: user.username || user.fullName || "anonymous",
-          email: user.primaryEmailAddress?.emailAddress,
-          fullname: fullname,
-          ...values,
-          neonuuid: neonid,
-        }),
+        body: JSON.stringify(submitData),
       });
 
+      const responseData = await res.text();
+
       if (!res.ok) {
-        throw new Error("Failed to submit");
+        throw new Error(`Failed to submit: ${res.status} ${responseData}`);
       }
 
       toast.success("Talk submitted successfully!");
       router.push("/talks");
-    } catch (err) {
+    } catch {
       toast.error("Failed to submit talk.");
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,9 +175,9 @@ export default function TalkForm() {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トークタイトル</FormLabel>
+              <FormLabel required>トークタイトル</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Input placeholder="Enter your talk title" {...field} />
               </FormControl>
               <FormDescription>
@@ -182,8 +193,8 @@ export default function TalkForm() {
           name="duration"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>トーク時間 (minutes)</FormLabel>
-              <FormControl>
+              <FormLabel required>トーク時間 (minutes)</FormLabel>
+              <FormControl required>
                 <RadioGroup
                   onValueChange={(value) => field.onChange(parseInt(value))}
                   defaultValue={field.value.toString()}
@@ -214,10 +225,10 @@ export default function TalkForm() {
           name="topic"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トピックカテゴリー</FormLabel>
+              <FormLabel required>トピックカテゴリー</FormLabel>
               <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
+                <FormControl required>
                   <SelectTrigger>
                     <SelectValue placeholder="カテゴリーを選択してください" />
                   </SelectTrigger>
@@ -252,13 +263,13 @@ export default function TalkForm() {
           name="presentation_date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表日</FormLabel>
+              <FormLabel required>発表日</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <div className="relative">
                   <Input
                     type="date"
-                    value={field.value}
+                    value={field.value ? field.value.split("T")[0] : ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     className="w-full"
                   />
@@ -274,12 +285,12 @@ export default function TalkForm() {
           name="presentation_start_time"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表開始時刻</FormLabel>
+              <FormLabel required>発表開始時刻</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Input
                   type="time"
-                  value={field.value}
+                  value={field.value || ""}
                   onChange={(e) => field.onChange(e.target.value)}
                   className="w-full"
                 />
@@ -297,10 +308,10 @@ export default function TalkForm() {
           name="venue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表場所</FormLabel>
+              <FormLabel required>発表場所</FormLabel>
               <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
+                <FormControl required>
                   <SelectTrigger>
                     <SelectValue placeholder="場所を選択してください" />
                   </SelectTrigger>
@@ -323,9 +334,9 @@ export default function TalkForm() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トーク内容</FormLabel>
+              <FormLabel required>トーク内容</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Textarea
                   placeholder="Describe what your lightning talk will cover..."
                   className="resize-none min-h-32"
@@ -460,7 +471,7 @@ export default function TalkForm() {
         <div className="mt-10 flex items-center justify-center space-x-4">
           <Button
             type="submit"
-            className="w-full md:w-auto bg-blue-600 text-white hover:bg-blue-800"
+            className="w-full cursor-pointer md:w-auto bg-blue-600 text-white hover:bg-blue-800"
             disabled={isSubmitting}
           >
             {isSubmitting ? "提出中です..." : "この内容で提出する"}

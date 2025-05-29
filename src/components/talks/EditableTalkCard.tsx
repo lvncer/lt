@@ -75,7 +75,9 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().optional(),
+  presentation_start_time: z.string().min(1, {
+    message: "発表開始時刻を入力してください",
+  }),
 });
 
 interface EditableTalkCardProps {
@@ -126,7 +128,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       presentation_url: talk.presentation_url || "",
       allow_archive: talk.allow_archive || false,
       archive_url: talk.archive_url || "",
-      presentation_start_time: talk.presentation_start_time || "",
+      presentation_start_time: talk.presentation_start_time || "10:00",
     });
   };
 
@@ -136,7 +138,11 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   };
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateTalk({ id: talk.id, ...values });
+    updateTalk({
+      id: talk.id,
+      ...values,
+      presentation_start_time: values.presentation_start_time,
+    });
     setIsEditing(false);
   };
 
@@ -172,9 +178,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>トークタイトル</FormLabel>
+                    <FormLabel required>トークタイトル</FormLabel>
                     <div className="mb-1" />
-                    <FormControl>
+                    <FormControl required>
                       <Input placeholder="Enter your talk title" {...field} />
                     </FormControl>
                     <FormMessage className="text-red-400 text-sm" />
@@ -187,8 +193,8 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="duration"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel>トーク時間 (minutes)</FormLabel>
-                    <FormControl>
+                    <FormLabel required>トーク時間 (minutes)</FormLabel>
+                    <FormControl required>
                       <RadioGroup
                         onValueChange={(value) =>
                           field.onChange(parseInt(value))
@@ -221,13 +227,13 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="topic"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>トピックカテゴリー</FormLabel>
+                    <FormLabel required>トピックカテゴリー</FormLabel>
                     <div className="mb-1" />
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <FormControl>
+                      <FormControl required>
                         <SelectTrigger>
                           <SelectValue placeholder="カテゴリーを選択してください" />
                         </SelectTrigger>
@@ -262,9 +268,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="presentation_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>発表日</FormLabel>
+                    <FormLabel required>発表日</FormLabel>
                     <div className="mb-1" />
-                    <FormControl>
+                    <FormControl required>
                       <div className="relative">
                         <Input
                           type="date"
@@ -284,13 +290,13 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="venue"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>発表場所</FormLabel>
+                    <FormLabel required>発表場所</FormLabel>
                     <div className="mb-1" />
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <FormControl>
+                      <FormControl required>
                         <SelectTrigger>
                           <SelectValue placeholder="場所を選択してください" />
                         </SelectTrigger>
@@ -313,9 +319,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>トーク内容</FormLabel>
+                    <FormLabel required>トーク内容</FormLabel>
                     <div className="mb-1" />
-                    <FormControl>
+                    <FormControl required>
                       <Textarea
                         placeholder="Describe what your lightning talk will cover..."
                         className="resize-none min-h-32"
@@ -332,12 +338,12 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="presentation_start_time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>発表開始時刻</FormLabel>
+                    <FormLabel required>発表開始時刻</FormLabel>
                     <div className="mb-1" />
-                    <FormControl>
+                    <FormControl required>
                       <Input
                         type="time"
-                        value={field.value}
+                        value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value)}
                         className="w-full"
                       />
@@ -456,16 +462,21 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
               )}
 
               <div className="mt-8" />
-              <div className="flex items-center gap-2">
-                <Button type="submit" variant={"outline"}>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="cursor-pointer text-white bg-blue-500 hover:bg-blue-600"
+                >
                   <Save className="h-4 w-4" />
                   変更を保存する
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={cancelEditing}
+                  className="cursor-pointer hover:bg-gray-100"
                 >
                   <X className="h-4 w-4" />
                   Cancel

@@ -26,6 +26,14 @@ export async function POST(req: Request) {
 
     const date_submitted = new Date().toISOString();
 
+    // presentation_start_timeの必須バリデーション
+    if (!presentation_start_time || presentation_start_time.trim() === "") {
+      return NextResponse.json(
+        { error: "発表開始時刻は必須です" },
+        { status: 400 }
+      );
+    }
+
     await sql`
       INSERT INTO talks (
         presenter,
@@ -114,6 +122,14 @@ export async function PUT(req: Request) {
       archive_url,
       presentation_start_time,
     } = body;
+
+    // presentation_start_timeの必須バリデーション
+    if (!presentation_start_time || presentation_start_time.trim() === "") {
+      return NextResponse.json(
+        { error: "発表開始時刻は必須です" },
+        { status: 400 }
+      );
+    }
 
     await sql`
       UPDATE talks
