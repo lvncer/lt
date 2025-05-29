@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -85,10 +85,8 @@ export default function TalkForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { neonid } = useUserId();
-  const { user, isLoaded, isSignedIn } = useUser();
-  const { fullname, isLoading: isLoadingFullname } = useGetFullname(
-    user?.id || ""
-  );
+  const { user } = useUser();
+  const { fullname } = useGetFullname(user?.id || "");
 
   // ランダムな画像URLを選択
   const getRandomImageUrl = () => {
@@ -114,71 +112,8 @@ export default function TalkForm() {
     },
   });
 
-  // フォーム状態の監視
-  useEffect(() => {
-    console.log("Form state changed:", {
-      isValid: form.formState.isValid,
-      errors: form.formState.errors,
-      values: form.getValues(),
-    });
-  }, [form, form.formState.isValid, form.formState.errors]);
-
-  // ユーザー情報とフルネームの監視
-  useEffect(() => {
-    console.log("User info debug:", {
-      isLoaded,
-      isSignedIn,
-      user: user
-        ? {
-            id: user.id,
-            username: user.username,
-            fullName: user.fullName,
-            emailAddresses: user.emailAddresses?.map((e) => e.emailAddress),
-          }
-        : null,
-      fullname,
-      isLoadingFullname,
-      neonid,
-    });
-
-    // APIリクエストのURLを確認
-    if (user?.id) {
-      console.log("Expected API URL:", `/api/get-fullname?userId=${user.id}`);
-    }
-  }, [isLoaded, isSignedIn, user, fullname, isLoadingFullname, neonid]);
-
-  if (isLoadingFullname) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Button variant="ghost" disabled>
-          <Info className="mr-2 h-4 w-4 animate-spin" />
-          Loading...
-        </Button>
-      </div>
-    );
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("onSubmit function called!");
-    console.log("User state:", {
-      isLoaded,
-      isSignedIn,
-      user: !!user,
-      fullname: !!fullname,
-    });
-
-    if (!isLoaded) {
-      console.log("Early return: isLoaded is false");
-      return;
-    }
-
-    if (!isSignedIn) {
-      console.log("Early return: isSignedIn is false");
-      return;
-    }
-
     if (!user) {
-      console.log("Early return: user is null/undefined");
       return;
     }
 
@@ -189,22 +124,13 @@ export default function TalkForm() {
         email.emailAddress.endsWith("@class.siw.ac.jp")
     );
 
-    console.log("Is SIW user:", isSIWUser);
-
     if (isSIWUser && !fullname) {
-      console.log("SIW user without fullname - redirecting to verify/name");
       toast.error("SIWユーザーは本名の登録が必要です。");
       router.push("/verify/name");
       return;
     }
 
-    if (!fullname) {
-      console.log("Non-SIW user without fullname - proceeding with fallback");
-    }
-
     setIsSubmitting(true);
-    console.log("Form submitted with values:", values);
-    console.log("Form errors:", form.formState.errors);
 
     try {
       const submitData = {
@@ -218,8 +144,6 @@ export default function TalkForm() {
         neonuuid: neonid,
       };
 
-      console.log("Submitting data:", submitData);
-
       const res = await fetch("/api/talks", {
         method: "POST",
         headers: {
@@ -229,7 +153,6 @@ export default function TalkForm() {
       });
 
       const responseData = await res.text();
-      console.log("API Response:", responseData);
 
       if (!res.ok) {
         throw new Error(`Failed to submit: ${res.status} ${responseData}`);
@@ -237,9 +160,8 @@ export default function TalkForm() {
 
       toast.success("Talk submitted successfully!");
       router.push("/talks");
-    } catch (err) {
+    } catch {
       toast.error("Failed to submit talk.");
-      console.error("Submit error:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -247,13 +169,7 @@ export default function TalkForm() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={(e) => {
-          console.log("Form onSubmit event fired", e);
-          form.handleSubmit(onSubmit)(e);
-        }}
-        className="space-y-8"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="title"
@@ -549,33 +465,6 @@ export default function TalkForm() {
               <li>選択した時間内に収まるようにしてください。</li>
               <li>提出内容は48時間以内にレビューされます。</li>
             </ul>
-          </div>
-        </div>
-
-        {/* デバッグ用: フォームエラー表示 */}
-        {Object.keys(form.formState.errors).length > 0 && (
-          <div className="rounded-lg bg-red-50 dark:bg-red-950 p-4">
-            <p className="font-medium text-red-800 dark:text-red-200 mb-2">
-              フォームエラー:
-            </p>
-            <pre className="text-sm text-red-700 dark:text-red-300">
-              {JSON.stringify(form.formState.errors, null, 2)}
-            </pre>
-          </div>
-        )}
-
-        {/* デバッグ用: フォーム状態表示 */}
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-950 p-4">
-          <p className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-            デバッグ情報:
-          </p>
-          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-            <p>isValid: {form.formState.isValid ? "true" : "false"}</p>
-            <p>isDirty: {form.formState.isDirty ? "true" : "false"}</p>
-            <p>
-              isSubmitting: {form.formState.isSubmitting ? "true" : "false"}
-            </p>
-            <p>エラー数: {Object.keys(form.formState.errors).length}</p>
           </div>
         </div>
 
