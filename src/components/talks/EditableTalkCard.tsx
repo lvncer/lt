@@ -75,7 +75,9 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().optional().or(z.undefined()),
+  presentation_start_time: z.string().min(1, {
+    message: "発表開始時刻を入力してください",
+  }),
 });
 
 interface EditableTalkCardProps {
@@ -101,7 +103,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       presentation_url: "",
       allow_archive: false,
       archive_url: "",
-      presentation_start_time: undefined,
+      presentation_start_time: "",
     },
   });
 
@@ -126,7 +128,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       presentation_url: talk.presentation_url || "",
       allow_archive: talk.allow_archive || false,
       archive_url: talk.archive_url || "",
-      presentation_start_time: talk.presentation_start_time || undefined,
+      presentation_start_time: talk.presentation_start_time || "10:00",
     });
   };
 
@@ -139,7 +141,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
     updateTalk({
       id: talk.id,
       ...values,
-      presentation_start_time: values.presentation_start_time || null,
+      presentation_start_time: values.presentation_start_time,
     });
     setIsEditing(false);
   };
@@ -336,9 +338,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 name="presentation_start_time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>発表開始時刻</FormLabel>
+                    <FormLabel required>発表開始時刻</FormLabel>
                     <div className="mb-1" />
-                    <FormControl>
+                    <FormControl required>
                       <Input
                         type="time"
                         value={field.value || ""}

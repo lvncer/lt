@@ -76,7 +76,9 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().optional().or(z.undefined()),
+  presentation_start_time: z.string().min(1, {
+    message: "発表開始時刻を入力してください",
+  }),
 });
 
 export default function TalkForm() {
@@ -108,7 +110,7 @@ export default function TalkForm() {
       presentation_url: "",
       allow_archive: false,
       archive_url: "",
-      presentation_start_time: undefined,
+      presentation_start_time: "10:00",
     },
   });
 
@@ -211,7 +213,8 @@ export default function TalkForm() {
         fullname:
           fullname || (isSIWUser ? "未登録" : user.fullName || "anonymous"),
         ...values,
-        presentation_start_time: values.presentation_start_time || null,
+        // presentation_start_timeは必須項目なので値が保証される
+        presentation_start_time: values.presentation_start_time,
         neonuuid: neonid,
       };
 
@@ -366,9 +369,9 @@ export default function TalkForm() {
           name="presentation_start_time"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表開始時刻</FormLabel>
+              <FormLabel required>発表開始時刻</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Input
                   type="time"
                   value={field.value || ""}

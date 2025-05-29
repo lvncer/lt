@@ -26,9 +26,13 @@ export async function POST(req: Request) {
 
     const date_submitted = new Date().toISOString();
 
-    // presentation_start_timeが空文字列の場合はnullに変換
-    const processedPresentationStartTime =
-      presentation_start_time === "" ? null : presentation_start_time;
+    // presentation_start_timeの必須バリデーション
+    if (!presentation_start_time || presentation_start_time.trim() === "") {
+      return NextResponse.json(
+        { error: "発表開始時刻は必須です" },
+        { status: 400 }
+      );
+    }
 
     await sql`
       INSERT INTO talks (
@@ -66,7 +70,7 @@ export async function POST(req: Request) {
         ${presentation_url},
         ${allow_archive},
         ${archive_url},
-        ${processedPresentationStartTime}
+        ${presentation_start_time}
       );
     `;
 
@@ -119,9 +123,13 @@ export async function PUT(req: Request) {
       presentation_start_time,
     } = body;
 
-    // presentation_start_timeが空文字列の場合はnullに変換
-    const processedPresentationStartTime =
-      presentation_start_time === "" ? null : presentation_start_time;
+    // presentation_start_timeの必須バリデーション
+    if (!presentation_start_time || presentation_start_time.trim() === "") {
+      return NextResponse.json(
+        { error: "発表開始時刻は必須です" },
+        { status: 400 }
+      );
+    }
 
     await sql`
       UPDATE talks
@@ -137,7 +145,7 @@ export async function PUT(req: Request) {
         presentation_url = ${presentation_url},
         allow_archive = ${allow_archive},
         archive_url = ${archive_url},
-        presentation_start_time = ${processedPresentationStartTime}
+        presentation_start_time = ${presentation_start_time}
       WHERE id = ${id};
     `;
 
