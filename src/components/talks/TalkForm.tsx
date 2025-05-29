@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -76,7 +76,7 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().optional(),
+  presentation_start_time: z.string().optional().or(z.undefined()),
 });
 
 export default function TalkForm() {
@@ -101,16 +101,49 @@ export default function TalkForm() {
       duration: 10,
       topic: "",
       image_url: getRandomImageUrl(),
-      presentation_date: new Date().toISOString(),
+      presentation_date: new Date().toISOString().split("T")[0],
       venue: "",
       description: "",
       has_presentation: false,
       presentation_url: "",
       allow_archive: false,
       archive_url: "",
-      presentation_start_time: "",
+      presentation_start_time: undefined,
     },
   });
+
+  // フォーム状態の監視
+  useEffect(() => {
+    console.log("Form state changed:", {
+      isValid: form.formState.isValid,
+      errors: form.formState.errors,
+      values: form.getValues(),
+    });
+  }, [form, form.formState.isValid, form.formState.errors]);
+
+  // ユーザー情報とフルネームの監視
+  useEffect(() => {
+    console.log("User info debug:", {
+      isLoaded,
+      isSignedIn,
+      user: user
+        ? {
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName,
+            emailAddresses: user.emailAddresses?.map((e) => e.emailAddress),
+          }
+        : null,
+      fullname,
+      isLoadingFullname,
+      neonid,
+    });
+
+    // APIリクエストのURLを確認
+    if (user?.id) {
+      console.log("Expected API URL:", `/api/get-fullname?userId=${user.id}`);
+    }
+  }, [isLoaded, isSignedIn, user, fullname, isLoadingFullname, neonid]);
 
   if (isLoadingFullname) {
     return (
@@ -124,33 +157,86 @@ export default function TalkForm() {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!isLoaded || !isSignedIn || !user || !fullname) return;
+    console.log("onSubmit function called!");
+    console.log("User state:", {
+      isLoaded,
+      isSignedIn,
+      user: !!user,
+      fullname: !!fullname,
+    });
+
+    if (!isLoaded) {
+      console.log("Early return: isLoaded is false");
+      return;
+    }
+
+    if (!isSignedIn) {
+      console.log("Early return: isSignedIn is false");
+      return;
+    }
+
+    if (!user) {
+      console.log("Early return: user is null/undefined");
+      return;
+    }
+
+    // SIWユーザーかどうかをチェック
+    const isSIWUser = user?.emailAddresses?.some(
+      (email) =>
+        email.emailAddress.startsWith("siw") &&
+        email.emailAddress.endsWith("@class.siw.ac.jp")
+    );
+
+    console.log("Is SIW user:", isSIWUser);
+
+    if (isSIWUser && !fullname) {
+      console.log("SIW user without fullname - redirecting to verify/name");
+      toast.error("SIWユーザーは本名の登録が必要です。");
+      router.push("/verify/name");
+      return;
+    }
+
+    if (!fullname) {
+      console.log("Non-SIW user without fullname - proceeding with fallback");
+    }
+
     setIsSubmitting(true);
+    console.log("Form submitted with values:", values);
+    console.log("Form errors:", form.formState.errors);
 
     try {
+      const submitData = {
+        presenter: user.username || user.fullName || "anonymous",
+        email: user.primaryEmailAddress?.emailAddress,
+        fullname:
+          fullname || (isSIWUser ? "未登録" : user.fullName || "anonymous"),
+        ...values,
+        presentation_start_time: values.presentation_start_time || null,
+        neonuuid: neonid,
+      };
+
+      console.log("Submitting data:", submitData);
+
       const res = await fetch("/api/talks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          presenter: user.username || user.fullName || "anonymous",
-          email: user.primaryEmailAddress?.emailAddress,
-          fullname: fullname,
-          ...values,
-          neonuuid: neonid,
-        }),
+        body: JSON.stringify(submitData),
       });
 
+      const responseData = await res.text();
+      console.log("API Response:", responseData);
+
       if (!res.ok) {
-        throw new Error("Failed to submit");
+        throw new Error(`Failed to submit: ${res.status} ${responseData}`);
       }
 
       toast.success("Talk submitted successfully!");
       router.push("/talks");
     } catch (err) {
       toast.error("Failed to submit talk.");
-      console.error(err);
+      console.error("Submit error:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -158,15 +244,21 @@ export default function TalkForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={(e) => {
+          console.log("Form onSubmit event fired", e);
+          form.handleSubmit(onSubmit)(e);
+        }}
+        className="space-y-8"
+      >
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トークタイトル</FormLabel>
+              <FormLabel required>トークタイトル</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Input placeholder="Enter your talk title" {...field} />
               </FormControl>
               <FormDescription>
@@ -182,8 +274,8 @@ export default function TalkForm() {
           name="duration"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>トーク時間 (minutes)</FormLabel>
-              <FormControl>
+              <FormLabel required>トーク時間 (minutes)</FormLabel>
+              <FormControl required>
                 <RadioGroup
                   onValueChange={(value) => field.onChange(parseInt(value))}
                   defaultValue={field.value.toString()}
@@ -214,10 +306,10 @@ export default function TalkForm() {
           name="topic"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トピックカテゴリー</FormLabel>
+              <FormLabel required>トピックカテゴリー</FormLabel>
               <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
+                <FormControl required>
                   <SelectTrigger>
                     <SelectValue placeholder="カテゴリーを選択してください" />
                   </SelectTrigger>
@@ -252,13 +344,13 @@ export default function TalkForm() {
           name="presentation_date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表日</FormLabel>
+              <FormLabel required>発表日</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <div className="relative">
                   <Input
                     type="date"
-                    value={field.value}
+                    value={field.value ? field.value.split("T")[0] : ""}
                     onChange={(e) => field.onChange(e.target.value)}
                     className="w-full"
                   />
@@ -279,7 +371,7 @@ export default function TalkForm() {
               <FormControl>
                 <Input
                   type="time"
-                  value={field.value}
+                  value={field.value || ""}
                   onChange={(e) => field.onChange(e.target.value)}
                   className="w-full"
                 />
@@ -297,10 +389,10 @@ export default function TalkForm() {
           name="venue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>発表場所</FormLabel>
+              <FormLabel required>発表場所</FormLabel>
               <div className="mb-1" />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
+                <FormControl required>
                   <SelectTrigger>
                     <SelectValue placeholder="場所を選択してください" />
                   </SelectTrigger>
@@ -323,9 +415,9 @@ export default function TalkForm() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>トーク内容</FormLabel>
+              <FormLabel required>トーク内容</FormLabel>
               <div className="mb-1" />
-              <FormControl>
+              <FormControl required>
                 <Textarea
                   placeholder="Describe what your lightning talk will cover..."
                   className="resize-none min-h-32"
@@ -457,10 +549,37 @@ export default function TalkForm() {
           </div>
         </div>
 
+        {/* デバッグ用: フォームエラー表示 */}
+        {Object.keys(form.formState.errors).length > 0 && (
+          <div className="rounded-lg bg-red-50 dark:bg-red-950 p-4">
+            <p className="font-medium text-red-800 dark:text-red-200 mb-2">
+              フォームエラー:
+            </p>
+            <pre className="text-sm text-red-700 dark:text-red-300">
+              {JSON.stringify(form.formState.errors, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {/* デバッグ用: フォーム状態表示 */}
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-950 p-4">
+          <p className="font-medium text-gray-800 dark:text-gray-200 mb-2">
+            デバッグ情報:
+          </p>
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+            <p>isValid: {form.formState.isValid ? "true" : "false"}</p>
+            <p>isDirty: {form.formState.isDirty ? "true" : "false"}</p>
+            <p>
+              isSubmitting: {form.formState.isSubmitting ? "true" : "false"}
+            </p>
+            <p>エラー数: {Object.keys(form.formState.errors).length}</p>
+          </div>
+        </div>
+
         <div className="mt-10 flex items-center justify-center space-x-4">
           <Button
             type="submit"
-            className="w-full md:w-auto bg-blue-600 text-white hover:bg-blue-800"
+            className="w-full cursor-pointer md:w-auto bg-blue-600 text-white hover:bg-blue-800"
             disabled={isSubmitting}
           >
             {isSubmitting ? "提出中です..." : "この内容で提出する"}

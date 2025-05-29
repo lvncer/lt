@@ -114,9 +114,9 @@ export default function ProfilePage() {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>本名（フルネーム）</FormLabel>
+                    <FormLabel required>本名（フルネーム）</FormLabel>
                     <div className="mb-2" />
-                    <FormControl>
+                    <FormControl required>
                       <Input {...field} placeholder="例：山田 太郎" />
                     </FormControl>
                     <FormDescription>

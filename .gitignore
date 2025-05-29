@@ -44,3 +44,6 @@ next-env.d.ts
 .vscode/
 .github/copilot-instructions.md
 .cursor
+
+# sql files
+public/sql/

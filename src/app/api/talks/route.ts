@@ -26,6 +26,10 @@ export async function POST(req: Request) {
 
     const date_submitted = new Date().toISOString();
 
+    // presentation_start_timeが空文字列の場合はnullに変換
+    const processedPresentationStartTime =
+      presentation_start_time === "" ? null : presentation_start_time;
+
     await sql`
       INSERT INTO talks (
         presenter,
@@ -62,7 +66,7 @@ export async function POST(req: Request) {
         ${presentation_url},
         ${allow_archive},
         ${archive_url},
-        ${presentation_start_time}
+        ${processedPresentationStartTime}
       );
     `;
 
@@ -115,6 +119,10 @@ export async function PUT(req: Request) {
       presentation_start_time,
     } = body;
 
+    // presentation_start_timeが空文字列の場合はnullに変換
+    const processedPresentationStartTime =
+      presentation_start_time === "" ? null : presentation_start_time;
+
     await sql`
       UPDATE talks
       SET
@@ -129,7 +137,7 @@ export async function PUT(req: Request) {
         presentation_url = ${presentation_url},
         allow_archive = ${allow_archive},
         archive_url = ${archive_url},
-        presentation_start_time = ${presentation_start_time}
+        presentation_start_time = ${processedPresentationStartTime}
       WHERE id = ${id};
     `;
 
