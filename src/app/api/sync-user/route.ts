@@ -1,24 +1,43 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-
-  const { clerk_user_id, username, email, imageUrl } = body;
-
   try {
-    await sql`
-        INSERT INTO users (clerk_user_id, username, email, image_url)
-        VALUES (${clerk_user_id}, ${username}, ${email}, ${imageUrl})
-        ON CONFLICT (clerk_user_id) DO UPDATE SET
-          username = EXCLUDED.username,
-          email = EXCLUDED.email,
-          image_url = EXCLUDED.image_url,
-          updated_at = NOW();
-      `;
+    const body = await req.json();
+    const { clerk_user_id, username, email, imageUrl } = body;
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    // 既存ユーザーをチェック
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkUserId, clerk_user_id));
+
+    if (existingUser.length > 0) {
+      // 既存ユーザーを更新
+      await db
+        .update(users)
+        .set({
+          username,
+          email,
+          imageUrl,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.clerkUserId, clerk_user_id));
+    } else {
+      // 新規ユーザーを挿入
+      await db.insert(users).values({
+        clerkUserId: clerk_user_id,
+        username,
+        email,
+        imageUrl,
+      });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("DBエラー", error);
-    return new Response(JSON.stringify({ error: "DBエラー" }), { status: 500 });
+    return NextResponse.json({ error: "DBエラー" }, { status: 500 });
   }
 }

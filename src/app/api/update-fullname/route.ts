@@ -1,4 +1,6 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { users, talks } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -9,17 +11,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    await sql`
-      UPDATE users
-      SET fullname = ${newFullName}
-      WHERE clerk_user_id = ${clerkUserId};
-    `;
+    // usersテーブルのfullnameを更新
+    await db
+      .update(users)
+      .set({ fullname: newFullName })
+      .where(eq(users.clerkUserId, clerkUserId));
 
-    await sql`
-      UPDATE talks
-      SET fullname = ${newFullName}
-      WHERE user_id = ${neonUserId};
-    `;
+    // talksテーブルのfullnameを更新
+    await db
+      .update(talks)
+      .set({ fullname: newFullName })
+      .where(eq(talks.userId, neonUserId));
 
     return NextResponse.json({ message: "Full name updated successfully" });
   } catch (error) {

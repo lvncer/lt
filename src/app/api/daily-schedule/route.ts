@@ -1,4 +1,6 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { talks } from "@/lib/db/schema";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { format } from "date-fns";
 
@@ -26,14 +28,18 @@ export async function GET(req: NextRequest) {
     }
 
     // 正規化された日付でトークを検索
-    const result = await sql`
-      SELECT * FROM talks
-      WHERE DATE(presentation_date) = ${normalizedDate}::DATE
-      AND status = 'approved'
-      ORDER BY presentation_start_time ASC NULLS LAST;
-    `;
+    const result = await db
+      .select()
+      .from(talks)
+      .where(
+        and(
+          sql`DATE(${talks.presentationDate}) = ${normalizedDate}::DATE`,
+          eq(talks.status, "approved")
+        )
+      )
+      .orderBy(asc(talks.presentationStartTime));
 
-    return NextResponse.json(result.rows, { status: 200 });
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     console.error("GET /api/daily-schedule error:", error);
     return NextResponse.json(
@@ -47,9 +53,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { talks } = body;
+    const { talks: talksToUpdate } = body;
 
-    if (!Array.isArray(talks) || talks.length === 0) {
+    if (!Array.isArray(talksToUpdate) || talksToUpdate.length === 0) {
       return NextResponse.json(
         { error: "更新するトークの配列が必要です" },
         { status: 400 }
@@ -58,13 +64,12 @@ export async function POST(req: Request) {
 
     // トランザクションを使用して複数のトークを更新
     await Promise.all(
-      talks.map(async (talk) => {
+      talksToUpdate.map(async (talk) => {
         const { id, presentation_start_time } = talk;
-        await sql`
-          UPDATE talks
-          SET presentation_start_time = ${presentation_start_time}
-          WHERE id = ${id};
-        `;
+        await db
+          .update(talks)
+          .set({ presentationStartTime: presentation_start_time })
+          .where(eq(talks.id, id));
       })
     );
 

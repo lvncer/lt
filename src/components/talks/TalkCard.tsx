@@ -6,7 +6,7 @@ import { Clock, Calendar, ChevronRight, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Talk } from "@/types/talk";
+import { Talk, TalkStatus } from "@/types/talk";
 import { useUser } from "@clerk/nextjs";
 
 interface TalkCardProps {
@@ -22,18 +22,23 @@ export default function TalkCard({
 }: TalkCardProps) {
   const { user } = useUser();
 
-  const statusColors = {
+  const statusColors: Record<TalkStatus, string> = {
     pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
     approved: "bg-green-100 text-green-800 border-green-200",
     rejected: "bg-red-100 text-red-800 border-red-200",
   };
 
-  const presention_date = new Date(talk.presentation_date);
-  const formattedPresentionDate = presention_date.toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  const presentationDate = talk.presentationDate
+    ? new Date(talk.presentationDate)
+    : new Date();
+  const formattedPresentationDate = presentationDate.toLocaleDateString(
+    "ja-JP",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }
+  );
 
   // ユーザーのメールアドレスとトークのメールアドレスが条件を満たすかチェック
   const isSIWUser =
@@ -49,12 +54,16 @@ export default function TalkCard({
 
   // ライブ中かどうかを判断するロジック
   const isLive = (() => {
+    if (!talk.presentationDate || !talk.presentationStartTime) {
+      return false;
+    }
+
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const presentationDay = new Date(
-      presention_date.getFullYear(),
-      presention_date.getMonth(),
-      presention_date.getDate()
+      presentationDate.getFullYear(),
+      presentationDate.getMonth(),
+      presentationDate.getDate()
     );
 
     // 日付が一致するか確認
@@ -62,15 +71,8 @@ export default function TalkCard({
       return false;
     }
 
-    // 開始時刻が設定されているか確認
-    if (!talk.presentation_start_time) {
-      return false;
-    }
-
     // 開始時刻の時間と分を取得
-    const [hours, minutes] = talk.presentation_start_time
-      .split(":")
-      .map(Number);
+    const [hours, minutes] = talk.presentationStartTime.split(":").map(Number);
 
     // 発表開始時刻を作成
     const startTime = new Date(now);
@@ -83,6 +85,12 @@ export default function TalkCard({
     // 現在時刻が開始時刻と終了時刻の間かどうかを確認
     return now >= startTime && now <= endTime;
   })();
+
+  // 安全なstatus取得
+  const getStatusColor = (status: string | null | undefined): string => {
+    const validStatus = (status as TalkStatus) || "pending";
+    return statusColors[validStatus] || statusColors.pending;
+  };
 
   return (
     <motion.div
@@ -98,10 +106,10 @@ export default function TalkCard({
             variant === "featured" ? "h-full" : "h-full"
           )}
         >
-          {talk.image_url && (
+          {talk.imageUrl && (
             <div className="relative w-full aspect-video overflow-hidden">
               <Image
-                src={talk.image_url}
+                src={talk.imageUrl}
                 alt={talk.title}
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 fill
@@ -122,9 +130,14 @@ export default function TalkCard({
             <div className="flex items-start justify-between mb-2">
               <Badge
                 variant="outline"
-                className={cn("text-xs px-2 py-0.5", statusColors[talk.status])}
+                className={cn(
+                  "text-xs px-2 py-0.5",
+                  getStatusColor(talk.status)
+                )}
               >
-                {talk.status.charAt(0).toUpperCase() + talk.status.slice(1)}
+                {talk.status
+                  ? talk.status.charAt(0).toUpperCase() + talk.status.slice(1)
+                  : "Pending"}
               </Badge>
               <Badge variant="secondary" className="text-xs">
                 {talk.topic}
@@ -150,11 +163,11 @@ export default function TalkCard({
               <span>{talk.duration} min</span>
               <div className="mx-2 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
               <Calendar className="w-4 h-4 mr-1" />
-              <span>{formattedPresentionDate}</span>
-              {talk.presentation_start_time && (
+              <span>{formattedPresentationDate}</span>
+              {talk.presentationStartTime && (
                 <>
                   <div className="mx-1 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
-                  <span>{talk.presentation_start_time}</span>
+                  <span>{talk.presentationStartTime}</span>
                 </>
               )}
             </div>

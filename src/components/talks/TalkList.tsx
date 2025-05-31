@@ -31,7 +31,9 @@ export default function TalkList() {
   const filteredTalks = talks.filter((talk: Talk) => {
     const matchesSearch =
       talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      talk.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (talk.description || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       talk.presenter.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesTopics =
@@ -44,13 +46,13 @@ export default function TalkList() {
   const sortedTalks = [...filteredTalks].sort((a, b) => {
     if (sortBy === "newest") {
       return (
-        new Date(b.dateSubmitted).getTime() -
-        new Date(a.dateSubmitted).getTime()
+        new Date(b.dateSubmitted || 0).getTime() -
+        new Date(a.dateSubmitted || 0).getTime()
       );
     } else if (sortBy === "oldest") {
       return (
-        new Date(a.dateSubmitted).getTime() -
-        new Date(b.dateSubmitted).getTime()
+        new Date(a.dateSubmitted || 0).getTime() -
+        new Date(b.dateSubmitted || 0).getTime()
       );
     } else {
       return a.duration - b.duration;

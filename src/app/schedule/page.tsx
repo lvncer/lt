@@ -66,11 +66,11 @@ export default function SchedulePage() {
 
   // 現在実施中のトークかどうかを判定
   const isLiveTalk = (talk: Talk) => {
-    if (!talk.presentation_start_time) return false;
+    if (!talk.presentationStartTime || !talk.presentationDate) return false;
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const talkDate = parseISO(talk.presentation_date);
+    const talkDate = parseISO(talk.presentationDate);
     const presentationDay = new Date(
       talkDate.getFullYear(),
       talkDate.getMonth(),
@@ -83,9 +83,7 @@ export default function SchedulePage() {
     }
 
     // 開始時刻の時間と分を取得
-    const [hours, minutes] = talk.presentation_start_time
-      .split(":")
-      .map(Number);
+    const [hours, minutes] = talk.presentationStartTime.split(":").map(Number);
 
     // 発表開始時刻を作成
     const startTime = new Date(now);
@@ -189,9 +187,9 @@ export default function SchedulePage() {
                 <CardContent className="p-0">
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="relative aspect-video md:aspect-square">
-                      {talk.image_url && (
+                      {talk.imageUrl && (
                         <Image
-                          src={talk.image_url}
+                          src={talk.imageUrl}
                           alt={talk.title}
                           fill
                           className="object-cover"
@@ -204,7 +202,7 @@ export default function SchedulePage() {
                           variant="outline"
                           className="bg-purple-50 text-purple-700 border-purple-200"
                         >
-                          発表時間: {talk.presentation_start_time || "時間未定"}
+                          発表時間: {talk.presentationStartTime || "時間未定"}
                         </Badge>
                         <Badge variant="outline">{talk.venue}</Badge>
                         {isLiveTalk(talk) && (

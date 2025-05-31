@@ -1,4 +1,6 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { talks } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 // 動的ルーティングからuser_idを取得してtalksを取得するAPI
@@ -14,18 +16,19 @@ export async function GET(
   }
 
   try {
-    const result = await sql`
-        SELECT * FROM talks WHERE user_id = ${userId};
-      `;
+    const result = await db
+      .select()
+      .from(talks)
+      .where(eq(talks.userId, userId));
 
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return NextResponse.json(
         { error: "No talks found for this user" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(result.rows);
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }

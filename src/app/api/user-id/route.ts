@@ -1,19 +1,22 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
     const { clerkId } = await req.json();
 
-    const result = await sql`
-      SELECT id FROM users WHERE clerk_user_id = ${clerkId}
-    `;
+    const result = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.clerkUserId, clerkId));
 
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ id: result.rows[0].id });
+    return NextResponse.json({ id: result[0].id });
   } catch (err) {
     console.error("Failed to get user ID:", err);
     return NextResponse.json(

@@ -1,5 +1,7 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { talks } from "@/lib/db/schema";
 import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 
 // 動的ルーティングからIDを取得
 export async function GET(
@@ -14,15 +16,13 @@ export async function GET(
   }
 
   try {
-    const result = await sql`
-      SELECT * FROM talks WHERE id = ${talkId};
-    `;
+    const result = await db.select().from(talks).where(eq(talks.id, talkId));
 
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Talk not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result.rows[0]);
+    return NextResponse.json(result[0]);
   } catch {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }
@@ -47,18 +47,17 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    const result = await sql`
-      UPDATE talks
-      SET status = ${status}
-      WHERE id = ${talkId}
-      RETURNING *;
-    `;
+    const result = await db
+      .update(talks)
+      .set({ status })
+      .where(eq(talks.id, talkId))
+      .returning();
 
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Talk not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result.rows[0]);
+    return NextResponse.json(result[0]);
   } catch {
     return NextResponse.json({ error: "Database error" }, { status: 500 });
   }

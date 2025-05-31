@@ -1,21 +1,18 @@
-export type Talk = {
-  id: number;
-  title: string;
-  presenter: string;
-  email: string;
-  duration: number;
-  topic: string;
-  description: string;
-  status: "pending" | "approved" | "rejected";
-  date_submitted: string;
-  image_url: string;
-  presentation_date: string;
-  venue: string;
-  user_id: number;
-  fullname: string;
-  has_presentation?: boolean;
-  presentation_url?: string;
-  allow_archive?: boolean;
-  archive_url?: string;
-  presentation_start_time?: string;
-};
+// Drizzle 生成型をインポート
+import type { Talk, NewTalk, User, NewUser } from "@/lib/db/schema";
+
+// 型を再エクスポート
+export type { Talk, NewTalk, User, NewUser };
+
+// API レスポンス型
+export interface TalkResponse {
+  talks: Talk[];
+  total?: number;
+}
+
+export interface UserResponse {
+  user: User;
+}
+
+// 既存のstatus型を維持
+export type TalkStatus = "pending" | "approved" | "rejected";

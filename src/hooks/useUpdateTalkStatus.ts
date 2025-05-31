@@ -1,9 +1,11 @@
+"use client";
+
 import { useState } from "react";
-import { Talk } from "@/types/talk";
+import { Talk, TalkStatus } from "@/types/talk";
 
 /**
  * カスタムフック: トークのステータスを更新するAPIを呼び出します。
- * @returns 関数 updateTalkStatus
+ * @returns 関数 updateTalkStatus、ローディング状態、エラー状態
  */
 export function useUpdateTalkStatus() {
   const [loading, setLoading] = useState(false);
@@ -12,12 +14,12 @@ export function useUpdateTalkStatus() {
   /**
    * トークのステータスを更新する関数
    * @param id トークのID
-   * @param status 更新するステータス ("approved" | "rejected" | "pending")
+   * @param status 更新するステータス
    * @returns 更新されたトークデータ
    */
   const updateTalkStatus = async (
     id: number,
-    status: "approved" | "rejected" | "pending"
+    status: TalkStatus
   ): Promise<Talk | null> => {
     setLoading(true);
     setError(null);

@@ -34,7 +34,7 @@ export function useUpdateSchedule() {
 
   // 複数のトークの開始時刻を一括更新するための関数
   const updateSchedule = async (
-    talks: Pick<Talk, "id" | "presentation_start_time">[]
+    talks: Pick<Talk, "id" | "presentationStartTime">[]
   ) => {
     if (!talks || talks.length === 0) return false;
 

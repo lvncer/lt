@@ -42,14 +42,18 @@ export default function TalkPage() {
     notFound();
   }
 
-  const submitted_date = new Date(talk.date_submitted);
+  const submitted_date = talk.dateSubmitted
+    ? new Date(talk.dateSubmitted)
+    : new Date();
   const formattedSubmittedDate = submitted_date.toLocaleDateString("ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-  const presentation_date = new Date(talk.presentation_date);
+  const presentation_date = talk.presentationDate
+    ? new Date(talk.presentationDate)
+    : new Date();
   const formattedPresentationDate = presentation_date.toLocaleDateString(
     "ja-JP",
     {
@@ -59,7 +63,7 @@ export default function TalkPage() {
     }
   );
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
     approved: "bg-green-100 text-green-800 border-green-200",
     rejected: "bg-red-100 text-red-800 border-red-200",
@@ -78,7 +82,7 @@ export default function TalkPage() {
   const displayName = isSIWUser ? talk.fullname : talk.presenter;
 
   // 自分のトークかどうかを確認
-  const isOwnTalk = userId && talk.user_id === parseInt(userId);
+  const isOwnTalk = userId && talk.userId === userId;
 
   // ライブ中かどうかを判断するロジック
   const isLive = (() => {
@@ -96,14 +100,12 @@ export default function TalkPage() {
     }
 
     // 開始時刻が設定されているか確認
-    if (!talk.presentation_start_time) {
+    if (!talk.presentationStartTime) {
       return false;
     }
 
     // 開始時刻の時間と分を取得
-    const [hours, minutes] = talk.presentation_start_time
-      .split(":")
-      .map(Number);
+    const [hours, minutes] = talk.presentationStartTime.split(":").map(Number);
 
     // 発表開始時刻を作成
     const startTime = new Date(now);
@@ -135,9 +137,11 @@ export default function TalkPage() {
           <div className="flex flex-wrap gap-3 mb-4">
             <Badge
               variant="outline"
-              className={cn("text-sm", statusColors[talk.status])}
+              className={cn("text-sm", statusColors[talk.status || "pending"])}
             >
-              {talk.status?.charAt(0).toUpperCase() + talk.status.slice(1)}
+              {talk.status
+                ? talk.status.charAt(0).toUpperCase() + talk.status.slice(1)
+                : "Pending"}
             </Badge>
             <Badge variant="secondary">{talk.topic}</Badge>
             <Badge
@@ -167,10 +171,10 @@ export default function TalkPage() {
             <span>提出日: {formattedSubmittedDate}</span>
           </div>
 
-          {talk.image_url && (
+          {talk.imageUrl && (
             <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
               <Image
-                src={talk.image_url}
+                src={talk.imageUrl}
                 alt={talk.title}
                 fill
                 className="object-cover"
@@ -203,42 +207,42 @@ export default function TalkPage() {
                 <div className="text-sm text-muted-foreground">
                   発表場所: {talk.venue}
                 </div>
-                {talk.presentation_start_time && (
+                {talk.presentationStartTime && (
                   <>
                     <div className="mb-1" />
                     <div className="text-sm text-muted-foreground">
-                      開始時刻: {talk.presentation_start_time}
+                      開始時刻: {talk.presentationStartTime}
                     </div>
                   </>
                 )}
               </div>
             </div>
 
-            {talk.has_presentation && (
+            {talk.hasPresentationUrl && (
               <div className="mb-3">
                 <h2 className="text-xl font-medium p-1">
                   発表資料・アーカイブ
                 </h2>
                 <div className="rounded-md bg-accent p-4">
-                  {talk.has_presentation && talk.presentation_url && (
+                  {talk.hasPresentationUrl && talk.presentationUrl && (
                     <div className="text-sm mb-2">
                       <div className="font-medium mb-1">プレゼン資料</div>
                       <a
-                        href={talk.presentation_url}
+                        href={talk.presentationUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
-                        {talk.presentation_url}
+                        {talk.presentationUrl}
                       </a>
-                      {talk.archive_url ? (
+                      {talk.archiveUrl ? (
                         <a
-                          href={talk.archive_url}
+                          href={talk.archiveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline break-all"
                         >
-                          {talk.archive_url}
+                          {talk.archiveUrl}
                         </a>
                       ) : (
                         <span className="text-muted-foreground">公開予定</span>
@@ -246,16 +250,16 @@ export default function TalkPage() {
                     </div>
                   )}
 
-                  {talk.allow_archive && talk.archive_url && (
+                  {talk.allowArchive && talk.archiveUrl && (
                     <div className="text-sm">
                       <div className="font-medium mb-1">アーカイブ</div>
                       <a
-                        href={talk.archive_url}
+                        href={talk.archiveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
-                        {talk.archive_url}
+                        {talk.archiveUrl}
                       </a>
                     </div>
                   )}

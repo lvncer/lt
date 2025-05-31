@@ -5,6 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
+/**
+ * ユーザーアカウント削除機能を提供するカスタムフック
+ * @returns deleteUser関数とisDeleting状態
+ */
 export function useDeleteUser() {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
@@ -12,7 +16,11 @@ export function useDeleteUser() {
   const { signOut } = useClerk();
   const router = useRouter();
 
-  const deleteUser = async () => {
+  /**
+   * ユーザーアカウントとすべての関連データを削除する
+   * @returns 削除成功時はtrue、失敗時はfalse
+   */
+  const deleteUser = async (): Promise<boolean> => {
     if (!user) {
       toast({
         title: "エラー",

@@ -4,12 +4,21 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useUserId } from "@/hooks/useUserId";
 
+/**
+ * トーク削除機能を提供するカスタムフック
+ * @returns deleteTalk関数とisDeleting状態
+ */
 export function useDeleteTalk() {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
   const { neonid: neonUserId } = useUserId();
 
-  const deleteTalk = async (talkId: number) => {
+  /**
+   * 指定されたトークを削除する
+   * @param talkId - 削除するトークのID
+   * @returns 削除成功時はtrue、失敗時はfalse
+   */
+  const deleteTalk = async (talkId: number): Promise<boolean> => {
     setIsDeleting(true);
 
     try {
