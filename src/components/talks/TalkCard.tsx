@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { Clock, Calendar, ChevronRight, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -97,12 +96,12 @@ export default function TalkCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      whileHover={{ y: -5 }}
+      className="opacity-50"
     >
-      <Link href={`/talk/${talk.id}`}>
+      <div className="cursor-not-allowed">
         <div
           className={cn(
-            "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-md",
+            "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300",
             variant === "featured" ? "h-full" : "h-full"
           )}
         >
@@ -111,7 +110,7 @@ export default function TalkCard({
               <Image
                 src={talk.imageUrl}
                 alt={talk.title}
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover"
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
@@ -147,8 +146,7 @@ export default function TalkCard({
             <h3
               className={cn(
                 "font-semibold mb-2 transition-colors",
-                variant === "featured" ? "text-xl md:text-2xl" : "text-lg",
-                "group-hover:text-purple-600"
+                variant === "featured" ? "text-xl md:text-2xl" : "text-lg"
               )}
             >
               {talk.title}
@@ -176,16 +174,13 @@ export default function TalkCard({
               <div className="flex items-center">
                 <div className="text-sm font-medium">{displayName}</div>
               </div>
-              <motion.div
-                whileHover={{ x: 5 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-purple-600 transition-colors" />
-              </motion.div>
+              <div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
             </div>
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }
