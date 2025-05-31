@@ -40,7 +40,7 @@ export default function Home() {
             ].map((topic) => (
               <div
                 key={topic}
-                className="flex items-center justify-center p-4 rounded-lg border bg-card opacity-50 cursor-not-allowed text-center"
+                className="flex items-center justify-center p-4 rounded-lg border bg-card text-center hover:scale-110 transition-all duration-300"
               >
                 <span>{topic}</span>
               </div>

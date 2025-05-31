@@ -98,7 +98,7 @@ export default function TalkCard({
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="opacity-50"
     >
-      <div className="cursor-not-allowed">
+      <div className="hover:scale-105 transition-all duration-300">
         <div
           className={cn(
             "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300",
