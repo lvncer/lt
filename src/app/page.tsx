@@ -38,13 +38,12 @@ export default function Home() {
               "Performance",
               "State Management",
             ].map((topic) => (
-              <Link
+              <div
                 key={topic}
-                href={`/talks?topic=${topic}`}
-                className="flex items-center justify-center p-4 rounded-lg border bg-card hover:bg-accent/50 hover:border-purple-200 transition-colors text-center"
+                className="flex items-center justify-center p-4 rounded-lg border bg-card opacity-50 cursor-not-allowed text-center"
               >
                 <span>{topic}</span>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
