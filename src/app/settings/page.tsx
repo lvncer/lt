@@ -20,7 +20,7 @@ export default function SettingsPage() {
   const { user, isLoaded } = useUser();
   const { deleteUser, isDeleting } = useDeleteUser();
   const { neonid: userId } = useUserId();
-  const { fullname } = useGetFullname(userId || "");
+  const { fullname } = useGetFullname(userId || 0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 

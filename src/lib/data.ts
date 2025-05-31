@@ -11,13 +11,18 @@ export const SAMPLE_TALKS: Talk[] = [
     description:
       "Reactサーバーコンポーネントの探求と、それがReactアプリケーションの構築方法をどのように変えるかについて。",
     status: "approved",
-    date_submitted: "2025-01-15T12:00:00Z",
-    image_url:
+    dateSubmitted: new Date("2025-01-15T12:00:00Z"),
+    imageUrl:
       "https://images.pexels.com/photos/4974915/pexels-photo-4974915.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    presentation_date: "2025-04-28",
+    presentationDate: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
-    user_id: 1,
+    userId: 1,
     fullname: "",
+    hasPresentationUrl: false,
+    presentationUrl: null,
+    allowArchive: false,
+    archiveUrl: null,
+    presentationStartTime: null,
   },
   {
     id: 2,
@@ -29,13 +34,18 @@ export const SAMPLE_TALKS: Talk[] = [
     description:
       "誰もが利用可能なWebアプリケーションを作成するためのベストプラクティス。",
     status: "approved",
-    date_submitted: "2025-01-18T14:30:00Z",
-    image_url:
+    dateSubmitted: new Date("2025-01-18T14:30:00Z"),
+    imageUrl:
       "https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    presentation_date: "2025-04-28",
+    presentationDate: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
-    user_id: 2,
+    userId: 2,
     fullname: "",
+    hasPresentationUrl: false,
+    presentationUrl: null,
+    allowArchive: false,
+    archiveUrl: null,
+    presentationStartTime: null,
   },
   {
     id: 3,
@@ -47,13 +57,18 @@ export const SAMPLE_TALKS: Talk[] = [
     description:
       "いかにNext.Jsが素晴らしいか、もはやWebアプリ開発において必須になりつつあるこれを、熱く語ろう。",
     status: "approved",
-    date_submitted: "2025-04-20T09:15:00Z",
-    image_url:
+    dateSubmitted: new Date("2025-04-20T09:15:00Z"),
+    imageUrl:
       "https://images.pexels.com/photos/7108/notebook-computer-chill-relax.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    presentation_date: "2025-04-28",
+    presentationDate: "2025-04-28",
     venue: "さいたまIT・WEB専門学校 PBLルーム",
-    user_id: 3,
+    userId: 3,
     fullname: "高橋希尋",
+    hasPresentationUrl: false,
+    presentationUrl: null,
+    allowArchive: false,
+    archiveUrl: null,
+    presentationStartTime: null,
   },
 ];
 

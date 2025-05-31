@@ -1,4 +1,6 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { users, talks } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
@@ -12,27 +14,24 @@ export async function DELETE() {
     }
 
     // ClerkのユーザーIDからNeonのユーザーIDを取得
-    const userResult = await sql`
-      SELECT id FROM users WHERE clerk_user_id = ${clerkUserId};
-    `;
+    const userResult = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.clerkUserId, clerkUserId));
 
-    if (userResult.rows.length === 0) {
+    if (userResult.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const neonUserId = userResult.rows[0].id;
+    const neonUserId = userResult[0].id;
 
     // トランザクション開始（すべての操作が成功するか、すべて失敗するか）
     try {
       // 1. まず、ユーザーのすべてのトークを削除
-      await sql`
-        DELETE FROM talks WHERE user_id = ${neonUserId};
-      `;
+      await db.delete(talks).where(eq(talks.userId, neonUserId));
 
       // 2. ユーザーレコードを削除
-      await sql`
-        DELETE FROM users WHERE id = ${neonUserId};
-      `;
+      await db.delete(users).where(eq(users.id, neonUserId));
 
       return NextResponse.json(
         {

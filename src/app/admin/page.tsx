@@ -94,7 +94,7 @@ export default function AdminPage() {
     (talk: Talk) => talk.status === "rejected"
   ).length;
 
-  const renderStatusBadge = (status: string) => {
+  const renderStatusBadge = (status: string | null) => {
     if (status === "approved") {
       return (
         <Badge

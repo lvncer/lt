@@ -1,7 +1,14 @@
+"use client";
+
 import useSWR from "swr";
 import { useAuth } from "@clerk/nextjs";
 
-const fetcher = async (clerkId: string) => {
+/**
+ * ClerkユーザーIDからNeonデータベースのユーザーIDを取得するfetcher関数
+ * @param clerkId - ClerkのユーザーID
+ * @returns NeonデータベースのユーザーID
+ */
+const fetcher = async (clerkId: string): Promise<number> => {
   const res = await fetch("/api/user-id", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -16,10 +23,14 @@ const fetcher = async (clerkId: string) => {
   return data.id;
 };
 
+/**
+ * ClerkユーザーIDからNeonデータベースのユーザーIDを取得するカスタムフック
+ * @returns neonid（NeonデータベースのユーザーID）、ローディング状態、エラー状態
+ */
 export function useUserId() {
   const { userId } = useAuth();
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR<number>(
     userId ? ["userId", userId] : null,
     () => fetcher(userId!)
   );

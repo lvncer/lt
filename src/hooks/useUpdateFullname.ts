@@ -1,15 +1,28 @@
+"use client";
+
 import { useState } from "react";
 
+/**
+ * ユーザーのフルネーム更新機能を提供するカスタムフック
+ * @returns updateFullname関数と状態管理
+ */
 export function useUpdateFullname() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  /**
+   * ユーザーのフルネームを更新する
+   * @param clerkUserId - ClerkのユーザーID
+   * @param neonUserId - NeonデータベースのユーザーID
+   * @param newFullName - 新しいフルネーム
+   * @returns Promise<void>
+   */
   const updateFullname = async (
     clerkUserId: string,
     neonUserId: number,
     newFullName: string
-  ) => {
+  ): Promise<void> => {
     setIsLoading(true);
     setError(null);
     setSuccess(false);

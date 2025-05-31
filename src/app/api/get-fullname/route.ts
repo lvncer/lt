@@ -1,4 +1,6 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -11,15 +13,16 @@ export async function GET(req: Request) {
     }
 
     // Retrieve the hashed fullname from the users table
-    const result = await sql`
-      SELECT fullname FROM users WHERE clerk_user_id = ${userId};
-    `;
+    const result = await db
+      .select({ fullname: users.fullname })
+      .from(users)
+      .where(eq(users.clerkUserId, userId));
 
-    if (result.rowCount === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const hashedFullName = result.rows[0].fullname;
+    const hashedFullName = result[0].fullname;
 
     return NextResponse.json({ hashedFullName });
   } catch (error) {

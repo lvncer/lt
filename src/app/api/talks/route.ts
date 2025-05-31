@@ -1,5 +1,7 @@
-import { sql } from "@vercel/postgres";
+import { db } from "@/lib/db";
+import { talks } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
+import { eq, desc } from "drizzle-orm";
 
 // POST: 新しいトークを登録
 export async function POST(req: Request) {
@@ -24,8 +26,6 @@ export async function POST(req: Request) {
       presentation_start_time,
     } = body;
 
-    const date_submitted = new Date().toISOString();
-
     // presentation_start_timeの必須バリデーション
     if (!presentation_start_time || presentation_start_time.trim() === "") {
       return NextResponse.json(
@@ -34,45 +34,25 @@ export async function POST(req: Request) {
       );
     }
 
-    await sql`
-      INSERT INTO talks (
-        presenter,
-        email,
-        title,
-        duration,
-        topic,
-        description,
-        date_submitted,
-        image_url,
-        presentation_date,
-        venue,
-        user_id,
-        fullname,
-        has_presentation,
-        presentation_url,
-        allow_archive,
-        archive_url,
-        presentation_start_time
-      ) VALUES (
-        ${presenter},
-        ${email},
-        ${title},
-        ${duration},
-        ${topic},
-        ${description},
-        ${date_submitted},
-        ${image_url},
-        ${presentation_date},
-        ${venue},
-        ${neonuuid},
-        ${fullname},
-        ${has_presentation},
-        ${presentation_url},
-        ${allow_archive},
-        ${archive_url},
-        ${presentation_start_time}
-      );
-    `;
+    await db.insert(talks).values({
+      presenter,
+      email,
+      title,
+      duration,
+      topic,
+      description,
+      dateSubmitted: new Date(),
+      imageUrl: image_url,
+      presentationDate: presentation_date,
+      venue,
+      userId: neonuuid,
+      fullname,
+      hasPresentationUrl: has_presentation,
+      presentationUrl: presentation_url,
+      allowArchive: allow_archive,
+      archiveUrl: archive_url,
+      presentationStartTime: presentation_start_time,
+    });
 
     return NextResponse.json(
       { message: "Talk submitted successfully" },
@@ -90,10 +70,12 @@ export async function POST(req: Request) {
 // GET: 登録されたトーク一覧を取得
 export async function GET() {
   try {
-    const result = await sql`
-      SELECT * FROM talks ORDER BY date_submitted DESC;
-    `;
-    return NextResponse.json(result.rows, { status: 200 });
+    const result = await db
+      .select()
+      .from(talks)
+      .orderBy(desc(talks.dateSubmitted));
+
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
     console.error("GET /api/talks error:", error);
     return NextResponse.json(
@@ -131,23 +113,23 @@ export async function PUT(req: Request) {
       );
     }
 
-    await sql`
-      UPDATE talks
-      SET
-        title = ${title},
-        duration = ${duration},
-        topic = ${topic},
-        description = ${description},
-        image_url = ${image_url},
-        presentation_date = ${presentation_date},
-        venue = ${venue},
-        has_presentation = ${has_presentation},
-        presentation_url = ${presentation_url},
-        allow_archive = ${allow_archive},
-        archive_url = ${archive_url},
-        presentation_start_time = ${presentation_start_time}
-      WHERE id = ${id};
-    `;
+    await db
+      .update(talks)
+      .set({
+        title,
+        duration,
+        topic,
+        description,
+        imageUrl: image_url,
+        presentationDate: presentation_date,
+        venue,
+        hasPresentationUrl: has_presentation,
+        presentationUrl: presentation_url,
+        allowArchive: allow_archive,
+        archiveUrl: archive_url,
+        presentationStartTime: presentation_start_time,
+      })
+      .where(eq(talks.id, id));
 
     return NextResponse.json(
       { message: "Talk updated successfully" },
@@ -173,18 +155,19 @@ export async function DELETE(req: Request) {
     }
 
     // 削除しようとするトークが現在のユーザーのものかチェック
-    const talkResult = await sql`
-      SELECT user_id FROM talks WHERE id = ${id};
-    `;
+    const talkResult = await db
+      .select({ userId: talks.userId })
+      .from(talks)
+      .where(eq(talks.id, id));
 
-    if (talkResult.rows.length === 0) {
+    if (talkResult.length === 0) {
       return NextResponse.json({ error: "Talk not found" }, { status: 404 });
     }
 
-    const talk = talkResult.rows[0];
+    const talk = talkResult[0];
 
     // NeonのユーザーIDで比較
-    if (talk.user_id !== neonUserId) {
+    if (talk.userId !== neonUserId) {
       return NextResponse.json(
         { error: "Forbidden: You can only delete your own talks" },
         { status: 403 }
@@ -192,10 +175,7 @@ export async function DELETE(req: Request) {
     }
 
     // 権限チェックが通った場合のみ削除実行
-    await sql`
-      DELETE FROM talks
-      WHERE id = ${id};
-    `;
+    await db.delete(talks).where(eq(talks.id, id));
 
     return NextResponse.json(
       { message: "Talk deleted successfully" },

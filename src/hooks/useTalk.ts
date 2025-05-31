@@ -5,6 +5,11 @@ import { Talk } from "@/types/talk";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+/**
+ * 指定されたIDのトークを取得するカスタムフック
+ * @param id - トークのID
+ * @returns トークデータ、ローディング状態、エラー状態
+ */
 export function useTalk(id: string | undefined) {
   const { data, error, isLoading } = useSWR<Talk>(
     id ? `/api/talk/${id}` : null,
@@ -18,8 +23,10 @@ export function useTalk(id: string | undefined) {
   };
 }
 
-// トークを更新する関数
-export async function updateTalk(updatedTalk: {
+/**
+ * トーク更新用のパラメータ型定義（snake_case形式）
+ */
+interface UpdateTalkParams {
   id: number;
   title: string;
   duration: number;
@@ -33,7 +40,16 @@ export async function updateTalk(updatedTalk: {
   allow_archive?: boolean;
   archive_url?: string;
   presentation_start_time: string;
-}): Promise<Response> {
+}
+
+/**
+ * トークを更新する関数
+ * @param updatedTalk - 更新するトークデータ（snake_case形式）
+ * @returns APIレスポンス
+ */
+export async function updateTalk(
+  updatedTalk: UpdateTalkParams
+): Promise<Response> {
   const response = await fetch(`/api/talks`, {
     method: "PUT",
     headers: {
@@ -49,7 +65,11 @@ export async function updateTalk(updatedTalk: {
   return response;
 }
 
-// トークを削除する関数
+/**
+ * トークを削除する関数
+ * @param id - 削除するトークのID
+ * @returns APIレスポンス
+ */
 export async function deleteTalk(id: string): Promise<Response> {
   const response = await fetch(`/api/talks`, {
     method: "DELETE",
