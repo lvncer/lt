@@ -2,6 +2,10 @@ import { db } from "@/lib/db";
 import { talks } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
+import {
+  sendDiscordNotificationAsync,
+  type TalkNotificationData,
+} from "@/lib/discord";
 
 // POST: 新しいトークを登録
 export async function POST(req: Request) {
@@ -34,25 +38,45 @@ export async function POST(req: Request) {
       );
     }
 
-    await db.insert(talks).values({
-      presenter,
-      email,
-      title,
-      duration,
-      topic,
-      description,
-      dateSubmitted: new Date(),
-      imageUrl: image_url,
-      presentationDate: presentation_date,
-      venue,
-      userId: neonuuid,
-      fullname,
-      hasPresentationUrl: has_presentation,
-      presentationUrl: presentation_url,
-      allowArchive: allow_archive,
-      archiveUrl: archive_url,
-      presentationStartTime: presentation_start_time,
-    });
+    const result = await db
+      .insert(talks)
+      .values({
+        presenter,
+        email,
+        title,
+        duration,
+        topic,
+        description,
+        dateSubmitted: new Date(),
+        imageUrl: image_url,
+        presentationDate: presentation_date,
+        venue,
+        userId: neonuuid,
+        fullname,
+        hasPresentationUrl: has_presentation,
+        presentationUrl: presentation_url,
+        allowArchive: allow_archive,
+        archiveUrl: archive_url,
+        presentationStartTime: presentation_start_time,
+      })
+      .returning({ id: talks.id });
+
+    // Discord通知を非同期で送信（メイン処理をブロックしない）
+    if (result && result.length > 0) {
+      const talkId = result[0].id;
+      const notificationData: TalkNotificationData = {
+        title,
+        presenter,
+        topic,
+        duration,
+        description,
+        venue,
+        presentationDate: presentation_date,
+        talkId,
+      };
+
+      sendDiscordNotificationAsync(notificationData);
+    }
 
     return NextResponse.json(
       { message: "Talk submitted successfully" },

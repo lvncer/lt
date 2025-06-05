@@ -30,6 +30,23 @@ LT（ライトニングトーク）を通じて、以下の価値を提供しま
 4. 発表当日は、質疑応答や参加者との対話を通じて、さらに知識を深めてください。
    楽しんでご参加ください！
 
+## 環境設定
+
+### Discord 通知機能
+
+新しいトーク投稿時に Discord に通知を送信する機能があります。
+この機能を有効にするには、以下の環境変数を設定してください：
+
+```bash
+# Discord Webhook URL（オプション）
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_URL
+
+# ベースURL（本番環境では適切なドメインを設定）
+NEXT_PUBLIC_BASE_URL=https://your-domain.com
+```
+
+Discord Webhook URL が設定されていない場合、通知機能は無効になりますが、アプリケーションは正常に動作します。
+
 ## コントリビューション（貢献）
 
 このプロジェクトへの貢献を歓迎します。
