@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, Calendar, ChevronRight, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -91,96 +92,119 @@ export default function TalkCard({
     return statusColors[validStatus] || statusColors.pending;
   };
 
-  return (
+  // リンクが有効かどうかを判定
+  const isLinkEnabled = variant !== "featured";
+
+  // カードコンテンツ
+  const cardContent = (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="opacity-50"
+      className={cn(
+        "transition-all duration-300",
+        variant === "featured" ? "opacity-50" : "",
+        isLinkEnabled ? "hover:scale-105 cursor-pointer" : ""
+      )}
     >
-      <div className="hover:scale-105 transition-all duration-300">
-        <div
-          className={cn(
-            "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300",
-            variant === "featured" ? "h-full" : "h-full"
-          )}
-        >
-          {talk.imageUrl && (
-            <div className="relative w-full aspect-video overflow-hidden">
-              <Image
-                src={talk.imageUrl}
-                alt={talk.title}
-                className="object-cover"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-black/50"></div>
+      <div
+        className={cn(
+          "relative group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300",
+          variant === "featured" ? "h-full" : "h-full",
+          isLinkEnabled ? "hover:shadow-lg hover:border-primary/20" : ""
+        )}
+      >
+        {talk.imageUrl && (
+          <div className="relative w-full aspect-video overflow-hidden">
+            <Image
+              src={talk.imageUrl}
+              alt={talk.title}
+              className="object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-black/50"></div>
 
-              {isLive && (
-                <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-red-600 text-white text-xs font-medium rounded-full animate-pulse">
-                  <Radio className="h-3 w-3" />
-                  <span>LIVE</span>
-                </div>
-              )}
-            </div>
-          )}
+            {isLive && (
+              <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-red-600 text-white text-xs font-medium rounded-full animate-pulse">
+                <Radio className="h-3 w-3" />
+                <span>LIVE</span>
+              </div>
+            )}
+          </div>
+        )}
 
-          <div className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-xs px-2 py-0.5",
-                  getStatusColor(talk.status)
-                )}
-              >
-                {talk.status
-                  ? talk.status.charAt(0).toUpperCase() + talk.status.slice(1)
-                  : "Pending"}
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {talk.topic}
-              </Badge>
-            </div>
-
-            <h3
-              className={cn(
-                "font-semibold mb-2 transition-colors",
-                variant === "featured" ? "text-xl md:text-2xl" : "text-lg"
-              )}
+        <div className="p-4">
+          <div className="flex items-start justify-between mb-2">
+            <Badge
+              variant="outline"
+              className={cn("text-xs px-2 py-0.5", getStatusColor(talk.status))}
             >
-              {talk.title}
-            </h3>
+              {talk.status
+                ? talk.status.charAt(0).toUpperCase() + talk.status.slice(1)
+                : "Pending"}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              {talk.topic}
+            </Badge>
+          </div>
 
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-              {talk.description}
-            </p>
+          <h3
+            className={cn(
+              "font-semibold mb-2 transition-colors",
+              variant === "featured" ? "text-xl md:text-2xl" : "text-lg",
+              isLinkEnabled ? "group-hover:text-primary" : ""
+            )}
+          >
+            {talk.title}
+          </h3>
 
-            <div className="flex items-center text-sm text-muted-foreground mb-3">
-              <Clock className="w-4 h-4 mr-1" />
-              <span>{talk.duration} min</span>
-              <div className="mx-2 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
-              <Calendar className="w-4 h-4 mr-1" />
-              <span>{formattedPresentationDate}</span>
-              {talk.presentationStartTime && (
-                <>
-                  <div className="mx-1 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
-                  <span>{talk.presentationStartTime}</span>
-                </>
-              )}
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+            {talk.description}
+          </p>
+
+          <div className="flex items-center text-sm text-muted-foreground mb-3">
+            <Clock className="w-4 h-4 mr-1" />
+            <span>{talk.duration} min</span>
+            <div className="mx-2 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+            <Calendar className="w-4 h-4 mr-1" />
+            <span>{formattedPresentationDate}</span>
+            {talk.presentationStartTime && (
+              <>
+                <div className="mx-1 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+                <span>{talk.presentationStartTime}</span>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="text-sm font-medium">{displayName}</div>
             </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="text-sm font-medium">{displayName}</div>
-              </div>
+            {isLinkEnabled && (
               <div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <ChevronRight
+                  className={cn(
+                    "w-4 h-4 text-muted-foreground transition-transform",
+                    "group-hover:translate-x-1 group-hover:text-primary"
+                  )}
+                />
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
     </motion.div>
   );
+
+  // リンクが有効な場合はLinkでラップ、無効な場合はそのまま返す
+  if (isLinkEnabled) {
+    return (
+      <Link href={`/talk/${talk.id}`} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

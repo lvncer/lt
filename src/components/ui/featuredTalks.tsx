@@ -33,7 +33,7 @@ export default function FeaturedTalks({ featuredTalks }: FeaturedTalksProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featuredTalks.map((talk: Talk) => (
-            <TalkCard key={talk.id} talk={talk} />
+            <TalkCard key={talk.id} talk={talk} variant="featured" />
           ))}
         </div>
       </div>
