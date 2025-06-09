@@ -367,6 +367,108 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="hasPresentationUrl"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                          if (!e.target.checked) {
+                            form.setValue("presentationUrl", "");
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="プレゼン資料を共有する"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>プレゼン資料を共有する</FormLabel>
+                      <FormDescription>
+                        発表で使用する資料を共有する場合はチェックしてください。
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("hasPresentationUrl") && (
+                <FormField
+                  control={form.control}
+                  name="presentationUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>資料URL</FormLabel>
+                      <div className="mb-1" />
+                      <FormControl>
+                        <Input
+                          placeholder="https://example.com/presentation"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        発表資料のURLを入力してください（Google
+                        Slides、PowerPointなど）。
+                      </FormDescription>
+                      <FormMessage className="text-red-400 text-sm" />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="allowArchive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                          if (!e.target.checked) {
+                            form.setValue("archiveUrl", "");
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="アーカイブとして公開を許可する"
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>アーカイブとして公開を許可する</FormLabel>
+                      <FormDescription>
+                        発表内容をアーカイブとして公開することを許可する場合はチェックしてください。
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch("allowArchive") && (
+                <FormField
+                  control={form.control}
+                  name="archiveUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>アーカイブURL</FormLabel>
+                      <div className="mb-1" />
+                      <FormControl>
+                        <Input placeholder="https://example.com/archive" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        発表内容のアーカイブURLを入力してください（YouTube、Vimeoなど）。
+                      </FormDescription>
+                      <FormMessage className="text-red-400 text-sm" />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <div className="flex gap-2">
                 <Button type="submit" className="flex items-center gap-2">
                   <Save className="h-4 w-4" />
@@ -409,6 +511,32 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                   <p>発表日: {talk.presentationDate || "未定"}</p>
                   <p>発表場所: {talk.venue || "未定"}</p>
                   <p>開始時刻: {talk.presentationStartTime || "未定"}</p>
+                  {talk.hasPresentationUrl && talk.presentationUrl && (
+                    <p>
+                      プレゼン資料:{" "}
+                      <a
+                        href={talk.presentationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {talk.presentationUrl}
+                      </a>
+                    </p>
+                  )}
+                  {talk.allowArchive && talk.archiveUrl && (
+                    <p>
+                      アーカイブ:{" "}
+                      <a
+                        href={talk.archiveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {talk.archiveUrl}
+                      </a>
+                    </p>
+                  )}
                 </div>
               </div>
               {talk.imageUrl && (
