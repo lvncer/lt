@@ -62,6 +62,7 @@ export default function Home() {
               </p>
               <Button
                 size="lg"
+                variant="outline"
                 className="bg-white text-purple-600 hover:bg-white/90"
               >
                 <Link href="/register" className="flex items-center gap-2">

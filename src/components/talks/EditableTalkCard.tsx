@@ -470,7 +470,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
               )}
 
               <div className="flex gap-2">
-                <Button type="submit" className="flex items-center gap-2">
+                <Button type="submit" variant="outline" className="flex items-center gap-2">
                   <Save className="h-4 w-4" />
                   保存
                 </Button>
