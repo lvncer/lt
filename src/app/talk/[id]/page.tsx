@@ -227,40 +227,28 @@ export default function TalkPage() {
                   {talk.hasPresentationUrl && talk.presentationUrl && (
                     <div className="text-sm mb-2">
                       <div className="font-medium mb-1">プレゼン資料</div>
-                      <a
+                      <Link
                         href={talk.presentationUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
                         {talk.presentationUrl}
-                      </a>
-                      {talk.archiveUrl ? (
-                        <a
-                          href={talk.archiveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all"
-                        >
-                          {talk.archiveUrl}
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">公開予定</span>
-                      )}
+                      </Link>
                     </div>
                   )}
 
                   {talk.allowArchive && talk.archiveUrl && (
                     <div className="text-sm">
                       <div className="font-medium mb-1">アーカイブ</div>
-                      <a
+                      <Link
                         href={talk.archiveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
                         {talk.archiveUrl}
-                      </a>
+                      </Link>
                     </div>
                   )}
                 </div>
