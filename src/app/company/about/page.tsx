@@ -108,7 +108,7 @@ export default function AboutPage() {
             there is a place for you in our community.
           </p>
           <div className="flex justify-center gap-4">
-            <Button size="lg" asChild>
+            <Button size="lg" variant="outline" asChild>
               <Link href="/register">Submit a Talk</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>

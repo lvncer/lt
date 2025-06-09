@@ -103,6 +103,7 @@ export default function HeroSection() {
           >
             <Button
               size="lg"
+              variant="outline"
               className="bg-purple-600 hover:bg-purple-700 text-white group"
             >
               <Link href="/register" className="flex items-center gap-2">
