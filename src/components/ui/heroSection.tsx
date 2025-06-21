@@ -21,13 +21,6 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-const stats = [
-  { number: "3+", label: "Talks Submitted", color: "text-purple-600" },
-  { number: "100+", label: "Topics Covered", color: "text-blue-600" },
-  { number: "3+", label: "Speakers", color: "text-teal-600" },
-  { number: "3+", label: "Users", color: "text-orange-500" },
-];
-
 export default function HeroSection() {
   return (
     <div className="mt-8 relative overflow-hidden">
@@ -64,7 +57,7 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      <div className="container mx-auto px-4 py-20 sm:py-32 md:py-38 lg:py-44">
+      <div className="container mx-auto px-4 pb-20 pt-20 sm:pt-32 md:pt-38 lg:pt-44">
         <motion.div
           className="flex flex-col items-center text-center"
           variants={container}
@@ -114,30 +107,6 @@ export default function HeroSection() {
             <Button size="lg" variant="outline">
               <Link href="/talks">Browse Talks</Link>
             </Button>
-          </motion.div>
-
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                variants={item}
-                className="flex flex-col items-center"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className={`text-3xl font-bold mb-1 ${stat.color}`}>
-                  {stat.number}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
           </motion.div>
         </motion.div>
       </div>
