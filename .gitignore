@@ -44,6 +44,11 @@ next-env.d.ts
 .vscode/
 .github/copilot-instructions.md
 .cursor
+.claude
+CLAUDE.md
 
 # sql files
 public/sql/
+
+# mcp files
+.mcp.json
