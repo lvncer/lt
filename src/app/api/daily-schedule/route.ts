@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { talks } from "@/lib/db/schema";
+import { talks, users } from "@/lib/db/schema";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { format } from "date-fns";
@@ -27,10 +27,31 @@ export async function GET(req: NextRequest) {
       // エラーが発生した場合は元の日付を使用
     }
 
-    // 正規化された日付でトークを検索
+    // 正規化された日付でトークを検索（usersテーブルとJOIN）
     const result = await db
-      .select()
+      .select({
+        id: talks.id,
+        presenter: talks.presenter,
+        email: talks.email,
+        title: talks.title,
+        duration: talks.duration,
+        topic: talks.topic,
+        description: talks.description,
+        status: talks.status,
+        dateSubmitted: talks.dateSubmitted,
+        imageUrl: talks.imageUrl,
+        presentationDate: talks.presentationDate,
+        venue: talks.venue,
+        userId: talks.userId,
+        fullname: users.fullname, // usersテーブルからfullnameを取得
+        hasPresentationUrl: talks.hasPresentationUrl,
+        presentationUrl: talks.presentationUrl,
+        allowArchive: talks.allowArchive,
+        archiveUrl: talks.archiveUrl,
+        presentationStartTime: talks.presentationStartTime,
+      })
       .from(talks)
+      .leftJoin(users, eq(talks.userId, users.id))
       .where(
         and(
           sql`DATE(${talks.presentationDate}) = ${normalizedDate}::DATE`,

@@ -219,7 +219,7 @@ export default function SchedulePage() {
                         {talk.title}
                       </h3>
                       <p className="text-md text-muted-foreground mb-4">
-                        発表者: {talk.fullname || talk.presenter}
+                        発表者: {(talk.fullname && talk.fullname !== 'anonymous') ? talk.fullname : talk.presenter}
                       </p>
                       <p className="text-sm text-muted-foreground mb-4">
                         {talk.description}
