@@ -156,7 +156,7 @@ export default function SchedulePage() {
         </Link>
       </Button>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tight mb-6">
           ライトニングトークスケジュール
         </h1>
@@ -190,7 +190,7 @@ export default function SchedulePage() {
           </div>
 
           {/* 右側: 予定がある日付リスト - 全面表示 */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <Card className="h-full">
               <CardContent className="p-4 h-full">
                 <div className="h-full max-h-[500px] overflow-y-auto">
@@ -210,72 +210,76 @@ export default function SchedulePage() {
             <Info className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         ) : talks.length > 0 ? (
-          <div className="space-y-6">
-            {talks.map((talk) => (
-              <Card key={talk.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="relative aspect-video md:aspect-square">
-                      {talk.imageUrl && (
-                        <Image
-                          src={talk.imageUrl}
-                          alt={talk.title}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="p-6 md:col-span-2">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Badge
-                          variant="outline"
-                          className="bg-purple-50 text-purple-700 border-purple-200"
-                        >
-                          発表時間: {talk.presentationStartTime || "時間未定"}
-                        </Badge>
-                        <Badge variant="outline">{talk.venue}</Badge>
-                        {isLiveTalk(talk) && (
-                          <Badge
-                            variant="destructive"
-                            className="animate-pulse"
-                          >
-                            ライブ配信中
-                          </Badge>
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-6">
+              {talks.map((talk) => (
+                <Card key={talk.id} className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="relative aspect-video md:aspect-square">
+                        {talk.imageUrl && (
+                          <Image
+                            src={talk.imageUrl}
+                            alt={talk.title}
+                            fill
+                            className="object-cover"
+                          />
                         )}
                       </div>
-
-                      <h3 className="text-xl font-semibold mb-2">
-                        {talk.title}
-                      </h3>
-                      <p className="text-md text-muted-foreground mb-4">
-                        発表者: {(talk.fullname && talk.fullname !== 'anonymous') ? talk.fullname : talk.presenter}
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {talk.description}
-                      </p>
-
-                      <div className="flex items-center text-sm text-muted-foreground mb-6">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{talk.duration} 分</span>
-                        <div className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
-                          {talk.topic}
+                      <div className="p-6 md:col-span-2">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Badge
+                            variant="outline"
+                            className="bg-purple-50 text-purple-700 border-purple-200"
+                          >
+                            発表時間: {talk.presentationStartTime || "時間未定"}
+                          </Badge>
+                          <Badge variant="outline">{talk.venue}</Badge>
+                          {isLiveTalk(talk) && (
+                            <Badge
+                              variant="destructive"
+                              className="animate-pulse"
+                            >
+                              ライブ配信中
+                            </Badge>
+                          )}
                         </div>
-                      </div>
 
-                      <Button variant="outline" asChild>
-                        <Link href={`/talk/${talk.id}`}>詳細を見る</Link>
-                      </Button>
+                        <h3 className="text-xl font-semibold mb-2">
+                          {talk.title}
+                        </h3>
+                        <p className="text-md text-muted-foreground mb-4">
+                          発表者: {(talk.fullname && talk.fullname !== 'anonymous') ? talk.fullname : talk.presenter}
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {talk.description}
+                        </p>
+
+                        <div className="flex items-center text-sm text-muted-foreground mb-6">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>{talk.duration} 分</span>
+                          <div className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+                            {talk.topic}
+                          </div>
+                        </div>
+
+                        <Button variant="outline" asChild>
+                          <Link href={`/talk/${talk.id}`}>詳細を見る</Link>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         ) : (
-          <div className="text-center py-12 bg-accent rounded-lg">
-            <p className="text-lg text-muted-foreground">
-              この日に予定されているトークはありません
-            </p>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center py-12 bg-accent rounded-lg">
+              <p className="text-lg text-muted-foreground">
+                この日に予定されているトークはありません
+              </p>
+            </div>
           </div>
         )}
       </div>
