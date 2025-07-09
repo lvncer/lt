@@ -148,7 +148,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container max-w-7xl mx-auto px-4 py-12">
       <Button variant="ghost" size="sm" asChild className="mb-8">
         <Link href="/" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
@@ -156,61 +156,46 @@ export default function SchedulePage() {
         </Link>
       </Button>
 
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">
-          ライトニングトークスケジュール
-        </h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-6">
+        ライトニングトークスケジュール
+      </h1>
 
-        <div className="flex flex-col lg:flex-row gap-6 mb-8">
-          {/* 左側: 日付選択エリア */}
-          <div className="lg:w-80 flex-shrink-0">
-            <Card>
-              <CardContent className="p-4">
-                {/* 現在の日付表示と前後ボタン */}
-                <div className="flex items-center justify-between mb-4">
-                  <Button variant="outline" size="icon" onClick={handlePreviousDay}>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="text-lg font-medium text-center px-4">
-                    {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
-                  </div>
-                  <Button variant="outline" size="icon" onClick={handleNextDay}>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                {/* 日付選択コンポーネント */}
-                <EnhancedDatePicker
-                  selectedDate={selectedDate}
-                  onDateChange={handleDateChange}
-                  scheduleDates={dates}
-                />
-              </CardContent>
-            </Card>
-          </div>
+      {/* 日付選択エリア - 上部に配置 */}
+      <div className="mb-6">
+        <Card>
+          <CardContent className="p-4">
+            {/* 現在の日付表示と前後ボタン */}
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="outline" size="icon" onClick={handlePreviousDay}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-lg font-medium text-center px-4">
+                {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
+              </div>
+              <Button variant="outline" size="icon" onClick={handleNextDay}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
 
-          {/* 右側: 予定がある日付リスト - 全面表示 */}
-          <div className="flex-1 min-w-0">
-            <Card className="h-full">
-              <CardContent className="p-4 h-full">
-                <div className="h-full max-h-[500px] overflow-y-auto">
-                  <EnhancedDateList
-                    dates={dates}
-                    selectedDate={formattedDate}
-                    onDateSelect={handleDateSelect}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+            {/* 日付選択コンポーネント */}
+            <EnhancedDatePicker
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              scheduleDates={dates}
+            />
+          </CardContent>
+        </Card>
+      </div>
 
-        {isTalksLoading ? (
-          <div className="flex justify-center py-12">
-            <Info className="h-8 w-8 animate-spin text-blue-500" />
-          </div>
-        ) : talks.length > 0 ? (
-          <div className="max-w-4xl mx-auto">
+      {/* トーク一覧と日付リストのレイアウト */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* 左側: トーク一覧 */}
+        <div className="flex-1">
+          {isTalksLoading ? (
+            <div className="flex justify-center py-12">
+              <Info className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+          ) : talks.length > 0 ? (
             <div className="space-y-6">
               {talks.map((talk) => (
                 <Card key={talk.id} className="overflow-hidden">
@@ -249,7 +234,10 @@ export default function SchedulePage() {
                           {talk.title}
                         </h3>
                         <p className="text-md text-muted-foreground mb-4">
-                          発表者: {(talk.fullname && talk.fullname !== 'anonymous') ? talk.fullname : talk.presenter}
+                          発表者:{" "}
+                          {talk.fullname && talk.fullname !== "anonymous"
+                            ? talk.fullname
+                            : talk.presenter}
                         </p>
                         <p className="text-sm text-muted-foreground mb-4">
                           {talk.description}
@@ -272,16 +260,29 @@ export default function SchedulePage() {
                 </Card>
               ))}
             </div>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
+          ) : (
             <div className="text-center py-12 bg-accent rounded-lg">
               <p className="text-lg text-muted-foreground">
                 この日に予定されているトークはありません
               </p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* 右側: 予定がある日付リスト - パネル表示 */}
+        <div className="lg:w-80 flex-shrink-0">
+          <Card className="sticky top-4 h-full">
+            <CardContent className="p-4 h-full">
+              <div className="h-full max-h-[500px] overflow-y-auto">
+                <EnhancedDateList
+                  dates={dates}
+                  selectedDate={formattedDate}
+                  onDateSelect={handleDateSelect}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
