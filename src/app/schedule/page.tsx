@@ -15,12 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDailySchedule } from "@/hooks/useDailySchedule";
-import { useScheduleDates } from "@/hooks/useScheduleDates";
+import { useScheduleData } from "@/hooks/useScheduleData";
+import { EnhancedDatePicker } from "@/components/schedule/enhanced-date-picker";
+import { EnhancedDateList } from "@/components/schedule/enhanced-date-list";
 import { Talk } from "@/types/talk";
 
 export default function SchedulePage() {
   // 利用可能な日付を取得
-  const { dates, isLoading: isDatesLoading } = useScheduleDates();
+  const { dates, isDatesLoading, preloadScheduleData } = useScheduleData();
 
   // 初期日付の設定
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -45,6 +47,8 @@ export default function SchedulePage() {
     const prevDate = subDays(selectedDate, 1);
     setSelectedDate(prevDate);
     setFormattedDate(format(prevDate, "yyyy-MM-dd"));
+    // プリロード
+    preloadScheduleData(prevDate);
   };
 
   // 次の日に移動
@@ -54,6 +58,8 @@ export default function SchedulePage() {
     const nextDate = addDays(selectedDate, 1);
     setSelectedDate(nextDate);
     setFormattedDate(format(nextDate, "yyyy-MM-dd"));
+    // プリロード
+    preloadScheduleData(nextDate);
   };
 
   // 特定の日付に直接移動
@@ -62,6 +68,15 @@ export default function SchedulePage() {
     setFormattedDate(dateStr);
     // 日付オブジェクトをselectedDateに設定
     setSelectedDate(parseISO(dateStr));
+  };
+
+  // 日付変更時の処理
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      setSelectedDate(date);
+      setFormattedDate(format(date, "yyyy-MM-dd"));
+      preloadScheduleData(date);
+    }
   };
 
   // 現在実施中のトークかどうかを判定
@@ -133,7 +148,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container max-w-7xl mx-auto px-4 py-12">
       <Button variant="ghost" size="sm" asChild className="mb-8">
         <Link href="/" className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
@@ -141,114 +156,133 @@ export default function SchedulePage() {
         </Link>
       </Button>
 
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">
-          ライトニングトークスケジュール
-        </h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-6">
+        ライトニングトークスケジュール
+      </h1>
 
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={handlePreviousDay}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-lg font-medium">
-              {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
+      {/* 日付選択エリア - 上部に配置 */}
+      <div className="mb-6">
+        <Card>
+          <CardContent className="p-4">
+            {/* 現在の日付表示と前後ボタン */}
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="outline" size="icon" onClick={handlePreviousDay}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-lg font-medium text-center px-4">
+                {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
+              </div>
+              <Button variant="outline" size="icon" onClick={handleNextDay}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-            <Button variant="outline" size="icon" onClick={handleNextDay}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            {dates.slice(0, 5).map((date) => {
-              // 日付文字列そのものを比較
-              const isSelected = date === formattedDate;
-              return (
-                <Button
-                  key={date}
-                  variant={isSelected ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleDateSelect(date)}
-                >
-                  {format(parseISO(date), "MM/dd")}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
 
-        {isTalksLoading ? (
-          <div className="flex justify-center py-12">
-            <Info className="h-8 w-8 animate-spin text-blue-500" />
-          </div>
-        ) : talks.length > 0 ? (
-          <div className="space-y-6">
-            {talks.map((talk) => (
-              <Card key={talk.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="relative aspect-video md:aspect-square">
-                      {talk.imageUrl && (
-                        <Image
-                          src={talk.imageUrl}
-                          alt={talk.title}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="p-6 md:col-span-2">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Badge
-                          variant="outline"
-                          className="bg-purple-50 text-purple-700 border-purple-200"
-                        >
-                          発表時間: {talk.presentationStartTime || "時間未定"}
-                        </Badge>
-                        <Badge variant="outline">{talk.venue}</Badge>
-                        {isLiveTalk(talk) && (
-                          <Badge
-                            variant="destructive"
-                            className="animate-pulse"
-                          >
-                            ライブ配信中
-                          </Badge>
+            {/* 日付選択コンポーネント */}
+            <EnhancedDatePicker
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              scheduleDates={dates}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* トーク一覧と日付リストのレイアウト */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* 左側: トーク一覧 */}
+        <div className="flex-1">
+          {isTalksLoading ? (
+            <div className="flex justify-center py-12">
+              <Info className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+          ) : talks.length > 0 ? (
+            <div className="space-y-6">
+              {talks.map((talk) => (
+                <Card key={talk.id} className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="relative aspect-video md:aspect-square">
+                        {talk.imageUrl && (
+                          <Image
+                            src={talk.imageUrl}
+                            alt={talk.title}
+                            fill
+                            className="object-cover"
+                          />
                         )}
                       </div>
-
-                      <h3 className="text-xl font-semibold mb-2">
-                        {talk.title}
-                      </h3>
-                      <p className="text-md text-muted-foreground mb-4">
-                        発表者: {(talk.fullname && talk.fullname !== 'anonymous') ? talk.fullname : talk.presenter}
-                      </p>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {talk.description}
-                      </p>
-
-                      <div className="flex items-center text-sm text-muted-foreground mb-6">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{talk.duration} 分</span>
-                        <div className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
-                          {talk.topic}
+                      <div className="p-6 md:col-span-2">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Badge
+                            variant="outline"
+                            className="bg-purple-50 text-purple-700 border-purple-200"
+                          >
+                            発表時間: {talk.presentationStartTime || "時間未定"}
+                          </Badge>
+                          <Badge variant="outline">{talk.venue}</Badge>
+                          {isLiveTalk(talk) && (
+                            <Badge
+                              variant="destructive"
+                              className="animate-pulse"
+                            >
+                              ライブ配信中
+                            </Badge>
+                          )}
                         </div>
-                      </div>
 
-                      <Button variant="outline" asChild>
-                        <Link href={`/talk/${talk.id}`}>詳細を見る</Link>
-                      </Button>
+                        <h3 className="text-xl font-semibold mb-2">
+                          {talk.title}
+                        </h3>
+                        <p className="text-md text-muted-foreground mb-4">
+                          発表者:{" "}
+                          {talk.fullname && talk.fullname !== "anonymous"
+                            ? talk.fullname
+                            : talk.presenter}
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {talk.description}
+                        </p>
+
+                        <div className="flex items-center text-sm text-muted-foreground mb-6">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>{talk.duration} 分</span>
+                          <div className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+                            {talk.topic}
+                          </div>
+                        </div>
+
+                        <Button variant="outline" asChild>
+                          <Link href={`/talk/${talk.id}`}>詳細を見る</Link>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-accent rounded-lg">
-            <p className="text-lg text-muted-foreground">
-              この日に予定されているトークはありません
-            </p>
-          </div>
-        )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-accent rounded-lg">
+              <p className="text-lg text-muted-foreground">
+                この日に予定されているトークはありません
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* 右側: 予定がある日付リスト - パネル表示 */}
+        <div className="lg:w-80 flex-shrink-0">
+          <Card className="sticky top-4 h-full">
+            <CardContent className="p-4 h-full">
+              <div className="h-full max-h-[500px] overflow-y-auto">
+                <EnhancedDateList
+                  dates={dates}
+                  selectedDate={formattedDate}
+                  onDateSelect={handleDateSelect}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
