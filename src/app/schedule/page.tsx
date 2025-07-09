@@ -15,12 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useDailySchedule } from "@/hooks/useDailySchedule";
-import { useScheduleDates } from "@/hooks/useScheduleDates";
+import { useScheduleData } from "@/hooks/useScheduleData";
+import { EnhancedDatePicker } from "@/components/schedule/enhanced-date-picker";
+import { EnhancedDateList } from "@/components/schedule/enhanced-date-list";
 import { Talk } from "@/types/talk";
 
 export default function SchedulePage() {
   // 利用可能な日付を取得
-  const { dates, isLoading: isDatesLoading } = useScheduleDates();
+  const { dates, isDatesLoading, preloadScheduleData } = useScheduleData();
 
   // 初期日付の設定
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -45,6 +47,8 @@ export default function SchedulePage() {
     const prevDate = subDays(selectedDate, 1);
     setSelectedDate(prevDate);
     setFormattedDate(format(prevDate, "yyyy-MM-dd"));
+    // プリロード
+    preloadScheduleData(prevDate);
   };
 
   // 次の日に移動
@@ -54,6 +58,8 @@ export default function SchedulePage() {
     const nextDate = addDays(selectedDate, 1);
     setSelectedDate(nextDate);
     setFormattedDate(format(nextDate, "yyyy-MM-dd"));
+    // プリロード
+    preloadScheduleData(nextDate);
   };
 
   // 特定の日付に直接移動
@@ -62,6 +68,15 @@ export default function SchedulePage() {
     setFormattedDate(dateStr);
     // 日付オブジェクトをselectedDateに設定
     setSelectedDate(parseISO(dateStr));
+  };
+
+  // 日付変更時の処理
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      setSelectedDate(date);
+      setFormattedDate(format(date, "yyyy-MM-dd"));
+      preloadScheduleData(date);
+    }
   };
 
   // 現在実施中のトークかどうかを判定
@@ -146,33 +161,43 @@ export default function SchedulePage() {
           ライトニングトークスケジュール
         </h1>
 
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={handlePreviousDay}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="text-lg font-medium">
-              {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
-            </div>
-            <Button variant="outline" size="icon" onClick={handleNextDay}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 mb-8">
+          {/* 左パネル: 日付選択エリア */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-4 lg:mb-6">
+                  <Button variant="outline" size="icon" onClick={handlePreviousDay}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <div className="text-base lg:text-lg font-medium text-center px-2">
+                    {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
+                  </div>
+                  <Button variant="outline" size="icon" onClick={handleNextDay}>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <EnhancedDatePicker
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                  scheduleDates={dates}
+                />
+              </CardContent>
+            </Card>
           </div>
-          <div className="flex gap-2">
-            {dates.slice(0, 5).map((date) => {
-              // 日付文字列そのものを比較
-              const isSelected = date === formattedDate;
-              return (
-                <Button
-                  key={date}
-                  variant={isSelected ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleDateSelect(date)}
-                >
-                  {format(parseISO(date), "MM/dd")}
-                </Button>
-              );
-            })}
+
+          {/* 右パネル: 日付リスト */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-4 lg:p-6 max-h-96 lg:max-h-[500px] overflow-y-auto">
+                <EnhancedDateList
+                  dates={dates}
+                  selectedDate={formattedDate}
+                  onDateSelect={handleDateSelect}
+                />
+              </CardContent>
+            </Card>
           </div>
         </div>
 
