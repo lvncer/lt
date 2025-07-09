@@ -18,7 +18,33 @@ describe('EnhancedDatePicker', () => {
       />
     );
 
-    expect(screen.getByLabelText('日付を選択')).toBeInTheDocument();
+    expect(screen.getByLabelText('日付入力')).toBeInTheDocument();
+  });
+
+  test('renders calendar trigger button', () => {
+    render(
+      <EnhancedDatePicker
+        selectedDate={null}
+        onDateChange={mockOnDateChange}
+        scheduleDates={mockScheduleDates}
+      />
+    );
+
+    expect(screen.getByText('選択')).toBeInTheDocument();
+  });
+
+  test('displays selected date in calendar button', () => {
+    const selectedDate = new Date('2024-01-15');
+    
+    render(
+      <EnhancedDatePicker
+        selectedDate={selectedDate}
+        onDateChange={mockOnDateChange}
+        scheduleDates={mockScheduleDates}
+      />
+    );
+
+    expect(screen.getByText('1/15')).toBeInTheDocument();
   });
 
   test('calls onDateChange when date input changes', () => {
@@ -30,7 +56,7 @@ describe('EnhancedDatePicker', () => {
       />
     );
 
-    const dateInput = screen.getByLabelText('日付を選択');
+    const dateInput = screen.getByLabelText('日付入力');
     fireEvent.change(dateInput, { target: { value: '2024-01-15' } });
 
     expect(mockOnDateChange).toHaveBeenCalledWith(expect.any(Date));

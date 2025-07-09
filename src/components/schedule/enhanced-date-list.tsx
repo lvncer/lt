@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import { ja } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface EnhancedDateListProps {
@@ -66,19 +65,19 @@ export function EnhancedDateList({
     <div className={className}>
       <h3 className="text-lg font-semibold mb-4">予定のある日付</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-3">
         {sortedYears.map(year => (
-          <Card key={year} className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <span>{year}年</span>
-                <Badge variant="outline" className="ml-auto">
+          <div key={year} className="border rounded-lg overflow-hidden bg-card">
+            <div className="px-4 py-3 border-b bg-muted/50">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base font-medium">{year}年</h4>
+                <Badge variant="outline">
                   {groupedDates[year].length}件
                 </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
+              </div>
+            </div>
+            <div className="p-3">
+              <div className="space-y-1">
                 {groupedDates[year].map(dateStr => {
                   const isSelected = dateStr === selectedDate;
                   
@@ -105,8 +104,8 @@ export function EnhancedDateList({
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
       
