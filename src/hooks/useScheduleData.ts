@@ -9,48 +9,32 @@ interface CachedScheduleData {
   [key: string]: Talk[];
 }
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useScheduleData() {
-  const { data: dates, error: datesError, isLoading: isDatesLoading } = useSWR<string[]>(
-    "/api/schedule-dates",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+  const {
+    data: dates,
+    error: datesError,
+    isLoading: isDatesLoading,
+  } = useSWR<string[]>("/api/schedule-dates", fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 5 * 60 * 1000, // 5 minutes
+  });
 
   const cachedData: CachedScheduleData = useMemo(() => ({}), []);
-
-  const getScheduleForDate = (date: string) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useSWR<Talk[]>(
-      date ? `/api/daily-schedule?date=${date}` : null,
-      fetcher,
-      {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        dedupingInterval: 2 * 60 * 1000, // 2 minutes
-        onSuccess: (data) => {
-          if (date) {
-            cachedData[date] = data;
-          }
-        },
-      }
-    );
-  };
 
   const preloadScheduleData = async (targetDate: Date) => {
     if (!dates) return;
 
     const targetDateStr = format(targetDate, "yyyy-MM-dd");
-    
+
     // Pre-fetch data for the target date if not already cached
     if (!cachedData[targetDateStr]) {
       try {
-        const response = await fetch(`/api/daily-schedule?date=${targetDateStr}`);
+        const response = await fetch(
+          `/api/daily-schedule?date=${targetDateStr}`
+        );
         if (response.ok) {
           const data = await response.json();
           cachedData[targetDateStr] = data;
@@ -66,7 +50,7 @@ export function useScheduleData() {
   };
 
   const clearCache = () => {
-    Object.keys(cachedData).forEach(key => {
+    Object.keys(cachedData).forEach((key) => {
       delete cachedData[key];
     });
   };
@@ -75,7 +59,6 @@ export function useScheduleData() {
     dates: dates || [],
     isDatesLoading,
     datesError,
-    getScheduleForDate,
     preloadScheduleData,
     getCachedScheduleData,
     clearCache,
