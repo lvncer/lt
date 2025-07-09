@@ -161,9 +161,9 @@ export default function SchedulePage() {
           ライトニングトークスケジュール
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* 左側: 日付選択エリア */}
-          <div>
+          <div className="lg:w-80 flex-shrink-0">
             <Card>
               <CardContent className="p-4">
                 {/* 現在の日付表示と前後ボタン */}
@@ -189,8 +189,8 @@ export default function SchedulePage() {
             </Card>
           </div>
 
-          {/* 右側: 予定がある日付リスト */}
-          <div>
+          {/* 右側: 予定がある日付リスト - 全面表示 */}
+          <div className="flex-1">
             <Card className="h-full">
               <CardContent className="p-4 h-full">
                 <div className="h-full max-h-[500px] overflow-y-auto">

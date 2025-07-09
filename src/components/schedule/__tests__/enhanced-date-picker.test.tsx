@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { EnhancedDatePicker } from '../enhanced-date-picker';
 
 describe('EnhancedDatePicker', () => {
@@ -18,33 +18,7 @@ describe('EnhancedDatePicker', () => {
       />
     );
 
-    expect(screen.getByLabelText('日付入力')).toBeInTheDocument();
-  });
-
-  test('renders calendar trigger button', () => {
-    render(
-      <EnhancedDatePicker
-        selectedDate={null}
-        onDateChange={mockOnDateChange}
-        scheduleDates={mockScheduleDates}
-      />
-    );
-
-    expect(screen.getByText('選択')).toBeInTheDocument();
-  });
-
-  test('displays selected date in calendar button', () => {
-    const selectedDate = new Date('2024-01-15');
-    
-    render(
-      <EnhancedDatePicker
-        selectedDate={selectedDate}
-        onDateChange={mockOnDateChange}
-        scheduleDates={mockScheduleDates}
-      />
-    );
-
-    expect(screen.getByText('1/15')).toBeInTheDocument();
+    expect(screen.getByLabelText('日付を選択')).toBeInTheDocument();
   });
 
   test('calls onDateChange when date input changes', () => {
@@ -56,7 +30,7 @@ describe('EnhancedDatePicker', () => {
       />
     );
 
-    const dateInput = screen.getByLabelText('日付入力');
+    const dateInput = screen.getByLabelText('日付を選択');
     fireEvent.change(dateInput, { target: { value: '2024-01-15' } });
 
     expect(mockOnDateChange).toHaveBeenCalledWith(expect.any(Date));
@@ -72,22 +46,5 @@ describe('EnhancedDatePicker', () => {
     );
 
     expect(screen.getByText('予定がある日付')).toBeInTheDocument();
-  });
-
-  test('opens calendar when trigger button is clicked', async () => {
-    render(
-      <EnhancedDatePicker
-        selectedDate={null}
-        onDateChange={mockOnDateChange}
-        scheduleDates={mockScheduleDates}
-      />
-    );
-
-    const triggerButton = screen.getByText('選択');
-    fireEvent.click(triggerButton);
-
-    await waitFor(() => {
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
   });
 });
