@@ -161,16 +161,17 @@ export default function SchedulePage() {
           ライトニングトークスケジュール
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 mb-8">
-          {/* 左パネル: 日付選択エリア */}
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* 左側: 日付選択エリア */}
+          <div>
             <Card>
-              <CardContent className="p-4 lg:p-6">
-                <div className="flex items-center justify-between mb-4 lg:mb-6">
+              <CardContent className="p-4">
+                {/* 現在の日付表示と前後ボタン */}
+                <div className="flex items-center justify-between mb-4">
                   <Button variant="outline" size="icon" onClick={handlePreviousDay}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <div className="text-base lg:text-lg font-medium text-center px-2">
+                  <div className="text-lg font-medium text-center px-4">
                     {selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
                   </div>
                   <Button variant="outline" size="icon" onClick={handleNextDay}>
@@ -178,6 +179,7 @@ export default function SchedulePage() {
                   </Button>
                 </div>
                 
+                {/* 日付選択コンポーネント */}
                 <EnhancedDatePicker
                   selectedDate={selectedDate}
                   onDateChange={handleDateChange}
@@ -187,15 +189,17 @@ export default function SchedulePage() {
             </Card>
           </div>
 
-          {/* 右パネル: 日付リスト */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-4 lg:p-6 max-h-96 lg:max-h-[500px] overflow-y-auto">
-                <EnhancedDateList
-                  dates={dates}
-                  selectedDate={formattedDate}
-                  onDateSelect={handleDateSelect}
-                />
+          {/* 右側: 予定がある日付リスト */}
+          <div>
+            <Card className="h-full">
+              <CardContent className="p-4 h-full">
+                <div className="h-full max-h-[500px] overflow-y-auto">
+                  <EnhancedDateList
+                    dates={dates}
+                    selectedDate={formattedDate}
+                    onDateSelect={handleDateSelect}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
