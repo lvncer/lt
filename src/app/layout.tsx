@@ -9,7 +9,7 @@ import { jaJP } from "@clerk/localizations";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LightningTalks - Share Quick Tech Presentations",
+  title: "SIW LightningTalks - Share Quick Tech Presentations",
   description:
     "A platform for registering and sharing lightning talks with your tech community",
 };

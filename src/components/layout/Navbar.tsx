@@ -97,13 +97,13 @@ export default function Navbar() {
             </Link>
             <SignedOut>
               <Link href="/sign-in">
-                <button className="ml-3 hover:bg-gray-100 p-2 rounded-md">
+                <button className="ml-3 hover:bg-gray-100 p-2 rounded-md cursor-pointer">
                   ログイン
                 </button>
               </Link>
               <Link href="/sign-up">
-                <button className="-ml-3 border hover:bg-gray-100 p-2 rounded-md">
-                  サインアップ
+                <button className="-ml-3 border hover:bg-gray-100 p-2 rounded-md cursor-pointer">
+                  新規登録
                 </button>
               </Link>
             </SignedOut>
