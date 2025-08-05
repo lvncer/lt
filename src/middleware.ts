@@ -15,7 +15,7 @@ export default clerkMiddleware(async (auth, req) => {
 
   // 認証が必要なルートへの未認証アクセスをチェック
   if (isProtectedRoute(req) && !userId) {
-    const signInUrl = new URL("/", req.url);
+    const signInUrl = new URL("/sign-in", req.url);
     return NextResponse.redirect(signInUrl);
   }
 });
