@@ -6,8 +6,6 @@ import { cn } from "@/lib/utils";
 import { Zap, Menu, X, Home, List, PlusCircle, Bookmark } from "lucide-react";
 import {
   useUser,
-  SignUpButton,
-  SignInButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -98,16 +96,16 @@ export default function Navbar() {
               Schedule
             </Link>
             <SignedOut>
-              <SignInButton>
-                <button className="ml-3 hover:bg-gray-100 p-2 rounded-md">
-                  Sign in
+              <Link href="/sign-in">
+                <button className="ml-3 hover:bg-gray-100 p-2 rounded-md cursor-pointer">
+                  ログイン
                 </button>
-              </SignInButton>
-              <SignUpButton>
-                <button className="-ml-3 border hover:bg-gray-100 p-2 rounded-md">
-                  Sign up
+              </Link>
+              <Link href="/sign-up">
+                <button className="-ml-3 border hover:bg-gray-100 p-2 rounded-md cursor-pointer">
+                  新規登録
                 </button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <div className="flex justify-end items-center gap-8 h-16">
               <SignedIn>
@@ -133,11 +131,11 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <div className="flex justify-start items-center gap-4 h-16 mr-3">
               <SignedOut>
-                <SignInButton>
+                <Link href="/sign-in">
                   <button className="-mr-1 border hover:bg-gray-100 p-1 rounded-md">
-                    Sign in
+                    ログイン
                   </button>
-                </SignInButton>
+                </Link>
               </SignedOut>
             </div>
             <div className="flex justify-start items-center gap-4 h-16 mr-3">
@@ -203,11 +201,11 @@ export default function Navbar() {
           </nav>
           <SignedOut>
             <div className="container mx-auto mt-2 px-4 pb-6">
-              <SignUpButton>
+              <Link href="/sign-up">
                 <button className="w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-md text-center">
-                  Sign Up
+                  サインアップ
                 </button>
-              </SignUpButton>
+              </Link>
             </div>
           </SignedOut>
         </div>
