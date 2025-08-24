@@ -12,44 +12,44 @@ import {
 
 const FAQ_ITEMS = [
   {
-    question: "What is a lightning talk?",
+    question: "ライトニングトークとは何ですか？",
     answer:
-      "A lightning talk is a short presentation, typically lasting between 5 to 20 minutes, focused on a single topic or idea. It's designed to be concise, informative, and engaging.",
+      "ライトニングトーク（LT）は短時間で行う発表会です。1人あたりの持ち時間は5〜10分程度で、サクッと話して、サクッと聞ける、気軽で楽しいプレゼンの場です。",
   },
   {
-    question: "Who can submit a lightning talk?",
+    question: "発表時間はどのくらいですか？",
     answer:
-      "Anyone with knowledge or experience they'd like to share can submit a talk. We welcome speakers of all experience levels, from beginners to experts.",
+      "発表時間は5〜10分程度です。短時間なので要点を絞って話すことができ、聞く側も集中して聞くことができます。",
   },
   {
-    question: "How are talks selected?",
+    question: "どんなテーマで発表できますか？",
     answer:
-      "Talks are reviewed by our committee based on relevance, originality, and potential value to the audience. We aim to provide a diverse range of topics and perspectives.",
+      "技術・趣味・勉強の話、日常のことなど、テーマは基本的に何でもOKです！Pythonで作ったツールの話、paizaの感想、情報処理技術者試験の勉強法、自作PC、おすすめのアニメ・ゲーム紹介など、自由に発表できます。（※公序良俗に反しない内容でお願いします）",
   },
   {
-    question: "What technical equipment is provided?",
+    question: "スライドは必要ですか？",
     answer:
-      "We provide a projector, screen, microphone, and basic adapters. Speakers should bring their own laptops and any special adapters they might need.",
+      "スライドはあってもなくてもOKです！発表スタイルも自由で、真面目でもネタでも大丈夫です。うまく話せなくても全然問題ありません。",
   },
   {
-    question: "Can I submit multiple talks?",
+    question: "どうやって発表に参加できますか？",
     answer:
-      "Yes, you can submit multiple talks, but we generally select only one talk per speaker to give more people the opportunity to present.",
+      "発表者募集の際に、フォームや口頭でテーマと名前をお知らせください。発表者が2〜4人ほど集まったら、日時を決定してタイムスケジュールを作成します。",
   },
   {
-    question: "Is there a dress code for speakers?",
+    question: "初心者でも発表できますか？",
     answer:
-      "There's no strict dress code, but we recommend business casual attire. Wear something comfortable that makes you feel confident.",
+      "もちろんです！このLT会は学生同士で自由に発表できる場として開催しています。人前で話す経験を積みたい、スライド作りの練習がしたい、失敗してもOKな発表の場がほしい、という方にぴったりです。",
   },
   {
-    question: "Will my talk be recorded?",
+    question: "発表で失敗したらどうしますか？",
     answer:
-      "Yes, with your permission, talks are recorded and shared on our platform for others to learn from. You can opt out of recording if you prefer.",
+      "失敗や緊張もOK！みんなで応援し合える空気を大事にしています。発表すること自体が、きっと大きな経験になります。どんな発表でも、あたたかく見守る姿勢を心がけています。",
   },
   {
-    question: "What happens if I go over time?",
+    question: "発表資料は公開されますか？",
     answer:
-      "We strictly enforce time limits to keep the event running smoothly. You'll receive time warnings, and we may need to conclude your talk if it runs too long.",
+      "LT会終了後、発表者の許可がある場合のみ、スライドなどの資料をOneDriveや学内共有スペースにて公開予定です。閲覧は学内メンバー限定で、公開範囲や資料内容は各登壇者にお任せします。",
   },
 ];
 
@@ -64,13 +64,10 @@ export default function FAQPage() {
       </Button>
 
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">
-          Frequently Asked Questions
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight mb-6">よくある質問</h1>
 
         <p className="text-lg text-muted-foreground mb-8">
-          Find answers to common questions about lightning talks, submission
-          process, and presentation guidelines.
+          ライトニングトークや発表に関するよくある質問にお答えします。
         </p>
 
         <Accordion type="single" collapsible className="w-full">
@@ -84,14 +81,15 @@ export default function FAQPage() {
           ))}
         </Accordion>
 
-        <div className="mt-12 p-6 bg-purple-50 dark:bg-purple-950 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Still have questions?</h2>
-          <p className="text-muted-foreground mb-4">
-            Can not find the answer you are looking for? Please reach out to our
-            support team.
+        <div className="mt-12 p-6 bg-purple-50 dark:bg-purple-700 rounded-lg">
+          <h2 className="text-xl text-white font-semibold mb-4">
+            他にご質問はありますか？
+          </h2>
+          <p className="text-white/80 mb-4">
+            お探しの答えが見つからない場合は、お気軽にお問い合わせください。
           </p>
-          <Button asChild>
-            <Link href="/contact">Contact Support</Link>
+          <Button asChild className="bg-white text-black">
+            <Link href="/contact">お問い合わせ</Link>
           </Button>
         </div>
       </div>

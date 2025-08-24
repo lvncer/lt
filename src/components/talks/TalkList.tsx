@@ -233,9 +233,9 @@ export default function TalkList() {
             exit={{ opacity: 0, y: -20 }}
             className="text-center py-12"
           >
-            <h3 className="text-lg font-medium">No talks found</h3>
+            <h3 className="text-lg font-medium">トークを読み込んでいます</h3>
             <p className="text-muted-foreground mt-2">
-              検索やフィルターの条件を変えてみてください。
+              しばらくお待ちください。
             </p>
           </motion.div>
         )}

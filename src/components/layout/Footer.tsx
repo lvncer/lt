@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap, Twitter, Github } from "lucide-react";
+import { Zap, Github } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -57,14 +57,6 @@ export default function Footer() {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/company/contact"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -105,12 +97,6 @@ export default function Footer() {
               © {new Date().getFullYear()} lvncer. All rights reserved.
             </p>
             <div className="flex space-x-4 mt-4 md:mt-0">
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Twitter />
-              </Link>
               <Link
                 href="https://github.com/lvncer/lt"
                 className="text-muted-foreground hover:text-foreground"

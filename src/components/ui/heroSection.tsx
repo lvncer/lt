@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const container = {
   hidden: { opacity: 0 },
@@ -23,7 +24,7 @@ const item = {
 
 export default function HeroSection() {
   return (
-    <div className="mt-8 relative overflow-hidden">
+    <div className="relative overflow-hidden">
       {/* Background decorative elements */}
       <motion.div
         className="absolute inset-0 -z-10"
@@ -57,37 +58,25 @@ export default function HeroSection() {
         />
       </motion.div>
 
-      <div className="container mx-auto px-4 pb-20 pt-20 sm:pt-32 md:pt-38 lg:pt-44">
+      <div className="container mx-auto px-4 py-32">
         <motion.div
           className="flex flex-col items-center text-center"
           variants={container}
           initial="hidden"
           animate="show"
         >
-          <motion.div
-            variants={item}
-            className="inline-flex items-center px-3 py-1 rounded-full border border-border bg-background/50 backdrop-blur-sm text-sm font-medium mb-6"
-          >
-            <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-            <span>Registration Now Open</span>
-          </motion.div>
-
           <motion.h1
             variants={item}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+            className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
           >
             Share Your Expertise in Lightning&nbsp;Talks
           </motion.h1>
 
           <motion.p
             variants={item}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl sm:max-w-2xl md:max-w-3xl mb-8"
+            className="text-base sm:text-sm md:text-base text-muted-foreground max-w-xl sm:max-w-2xl md:max-w-3xl mb-8"
           >
-            短時間で知識を共有し、議論を活性化し、
-            <br />
-            技術コミュニティとつながるためのプレゼンテーション
-            <br />
-            すべて20分以内で完結します。
+            短時間で知識を共有し、議論を活性化し、技術コミュニティとつながるためのプレゼンテーション
           </motion.p>
 
           <motion.div
@@ -97,16 +86,32 @@ export default function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-purple-600 hover:bg-purple-700 text-white group"
+              className="rounded-full bg-white/20 backdrop-blur-md border-black/80 text-black/80 hover:bg-white/30"
+            >
+              <Link href="/talks">トーク一覧</Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-gradient-to-r from-purple-600/80 to-blue-600/80 hover:from-purple-700 hover:to-blue-700 text-white rounded-full group"
             >
               <Link href="/register" className="flex items-center gap-2">
-                Submit a Talk
+                提出する
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline">
-              <Link href="/talks">Browse Talks</Link>
-            </Button>
+          </motion.div>
+
+          {/* Hero image */}
+          <motion.div variants={item} className="mt-18 w-full flex justify-center">
+            <Image
+              src="/images/AFE2FB09-6D98-4F76-AF74-13F163A30191_1_201_a.jpeg"
+              alt="Hero"
+              width={800}
+              height={450}
+              className="rounded-3xl object-cover"
+              priority
+            />
           </motion.div>
         </motion.div>
       </div>

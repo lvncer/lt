@@ -16,90 +16,73 @@ export default function CookiePolicyPage() {
 
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tight mb-6">
-          Cookie Policy
+          Cookieポリシー
         </h1>
 
+        <p className="text-lg text-muted-foreground mb-8">
+          最終更新日: {new Date().toLocaleDateString("ja-JP")}
+        </p>
+
         <div className="prose prose-slate dark:prose-invert max-w-none">
-          <p className="text-lg">
-            This Cookie Policy explains how LightningTalks uses cookies and
-            similar technologies to recognize you when you visit our website.
-          </p>
-
-          <h2>What are Cookies?</h2>
+          <h2>Cookieについて</h2>
           <p>
-            Cookies are small data files that are placed on your computer or
-            mobile device when you visit a website. They are widely used to make
-            websites work more efficiently and provide reporting information.
+            このLT会サイトでは、ユーザーの体験を向上させるために
+            Cookie（クッキー）を使用しています。
           </p>
 
-          <h2>Types of Cookies We Use</h2>
-
-          <h3>Essential Cookies</h3>
+          <h2>Cookieとは</h2>
           <p>
-            These cookies are necessary for the website to function properly.
-            They enable core functionality such as security, network management,
-            and accessibility.
+            Cookieは、ウェブサイトを訪問した際にブラウザに保存される
+            小さなテキストファイルです。ユーザーの設定や行動を記憶し、
+            より便利なサービスを提供するために使用されます。
           </p>
 
-          <h3>Analytics Cookies</h3>
+          <h2>使用するCookieの種類</h2>
+
+          <h3>必須Cookie</h3>
           <p>
-            We use analytics cookies to understand how visitors interact with
-            our website, helping us improve our services and user experience.
+            サイトの基本的な機能を提供するために必要なCookieです。
+            ページナビゲーションやセキュアエリアへのアクセスなどに使用されます。
           </p>
 
-          <h3>Functionality Cookies</h3>
+          <h3>機能Cookie</h3>
           <p>
-            These cookies enable enhanced functionality and personalization,
-            such as remembering your preferences and settings.
+            ユーザーの設定や選択を記憶し、カスタマイズされた体験を
+            提供するためのCookieです。ログイン状態の維持などに使用されます。
           </p>
 
-          <h3>Marketing Cookies</h3>
+          <h2>Cookieの管理</h2>
           <p>
-            Marketing cookies are used to track visitors across websites to
-            display relevant advertisements and measure their effectiveness.
+            ブラウザの設定でCookieを無効にすることができます。
+            ただし、Cookieを無効にするとサイトの一部機能が
+            正常に動作しない場合があります。
           </p>
 
-          <h2>Cookie Management</h2>
+          <h3>ブラウザ設定</h3>
           <p>
-            Most web browsers allow you to control cookies through their
-            settings. You can:
+            ほとんどのウェブブラウザでは、設定メニューから
+            Cookieの受け入れや削除を制御できます。
           </p>
-          <ul>
-            <li>View cookies stored on your computer</li>
-            <li>Delete individual cookies</li>
-            <li>Block cookies from particular sites</li>
-            <li>Block all cookies from being set</li>
-            <li>Delete all cookies when you close your browser</li>
-          </ul>
 
-          <div className="bg-yellow-50 dark:bg-yellow-950 p-6 rounded-lg my-8">
-            <h3 className="text-yellow-800 dark:text-yellow-200 mb-2">
-              Please Note
-            </h3>
-            <p className="text-yellow-700 dark:text-yellow-300">
-              Blocking all cookies will have a negative impact on the usability
-              of many websites. If you block cookies, you may not be able to use
-              all the features on our website.
-            </p>
-          </div>
-
-          <h2>Updates to This Policy</h2>
+          <h2>第三者Cookie</h2>
           <p>
-            We may update this Cookie Policy from time to time to reflect
-            changes in technology, legislation, or our data practices. Any
-            changes will become effective when we post the revised policy.
+            このサイトでは、第三者サービス（Google Analyticsなど）が
+            設定するCookieを使用する場合があります。
+            これらのCookieについては、各サービスのプライバシーポリシーを
+            ご確認ください。
           </p>
 
-          <h2>Contact Us</h2>
+          <h2>ポリシーの更新</h2>
           <p>
-            If you have any questions about our use of cookies, please contact
-            us at privacy@lightningtalks.com.
+            このCookieポリシーは必要に応じて更新される場合があります。
+            更新があった場合は、このページでお知らせいたします。
           </p>
 
-          <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-lg mt-8">
-            <h3 className="text-blue-800 dark:text-blue-200">Last Updated</h3>
-            <p className="text-blue-700 dark:text-blue-300">March 15, 2025</p>
-          </div>
+          <h2>お問い合わせ</h2>
+          <p>
+            Cookieの使用についてご質問がございましたら、
+            LT会運営者までお気軽にお問い合わせください。
+          </p>
         </div>
       </div>
     </div>

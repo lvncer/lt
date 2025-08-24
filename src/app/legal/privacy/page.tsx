@@ -16,92 +16,61 @@ export default function PrivacyPage() {
 
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tight mb-6">
-          Privacy Policy
+          プライバシーポリシー
         </h1>
 
+        <p className="text-lg text-muted-foreground mb-8">
+          最終更新日: {new Date().toLocaleDateString("ja-JP")}
+        </p>
+
         <div className="prose prose-slate dark:prose-invert max-w-none">
-          <p className="text-lg">
-            Your privacy is important to us. This Privacy Policy explains how we
-            collect, use, and protect your personal information.
+          <h2>個人情報の取り扱いについて</h2>
+          <p>
+            このLT会では、参加者の皆様に安心してご参加いただくため、
+            個人情報の取り扱いについて以下のとおり定めます。
           </p>
 
-          <h2>Information We Collect</h2>
-          <h3>Personal Information</h3>
+          <h3>収集する情報</h3>
           <ul>
-            <li>Name and email address</li>
-            <li>Profile information</li>
-            <li>Content you submit</li>
-            <li>Communication preferences</li>
+            <li>お名前（ハンドルネーム可）</li>
+            <li>連絡先（学内メールアドレスなど）</li>
+            <li>発表テーマとその概要</li>
+            <li>発表資料（公開に同意いただいた場合のみ）</li>
           </ul>
 
-          <h3>Usage Information</h3>
+          <h3>情報の利用目的</h3>
           <ul>
-            <li>Browser type and version</li>
-            <li>Operating system</li>
-            <li>Pages visited</li>
-            <li>Time and date of visits</li>
+            <li>LT会の運営・管理</li>
+            <li>発表者との連絡・調整</li>
+            <li>タイムスケジュールの作成・共有</li>
+            <li>次回開催の案内（希望者のみ）</li>
           </ul>
 
-          <h2>How We Use Your Information</h2>
+          <h2>情報の共有について</h2>
+          <p>
+            収集した個人情報は、LT会の運営目的以外では使用いたしません。
+            また、参加者の同意なく第三者に提供することはありません。
+          </p>
+
+          <h3>発表資料の公開について</h3>
           <ul>
-            <li>Provide and improve our services</li>
-            <li>Communicate with you</li>
-            <li>Process your submissions</li>
-            <li>Analyze usage patterns</li>
-            <li>Prevent fraud and abuse</li>
+            <li>発表資料の公開は発表者の任意です</li>
+            <li>公開する場合は学内メンバー限定とします</li>
+            <li>OneDriveや学内共有スペースを利用予定</li>
+            <li>公開範囲や内容は各発表者にお任せします</li>
           </ul>
 
-          <h2>Information Sharing</h2>
+          <h2>情報の管理</h2>
           <p>
-            We do not sell your personal information. We may share your
-            information with:
-          </p>
-          <ul>
-            <li>Service providers</li>
-            <li>Legal authorities when required</li>
-            <li>Business partners with your consent</li>
-          </ul>
-
-          <h2>Data Security</h2>
-          <p>
-            We implement appropriate technical and organizational measures to
-            protect your personal information against unauthorized access or
-            disclosure.
+            個人情報は適切に管理し、LT会終了後は必要に応じて
+            安全に削除いたします。
           </p>
 
-          <h2>Your Rights</h2>
-          <p>You have the right to:</p>
-          <ul>
-            <li>Access your personal information</li>
-            <li>Correct inaccurate information</li>
-            <li>Request deletion of your information</li>
-            <li>Object to processing of your information</li>
-            <li>Withdraw consent</li>
-          </ul>
-
-          <h2>Cookies</h2>
+          <h2>お問い合わせ</h2>
           <p>
-            We use cookies and similar technologies to improve your experience
-            and analyze usage patterns. You can control cookie settings in your
-            browser.
+            個人情報の取り扱いについてご質問がございましたら、
+            LT会運営者までお気軽にお問い合わせください。
           </p>
-
-          <h2>Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy from time to time. We will notify
-            you of any material changes by posting the new policy on this page.
-          </p>
-
-          <h2>Contact Us</h2>
-          <p>
-            If you have questions about this Privacy Policy, please contact us
-            at privacy@lightningtalks.com.
-          </p>
-
-          <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-lg mt-8">
-            <h3 className="text-blue-800 dark:text-blue-200">Last Updated</h3>
-            <p className="text-blue-700 dark:text-blue-300">March 15, 2025</p>
-          </div>
         </div>
       </div>
     </div>

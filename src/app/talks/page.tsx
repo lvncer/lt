@@ -2,7 +2,7 @@ import TalkList from "@/components/talks/TalkList";
 
 export default function TalksPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-18">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-4">
           Lightning Talks
