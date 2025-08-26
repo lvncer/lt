@@ -5,6 +5,13 @@ import { NextResponse } from "next/server";
 // GET: データベーステーブル構造を確認
 export async function GET() {
   try {
+    if (process.env.NODE_ENV === 'production' && process.env.CI) {
+      return NextResponse.json({
+        talks_schema: [],
+        message: "Schema info not available during build"
+      });
+    }
+
     // talksテーブルの構造を確認
     const talksSchema = await db.execute(
       sql`SELECT column_name, data_type, is_nullable, column_default
