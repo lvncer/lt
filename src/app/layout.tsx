@@ -95,7 +95,7 @@ export default function RootLayout({
           },
         },
       }}
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || (process.env.CI ? "pk_test_mock_key_for_ci_build" : "")}
     >
       <html lang="ja">
         <body className={inter.className}>
