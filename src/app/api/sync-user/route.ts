@@ -5,6 +5,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
+    if (process.env.NODE_ENV === 'production' && process.env.CI) {
+      return NextResponse.json({ success: true, message: "User sync not available during build" }, { status: 200 });
+    }
+
     const body = await req.json();
     const { clerk_user_id, username, email, imageUrl } = body;
 

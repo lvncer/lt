@@ -7,6 +7,10 @@ import { format } from "date-fns";
 // GET: スケジュールが存在する日付の一覧を取得する
 export async function GET() {
   try {
+    if (process.env.NODE_ENV === 'production' && process.env.CI) {
+      return NextResponse.json([], { status: 200 });
+    }
+
     // 承認済みトークがある日付の一覧を取得（重複なし）
     const result = await db
       .selectDistinct({ presentationDate: talks.presentationDate })
