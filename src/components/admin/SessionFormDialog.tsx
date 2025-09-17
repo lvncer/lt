@@ -104,7 +104,7 @@ export default function SessionFormDialog({
         endTime: "18:00",
       });
     }
-  }, [session]);
+  }, [session, form]);
 
   const handleSubmit = async (data: SessionFormData) => {
     try {

@@ -9,30 +9,39 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const includeAll = searchParams.get('includeAll') === 'true';
     
-    let whereCondition;
-    if (!includeAll) {
+    let result;
+    
+    if (includeAll) {
+      // 編集用: すべてのセッションを取得
+      result = await db
+        .select({
+          id: ltSessions.id,
+          sessionNumber: ltSessions.sessionNumber,
+          date: ltSessions.date,
+          title: ltSessions.title,
+          venue: ltSessions.venue,
+          startTime: ltSessions.startTime,
+          endTime: ltSessions.endTime,
+        })
+        .from(ltSessions)
+        .orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
+    } else {
       // 通常の提出フォーム: 今日以降のセッションのみ取得
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD形式
-      whereCondition = gte(ltSessions.date, today);
+      result = await db
+        .select({
+          id: ltSessions.id,
+          sessionNumber: ltSessions.sessionNumber,
+          date: ltSessions.date,
+          title: ltSessions.title,
+          venue: ltSessions.venue,
+          startTime: ltSessions.startTime,
+          endTime: ltSessions.endTime,
+        })
+        .from(ltSessions)
+        .where(gte(ltSessions.date, today))
+        .orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
     }
-    
-    let query = db
-      .select({
-        id: ltSessions.id,
-        sessionNumber: ltSessions.sessionNumber,
-        date: ltSessions.date,
-        title: ltSessions.title,
-        venue: ltSessions.venue,
-        startTime: ltSessions.startTime,
-        endTime: ltSessions.endTime,
-      })
-      .from(ltSessions);
-    
-    if (whereCondition) {
-      query = query.where(whereCondition);
-    }
-    
-    const result = await query.orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
 
     // フォーム表示用の形式に整形
     const formattedSessions = result.map(session => ({

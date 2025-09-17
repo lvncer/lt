@@ -25,7 +25,7 @@ import {
   TALK_IMAGE_URLS,
   TALK_TOPICS,
 } from "@/lib/data";
-import { useAvailableSessions } from "@/hooks/useLtSessions";
+import { useLtSessions } from "@/hooks/useLtSessions";
 import {
   Select,
   SelectContent,
