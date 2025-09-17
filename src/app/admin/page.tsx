@@ -104,7 +104,14 @@ export default function AdminPage() {
     setSessionDeleteOpen(true);
   };
 
-  const handleSessionFormSubmit = async (formData: any) => {
+  const handleSessionFormSubmit = async (formData: {
+    sessionNumber: number;
+    date: string;
+    title?: string;
+    venue: string;
+    startTime: string;
+    endTime: string;
+  }) => {
     try {
       if (selectedSession) {
         // 編集
@@ -112,7 +119,7 @@ export default function AdminPage() {
           id: selectedSession.id,
           session_number: formData.sessionNumber,
           date: formData.date,
-          title: formData.title || null,
+          title: formData.title || undefined,
           venue: formData.venue,
           start_time: formData.startTime,
           end_time: formData.endTime,
@@ -126,7 +133,7 @@ export default function AdminPage() {
         await createSession({
           session_number: formData.sessionNumber,
           date: formData.date,
-          title: formData.title || null,
+          title: formData.title || undefined,
           venue: formData.venue,
           start_time: formData.startTime,
           end_time: formData.endTime,
@@ -137,10 +144,11 @@ export default function AdminPage() {
         });
       }
       refetchSessions();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "セッションの処理に失敗しました。";
       toast({
         title: "エラー",
-        description: error.message || "セッションの処理に失敗しました。",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;
@@ -157,10 +165,11 @@ export default function AdminPage() {
         description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
       });
       refetchSessions();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "セッションの削除に失敗しました。";
       toast({
         title: "エラー",
-        description: error.message || "セッションの削除に失敗しました。",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;

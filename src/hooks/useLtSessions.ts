@@ -45,8 +45,18 @@ export function useLtSessions() {
 }
 
 // 利用可能セッション取得用Hook（フォーム用）
+interface AvailableSession {
+  id: number;
+  sessionNumber: number;
+  date: string;
+  title: string;
+  venue: string;
+  displayText: string;
+  timeRange: string;
+}
+
 export function useAvailableSessions() {
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<AvailableSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

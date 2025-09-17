@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { ltSessions } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 // GET: セッション一覧を取得
 export async function GET() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -42,8 +42,8 @@ const sessionFormSchema = z.object({
   date: z.string().min(1, "開催日を入力してください"),
   title: z.string().optional(),
   venue: z.string().min(1, "開催場所を選択してください"),
-  startTime: z.string().default("16:30"),
-  endTime: z.string().default("18:00"),
+  startTime: z.string().min(1, "開始時間を入力してください"),
+  endTime: z.string().min(1, "終了時間を入力してください"),
 });
 
 type SessionFormData = z.infer<typeof sessionFormSchema>;
@@ -125,7 +125,7 @@ export default function SessionFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-white">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "セッション編集" : "新規セッション作成"}
@@ -138,7 +138,10 @@ export default function SessionFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4"
+          >
             {/* 第○回 */}
             <FormField
               control={form.control}
@@ -197,10 +200,7 @@ export default function SessionFormDialog({
                 <FormItem>
                   <FormLabel>タイトル（任意）</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="第1回 LT大会"
-                      {...field}
-                    />
+                    <Input placeholder="第1回 LT大会" {...field} />
                   </FormControl>
                   <FormDescription>
                     空欄の場合は「第○回 LT大会」が自動設定されます
@@ -217,7 +217,10 @@ export default function SessionFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>開催場所</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="開催場所を選択してください" />
@@ -248,7 +251,12 @@ export default function SessionFormDialog({
                   <FormItem>
                     <FormLabel>開始時間</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} readOnly className="bg-gray-50" />
+                      <Input
+                        type="time"
+                        {...field}
+                        readOnly
+                        className="bg-gray-50"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -262,7 +270,12 @@ export default function SessionFormDialog({
                   <FormItem>
                     <FormLabel>終了時間</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} readOnly className="bg-gray-50" />
+                      <Input
+                        type="time"
+                        {...field}
+                        readOnly
+                        className="bg-gray-50"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -279,8 +292,14 @@ export default function SessionFormDialog({
               >
                 キャンセル
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-purple-400 text-white"
+              >
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 {isEdit ? "更新" : "作成"}
               </Button>
             </DialogFooter>

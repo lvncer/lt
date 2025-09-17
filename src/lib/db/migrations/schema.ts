@@ -11,7 +11,7 @@ export const users = pgTable("users", {
 	imageUrl: text("image_url"),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow(),
 	updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow(),
-	fullname: text().default('),
+	fullname: text(),
 }, (table) => [
 	unique("users_clerk_user_id_key").on(table.clerkUserId),
 ]);
@@ -30,12 +30,12 @@ export const talks = pgTable("talks", {
 	presentationDate: date("presentation_date"),
 	venue: varchar({ length: 255 }).default('指定なし'),
 	userId: integer("user_id"),
-	fullname: text().default('),
+	fullname: text(),
 	hasPresentation: boolean("has_presentation").default(false),
 	presentationUrl: text("presentation_url"),
 	allowArchive: boolean("allow_archive").default(false),
 	presentationStartTime: time("presentation_start_time"),
-	archiveUrl: text("archive_url").default('),
+	archiveUrl: text("archive_url"),
 }, (table) => [
 	foreignKey({
 			columns: [table.userId],

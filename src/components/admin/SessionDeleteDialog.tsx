@@ -41,13 +41,11 @@ export default function SessionDeleteDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="bg-white">
         <AlertDialogHeader>
           <AlertDialogTitle>セッションを削除しますか？</AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
-            <div>
-              以下のセッションを削除します。この操作は取り消せません。
-            </div>
+            <div>以下のセッションを削除します。この操作は取り消せません。</div>
             <div className="p-3 bg-gray-50 rounded-md">
               <div className="font-medium">
                 第{session.sessionNumber}回 {session.title || "LT大会"}
@@ -55,12 +53,11 @@ export default function SessionDeleteDialog({
               <div className="text-sm text-gray-600 mt-1">
                 開催日: {session.date}
               </div>
-              <div className="text-sm text-gray-600">
-                場所: {session.venue}
-              </div>
+              <div className="text-sm text-gray-600">場所: {session.venue}</div>
             </div>
             <div className="text-red-600 font-medium">
-              ⚠️ このセッションに紐付いているトークは、セッション情報が削除されます（トーク自体は削除されません）。
+              ⚠️
+              このセッションに紐付いているトークは、セッション情報が削除されます（トーク自体は削除されません）。
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -71,7 +68,7 @@ export default function SessionDeleteDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-400 hover:bg-red-700 text-white"
           >
             {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             削除する
