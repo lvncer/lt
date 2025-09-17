@@ -91,7 +91,8 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { deleteTalk, isDeleting } = useDeleteTalk();
-  const { sessions: availableSessions, isLoading: sessionsLoading } = useAvailableSessions();
+  // 編集ページでは過去も含め全てのセッションを取得
+  const { sessions: allSessions, isLoading: sessionsLoading } = useLtSessions();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -300,9 +301,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {availableSessions.map((session) => (
+                        {allSessions.map((session) => (
                           <SelectItem key={session.id} value={session.id.toString()}>
-                            {session.displayText}
+                            第{session.sessionNumber}回 - {session.date} ({session.venue})
                           </SelectItem>
                         ))}
                       </SelectContent>

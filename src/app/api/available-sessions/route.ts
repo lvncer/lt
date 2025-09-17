@@ -4,12 +4,19 @@ import { NextResponse } from "next/server";
 import { gte, asc } from "drizzle-orm";
 
 // GET: フォームで利用可能なセッション一覧を取得
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // 今日以降のセッションのみ取得
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD形式
+    const { searchParams } = new URL(request.url);
+    const includeAll = searchParams.get('includeAll') === 'true';
     
-    const result = await db
+    let whereCondition;
+    if (!includeAll) {
+      // 通常の提出フォーム: 今日以降のセッションのみ取得
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD形式
+      whereCondition = gte(ltSessions.date, today);
+    }
+    
+    let query = db
       .select({
         id: ltSessions.id,
         sessionNumber: ltSessions.sessionNumber,
@@ -19,9 +26,13 @@ export async function GET() {
         startTime: ltSessions.startTime,
         endTime: ltSessions.endTime,
       })
-      .from(ltSessions)
-      .where(gte(ltSessions.date, today))
-      .orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
+      .from(ltSessions);
+    
+    if (whereCondition) {
+      query = query.where(whereCondition);
+    }
+    
+    const result = await query.orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
 
     // フォーム表示用の形式に整形
     const formattedSessions = result.map(session => ({

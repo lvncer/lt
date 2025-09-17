@@ -144,6 +144,7 @@ export default function AdminPage() {
         });
       }
       refetchSessions();
+      setSessionFormOpen(false);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "セッションの処理に失敗しました。";
       toast({
@@ -165,6 +166,7 @@ export default function AdminPage() {
         description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
       });
       refetchSessions();
+      setSessionDeleteOpen(false);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "セッションの削除に失敗しました。";
       toast({
