@@ -9,8 +9,7 @@ export interface TalkNotificationData {
   topic: string;
   duration: number;
   description?: string;
-  venue?: string;
-  presentationDate?: string;
+  sessionId?: number;
   talkId: number;
 }
 
@@ -21,14 +20,8 @@ function createDiscordMessage(talk: TalkNotificationData): object {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const talkUrl = `${baseUrl}/talk/${talk.talkId}`;
 
-  // 発表日のフォーマット
-  const presentationDate = talk.presentationDate
-    ? new Date(talk.presentationDate).toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "未定";
+  // セッション情報（sessionIdから取得する場合はここで処理）
+  const sessionInfo = talk.sessionId ? `セッション${talk.sessionId}` : "セッション未定";
 
   return {
     embeds: [
@@ -53,13 +46,8 @@ function createDiscordMessage(talk: TalkNotificationData): object {
             inline: true,
           },
           {
-            name: "発表予定日",
-            value: presentationDate,
-            inline: true,
-          },
-          {
-            name: "会場",
-            value: talk.venue || "未定",
+            name: "セッション",
+            value: sessionInfo,
             inline: true,
           },
           {

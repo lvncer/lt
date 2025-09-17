@@ -33,8 +33,7 @@ interface UpdateTalkParams {
   topic: string;
   description: string;
   image_url: string;
-  presentation_date: string;
-  venue: string;
+  session_id: number;
   has_presentation?: boolean;
   presentation_url?: string;
   allow_archive?: boolean;

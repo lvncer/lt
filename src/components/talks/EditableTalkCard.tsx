@@ -24,8 +24,8 @@ import {
   TALK_DURATIONS,
   TALK_IMAGE_URLS,
   TALK_TOPICS,
-  TALK_VENUES,
 } from "@/lib/data";
+import { useAvailableSessions } from "@/hooks/useLtSessions";
 import {
   Select,
   SelectContent,
@@ -57,11 +57,8 @@ const formSchema = z.object({
     message: "カテゴリーを選択してください",
   }),
   imageUrl: z.string(),
-  presentationDate: z.string().min(1, {
-    message: "発表日を選択してください",
-  }),
-  venue: z.string().min(1, {
-    message: "発表場所を選択してください",
+  sessionId: z.number().min(1, {
+    message: "セッションを選択してください",
   }),
   description: z
     .string()
@@ -75,9 +72,15 @@ const formSchema = z.object({
   presentationUrl: z.string().optional(),
   allowArchive: z.boolean(),
   archiveUrl: z.string().optional(),
-  presentationStartTime: z.string().min(1, {
-    message: "発表開始時刻を入力してください",
-  }),
+  presentationStartTime: z.string()
+    .min(1, { message: "発表開始時刻を入力してください" })
+    .refine((time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      const timeInMinutes = hours * 60 + minutes;
+      return timeInMinutes >= 16 * 60 + 30 && timeInMinutes <= 18 * 60;
+    }, {
+      message: "発表時間は16:30-18:00の間で設定してください",
+    }),
 });
 
 interface EditableTalkCardProps {
@@ -88,6 +91,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { deleteTalk, isDeleting } = useDeleteTalk();
+  const { sessions: availableSessions, isLoading: sessionsLoading } = useAvailableSessions();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,8 +100,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       duration: 10,
       topic: "",
       imageUrl: "",
-      presentationDate: new Date().toISOString(),
-      venue: "",
+      sessionId: 0,
       description: "",
       hasPresentationUrl: false,
       presentationUrl: "",
@@ -122,13 +125,12 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       topic: talk.topic,
       description: talk.description || "",
       imageUrl: newImageUrl,
-      presentationDate: talk.presentationDate || "",
-      venue: talk.venue || "",
+      sessionId: talk.sessionId || 0,
       hasPresentationUrl: talk.hasPresentationUrl || false,
       presentationUrl: talk.presentationUrl || "",
       allowArchive: talk.allowArchive || false,
       archiveUrl: talk.archiveUrl || "",
-      presentationStartTime: talk.presentationStartTime || "10:00",
+      presentationStartTime: talk.presentationStartTime || "16:30",
     });
   };
 
@@ -145,8 +147,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       topic: values.topic,
       description: values.description,
       image_url: values.imageUrl,
-      presentation_date: values.presentationDate,
-      venue: values.venue,
+      session_id: values.sessionId,
       has_presentation: values.hasPresentationUrl,
       presentation_url: values.presentationUrl,
       allow_archive: values.allowArchive,
@@ -281,50 +282,34 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 
               <FormField
                 control={form.control}
-                name="presentationDate"
+                name="sessionId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>発表日</FormLabel>
+                    <FormLabel required>開催セッション</FormLabel>
                     <div className="mb-1" />
-                    <FormControl required>
-                      <div className="relative">
-                        <Input
-                          type="date"
-                          value={field.value}
-                          onChange={(e) => field.onChange(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage className="text-red-400 text-sm" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>発表場所</FormLabel>
-                    <div className="mb-1" />
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                    <Select 
+                      onValueChange={(value) => field.onChange(parseInt(value, 10))} 
+                      defaultValue={field.value?.toString()}
+                      disabled={sessionsLoading}
                     >
                       <FormControl required>
                         <SelectTrigger>
-                          <SelectValue placeholder="発表場所を選択してください" />
+                          <SelectValue placeholder={
+                            sessionsLoading ? "読み込み中..." : "セッションを選択してください"
+                          } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {TALK_VENUES.map((venue) => (
-                          <SelectItem key={venue} value={venue}>
-                            {venue}
+                        {availableSessions.map((session) => (
+                          <SelectItem key={session.id} value={session.id.toString()}>
+                            {session.displayText}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormDescription>
+                      発表するセッションを選択してください。時間は16:30-18:00です。
+                    </FormDescription>
                     <FormMessage className="text-red-400 text-sm" />
                   </FormItem>
                 )}
@@ -360,7 +345,13 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                     <FormLabel required>発表開始時刻</FormLabel>
                     <div className="mb-1" />
                     <FormControl required>
-                      <Input type="time" {...field} className="w-full" />
+                      <Input 
+                        type="time" 
+                        min="16:30"
+                        max="18:00"
+                        {...field} 
+                        className="w-full" 
+                      />
                     </FormControl>
                     <FormMessage className="text-red-400 text-sm" />
                   </FormItem>
