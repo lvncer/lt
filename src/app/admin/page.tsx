@@ -41,6 +41,9 @@ import { useUpdateTalkStatus } from "@/hooks/useUpdateTalkStatus";
 import { useLtSessions, useSessionManagement } from "@/hooks/useLtSessions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import SessionFormDialog from "@/components/admin/SessionFormDialog";
+import SessionDeleteDialog from "@/components/admin/SessionDeleteDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
   const { talks: fetchedTalks } = useTalks();
@@ -53,6 +56,12 @@ export default function AdminPage() {
   // セッション管理用
   const { sessions, isLoading: sessionsLoading, refetch: refetchSessions } = useLtSessions();
   const { createSession, updateSession, deleteSession, isSubmitting } = useSessionManagement();
+  const { toast } = useToast();
+  
+  // ダイアログ状態管理
+  const [sessionFormOpen, setSessionFormOpen] = useState(false);
+  const [sessionDeleteOpen, setSessionDeleteOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<LtSession | null>(null);
 
   // 管理者権限チェック
   useEffect(() => {
@@ -76,6 +85,85 @@ export default function AdminPage() {
           talk.id === updatedTalk.id ? updatedTalk : talk
         )
       );
+    }
+  };
+
+  // セッション関連のハンドラー
+  const handleCreateSession = () => {
+    setSelectedSession(null);
+    setSessionFormOpen(true);
+  };
+
+  const handleEditSession = (session: LtSession) => {
+    setSelectedSession(session);
+    setSessionFormOpen(true);
+  };
+
+  const handleDeleteSession = (session: LtSession) => {
+    setSelectedSession(session);
+    setSessionDeleteOpen(true);
+  };
+
+  const handleSessionFormSubmit = async (formData: any) => {
+    try {
+      if (selectedSession) {
+        // 編集
+        await updateSession({
+          id: selectedSession.id,
+          session_number: formData.sessionNumber,
+          date: formData.date,
+          title: formData.title || null,
+          venue: formData.venue,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+        });
+        toast({
+          title: "セッション更新完了",
+          description: `第${formData.sessionNumber}回セッションを更新しました。`,
+        });
+      } else {
+        // 新規作成
+        await createSession({
+          session_number: formData.sessionNumber,
+          date: formData.date,
+          title: formData.title || null,
+          venue: formData.venue,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+        });
+        toast({
+          title: "セッション作成完了",
+          description: `第${formData.sessionNumber}回セッションを作成しました。`,
+        });
+      }
+      refetchSessions();
+    } catch (error: any) {
+      toast({
+        title: "エラー",
+        description: error.message || "セッションの処理に失敗しました。",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleSessionDeleteConfirm = async () => {
+    if (!selectedSession) return;
+    
+    try {
+      await deleteSession(selectedSession.id);
+      toast({
+        title: "セッション削除完了",
+        description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
+      });
+      refetchSessions();
+    } catch (error: any) {
+      toast({
+        title: "エラー",
+        description: error.message || "セッションの削除に失敗しました。",
+        variant: "destructive",
+      });
+      throw error;
     }
   };
 
@@ -546,7 +634,7 @@ export default function AdminPage() {
                     セッションの作成・編集・削除を行います
                   </CardDescription>
                 </div>
-                <Button>
+                <Button onClick={handleCreateSession}>
                   <Plus className="h-4 w-4 mr-2" />
                   新規セッション
                 </Button>
@@ -593,13 +681,18 @@ export default function AdminPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleEditSession(session)}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="ghost"
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDeleteSession(session)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -624,6 +717,24 @@ export default function AdminPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* セッション作成・編集ダイアログ */}
+      <SessionFormDialog
+        open={sessionFormOpen}
+        onOpenChange={setSessionFormOpen}
+        onSubmit={handleSessionFormSubmit}
+        session={selectedSession}
+        isSubmitting={isSubmitting}
+      />
+      
+      {/* セッション削除確認ダイアログ */}
+      <SessionDeleteDialog
+        open={sessionDeleteOpen}
+        onOpenChange={setSessionDeleteOpen}
+        onConfirm={handleSessionDeleteConfirm}
+        session={selectedSession}
+        isDeleting={isSubmitting}
+      />
     </div>
   );
 }
