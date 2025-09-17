@@ -47,6 +47,21 @@ NEXT_PUBLIC_BASE_URL=https://your-domain.com
 
 Discord Webhook URL が設定されていない場合、通知機能は無効になりますが、アプリケーションは正常に動作します。
 
+## 設計書・ドキュメント
+
+### システム設計
+
+- [API 設計書](docs/design/apis.md) - 現状の API エンドポイントと変更計画
+- [データベース設計書](docs/design/db.md) - ER 図とテーブル構造
+- [実装計画書](docs/design/implementation-plan.md) - フェーズ別の実装スケジュール
+- [テスト計画書](docs/design/testing-plan.md) - 品質保証のためのテスト戦略
+- [マイグレーション計画](docs/design/) - データベース変更の段階的実行計画
+
+### 開発関連
+
+- [貢献ガイド](docs/CONTRIBUTING.md)
+- [コミット規約](docs/COMMIT_CONVENTION.md)
+
 ## コントリビューション（貢献）
 
 このプロジェクトへの貢献を歓迎します。
