@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Calendar } from "lucide-react";
 import {
   TALK_DURATIONS,
   TALK_IMAGE_URLS,
@@ -311,6 +312,27 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                     <FormDescription>
                       発表するセッションを選択してください。時間は16:30-18:00です。
                     </FormDescription>
+                    {form.watch("sessionId") && form.watch("sessionId") > 0 && allSessions.length > 0 && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                        <div className="text-sm text-blue-700">
+                          <div className="font-medium">選択されたセッション:</div>
+                          {(() => {
+                            const selectedSession = allSessions.find(s => s.id === form.watch("sessionId"));
+                            return selectedSession ? (
+                              <div className="mt-1 space-y-1">
+                                <div>第{selectedSession.sessionNumber}回 - {selectedSession.title}</div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  開催日: {selectedSession.date}
+                                </div>
+                                <div>会場: {selectedSession.venue}</div>
+                                <div>時間: {selectedSession.startTime} - {selectedSession.endTime}</div>
+                              </div>
+                            ) : null;
+                          })()}
+                        </div>
+                      </div>
+                    )}
                     <FormMessage className="text-red-400 text-sm" />
                   </FormItem>
                 )}

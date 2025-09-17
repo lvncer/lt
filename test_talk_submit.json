@@ -1,0 +1,17 @@
+{
+  "presenter": "test_user",
+  "email": "test@example.com",
+  "title": "Session ID Test Talk",
+  "duration": 10,
+  "topic": "Other", 
+  "description": "This is a test talk to verify session_id is saved properly",
+  "image_url": "https://example.com/image.jpg",
+  "session_id": 5,
+  "neonuuid": 1,
+  "fullname": "Test User",
+  "has_presentation": false,
+  "presentation_url": "",
+  "allow_archive": false,
+  "archive_url": "",
+  "presentation_start_time": "16:45"
+}

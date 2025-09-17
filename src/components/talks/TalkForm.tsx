@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Info } from "lucide-react";
+import { Info, Calendar,
+} from "lucide-react";
 import {
   TALK_TOPICS,
   TALK_DURATIONS,
@@ -312,10 +313,20 @@ export default function TalkForm() {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
-              <FormDescription>
-                発表するセッションを選択してください。時間は16:30-18:00です。
-              </FormDescription>
+                    </Select>
+                    <FormDescription>
+                      発表するセッションを選択してください。時間は16:30-18:00です。
+                    </FormDescription>
+                    {form.watch("session_id") && availableSessions.length > 0 && (
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          開催日: {
+                            availableSessions.find(s => s.id === form.watch("session_id"))?.date
+                          }
+                        </div>
+                      </div>
+                    )}
               <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
