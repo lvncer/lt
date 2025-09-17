@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -84,7 +84,7 @@ export default function SessionFormDialog({
   });
 
   // セッション情報が変更されたときにフォームをリセット
-  useState(() => {
+  useEffect(() => {
     if (session) {
       form.reset({
         sessionNumber: session.sessionNumber,
@@ -104,7 +104,7 @@ export default function SessionFormDialog({
         endTime: "18:00",
       });
     }
-  });
+  }, [session, form]);
 
   const handleSubmit = async (data: SessionFormData) => {
     try {
