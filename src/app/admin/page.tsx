@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Talk } from "@/types/talk";
+import { Talk, LtSession } from "@/types/talk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,11 @@ import {
   Mail,
   ExternalLink,
   Clock,
+  Calendar,
+  MapPin,
+  Plus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import {
   Table,
@@ -33,6 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useTalks } from "@/hooks/useTalks";
 import { useUpdateTalkStatus } from "@/hooks/useUpdateTalkStatus";
+import { useLtSessions, useSessionManagement } from "@/hooks/useLtSessions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
@@ -43,6 +49,10 @@ export default function AdminPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
   const { updateTalkStatus } = useUpdateTalkStatus();
+  
+  // セッション管理用
+  const { sessions, isLoading: sessionsLoading, refetch: refetchSessions } = useLtSessions();
+  const { createSession, updateSession, deleteSession, isSubmitting } = useSessionManagement();
 
   // 管理者権限チェック
   useEffect(() => {
@@ -206,6 +216,7 @@ export default function AdminPage() {
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="sessions">Sessions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
@@ -521,6 +532,94 @@ export default function AdminPage() {
                   )}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sessions" className="mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>LTセッション管理</CardTitle>
+                  <CardDescription>
+                    セッションの作成・編集・削除を行います
+                  </CardDescription>
+                </div>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  新規セッション
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {sessionsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Calendar className="h-8 w-8 animate-spin text-blue-500" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>第○回</TableHead>
+                      <TableHead>開催日</TableHead>
+                      <TableHead>タイトル</TableHead>
+                      <TableHead>開催場所</TableHead>
+                      <TableHead>時間</TableHead>
+                      <TableHead className="text-right">操作</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((session) => (
+                      <TableRow key={session.id}>
+                        <TableCell className="font-medium">
+                          第{session.sessionNumber}回
+                        </TableCell>
+                        <TableCell>{session.date}</TableCell>
+                        <TableCell>
+                          {session.title || `第${session.sessionNumber}回 LT大会`}
+                        </TableCell>
+                        <TableCell className="max-w-[200px]">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            <span className="truncate">{session.venue}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            {session.startTime} - {session.endTime}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button size="sm" variant="ghost">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                    {sessions.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8">
+                          <div className="text-muted-foreground">
+                            セッションが登録されていません
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
