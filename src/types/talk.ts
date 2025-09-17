@@ -1,8 +1,8 @@
 // Drizzle 生成型をインポート
-import type { Talk, NewTalk, User, NewUser } from "@/lib/db/schema";
+import type { Talk, NewTalk, User, NewUser, LtSession, NewLtSession } from "@/lib/db/schema";
 
 // 型を再エクスポート
-export type { Talk, NewTalk, User, NewUser };
+export type { Talk, NewTalk, User, NewUser, LtSession, NewLtSession };
 
 // API レスポンス型
 export interface TalkResponse {
