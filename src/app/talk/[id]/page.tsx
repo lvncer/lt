@@ -20,6 +20,20 @@ import { notFound, useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useUserId } from "@/hooks/useUserId";
 
+// 時間表示を時分（HH:MM）形式に統一するヘルパー関数
+const formatTime = (timeString: string | null | undefined): string => {
+	if (!timeString) return "--:--";
+
+	// 時分秒（HH:MM:SS）形式の場合は時分（HH:MM）に変換
+	if (timeString.includes(":") && timeString.split(":").length === 3) {
+		const [hours, minutes] = timeString.split(":");
+		return `${hours}:${minutes}`;
+	}
+
+	// 時分（HH:MM）形式の場合はそのまま返す
+	return timeString;
+};
+
 export default function TalkPage() {
 	const params = useParams();
 	const router = useRouter();
@@ -51,17 +65,14 @@ export default function TalkPage() {
 		day: "numeric",
 	});
 
-	const presentation_date = talk.presentationDate
-		? new Date(talk.presentationDate)
+	const session_date = talk.sessionDate
+		? new Date(talk.sessionDate)
 		: new Date();
-	const formattedPresentationDate = presentation_date.toLocaleDateString(
-		"ja-JP",
-		{
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-		},
-	);
+	const formattedSessionDate = session_date.toLocaleDateString("ja-JP", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
 
 	const statusColors: Record<string, string> = {
 		pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -89,9 +100,9 @@ export default function TalkPage() {
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 		const presentationDay = new Date(
-			presentation_date.getFullYear(),
-			presentation_date.getMonth(),
-			presentation_date.getDate(),
+			session_date.getFullYear(),
+			session_date.getMonth(),
+			session_date.getDate(),
 		);
 
 		// 日付が一致するか確認
@@ -201,17 +212,17 @@ export default function TalkPage() {
 							<h2 className="text-xl font-medium p-1">開催予定のトーク日程</h2>
 							<div className="rounded-md bg-accent p-4">
 								<div className="text-sm text-muted-foreground">
-									発表日: {formattedPresentationDate}
+									発表日: {formattedSessionDate}
 								</div>
 								<div className="mb-1" />
 								<div className="text-sm text-muted-foreground">
-									発表場所: {talk.venue}
+									発表場所: {talk.sessionVenue || "未定"}
 								</div>
 								{talk.presentationStartTime && (
 									<>
 										<div className="mb-1" />
 										<div className="text-sm text-muted-foreground">
-											開始時刻: {talk.presentationStartTime}
+											開始時刻: {formatTime(talk.presentationStartTime)}
 										</div>
 									</>
 								)}
@@ -238,16 +249,18 @@ export default function TalkPage() {
 										</div>
 									)}
 
-									{talk.allowArchive && talk.archiveUrl && (
+									{talk.sessionArchiveUrl && (
 										<div className="text-sm">
-											<div className="font-medium mb-1">アーカイブ</div>
+											<div className="font-medium mb-1">
+												セッションアーカイブ
+											</div>
 											<Link
-												href={talk.archiveUrl}
+												href={talk.sessionArchiveUrl}
 												target="_blank"
 												rel="noopener noreferrer"
 												className="text-blue-600 hover:underline break-all"
 											>
-												{talk.archiveUrl}
+												{talk.sessionArchiveUrl}
 											</Link>
 										</div>
 									)}

@@ -33,6 +33,7 @@ export const ltSessions = pgTable(
 		venue: text("venue").notNull(),
 		startTime: text("start_time").notNull().default("16:30"),
 		endTime: text("end_time").notNull().default("18:00"),
+		archiveUrl: text("archive_url"), // アーカイブURL追加
 		createdAt: timestamp("created_at").defaultNow(),
 		updatedAt: timestamp("updated_at").defaultNow(),
 	},
@@ -54,18 +55,14 @@ export const talks = pgTable("talks", {
 	status: text("status").default("pending"),
 	dateSubmitted: timestamp("date_submitted").defaultNow(),
 	imageUrl: text("image_url"),
-	presentationDate: text("presentation_date"),
-	venue: text("venue"),
 	sessionId: integer("session_id").references(() => ltSessions.id, {
 		onDelete: "set null",
 	}),
 	userId: integer("user_id").references(() => users.id),
 	fullname: text("fullname"),
-	// 既存の新機能カラム
+	// 発表機能カラム
 	hasPresentationUrl: boolean("has_presentation").default(false),
 	presentationUrl: text("presentation_url"),
-	allowArchive: boolean("allow_archive").default(false),
-	archiveUrl: text("archive_url"),
 	presentationStartTime: text("presentation_start_time"), // 必須フィールド
 });
 

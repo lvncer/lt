@@ -13,15 +13,11 @@ export const SAMPLE_TALKS: Talk[] = [
 		dateSubmitted: new Date("2025-01-18T14:30:00Z"),
 		imageUrl:
 			"https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-		presentationDate: "2025-05-30",
-		venue: "さいたまIT・WEB専門学校 PBLルーム",
 		sessionId: 1,
 		userId: 2,
 		fullname: "kuwaharu",
 		hasPresentationUrl: false,
 		presentationUrl: null,
-		allowArchive: false,
-		archiveUrl: null,
 		presentationStartTime: null,
 	},
 	{
@@ -36,15 +32,11 @@ export const SAMPLE_TALKS: Talk[] = [
 		dateSubmitted: new Date("2025-04-20T09:15:00Z"),
 		imageUrl:
 			"https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-		presentationDate: "2025-05-30",
-		venue: "さいたまIT・WEB専門学校 PBLルーム",
 		sessionId: 1,
 		userId: 3,
 		fullname: "高橋希尋",
 		hasPresentationUrl: false,
 		presentationUrl: null,
-		allowArchive: false,
-		archiveUrl: null,
 		presentationStartTime: null,
 	},
 	{
@@ -59,15 +51,11 @@ export const SAMPLE_TALKS: Talk[] = [
 		dateSubmitted: new Date("2025-01-15T12:00:00Z"),
 		imageUrl:
 			"https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-		presentationDate: "2025-05-30",
-		venue: "さいたまIT・WEB専門学校 PBLルーム",
 		sessionId: 1,
 		userId: 1,
 		fullname: "Kur0den",
 		hasPresentationUrl: false,
 		presentationUrl: null,
-		allowArchive: false,
-		archiveUrl: null,
 		presentationStartTime: null,
 	},
 ];

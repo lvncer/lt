@@ -9,91 +9,108 @@ import {
 	Info,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { format, addDays, subDays, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useDailySchedule } from "@/hooks/useDailySchedule";
-import { useScheduleData } from "@/hooks/useScheduleData";
-import { EnhancedDatePicker } from "@/components/schedule/enhanced-date-picker";
-import { EnhancedDateList } from "@/components/schedule/enhanced-date-list";
+import { useSessionSchedule } from "@/hooks/useSessionSchedule";
+import { useSessionsData } from "@/hooks/useSessionsData";
+import { EnhancedSessionList } from "@/components/schedule/enhanced-session-list";
 import { Talk } from "@/types/talk";
 
+// 時間表示を時分（HH:MM）形式に統一するヘルパー関数
+const formatTime = (timeString: string | null | undefined): string => {
+	if (!timeString) return "--:--";
+
+	// 時分秒（HH:MM:SS）形式の場合は時分（HH:MM）に変換
+	if (timeString.includes(":") && timeString.split(":").length === 3) {
+		const [hours, minutes] = timeString.split(":");
+		return `${hours}:${minutes}`;
+	}
+
+	// 時分（HH:MM）形式の場合はそのまま返す
+	return timeString;
+};
+
 export default function SchedulePage() {
-	// 利用可能な日付を取得
-	const { dates, isDatesLoading, preloadScheduleData } = useScheduleData();
+	// セッション一覧を取得
+	const { sessions, isSessionsLoading, preloadSessionData } = useSessionsData();
 
-	// 初期日付の設定
-	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-	const [formattedDate, setFormattedDate] = useState<string>("");
+	// 選択されたセッション
+	const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
+		null,
+	);
 
-	// 初期日付を設定する
+	// 初期セッションの設定
 	useEffect(() => {
-		if (dates && dates.length > 0 && !selectedDate) {
-			const initialDate = parseISO(dates[0]);
-			setSelectedDate(initialDate);
-			setFormattedDate(format(initialDate, "yyyy-MM-dd"));
+		if (
+			Array.isArray(sessions) &&
+			sessions.length > 0 &&
+			selectedSessionId === null
+		) {
+			// 最新のセッション（日付順で最後）を初期選択
+			const latestSession = sessions[sessions.length - 1];
+			setSelectedSessionId(latestSession.id);
 		}
-	}, [dates, selectedDate]);
+	}, [sessions, selectedSessionId]);
 
-	// 選択された日付のスケジュールを取得
-	const { talks, isLoading: isTalksLoading } = useDailySchedule(formattedDate);
+	// 選択されたセッションのスケジュールを取得
+	const { talks, isLoading: isTalksLoading } = useSessionSchedule(
+		selectedSessionId || undefined,
+	);
 
-	// 前の日に移動
-	const handlePreviousDay = () => {
-		if (!selectedDate) return;
+	// 現在選択されているセッション情報を取得
+	const currentSession = Array.isArray(sessions)
+		? sessions.find((s) => s.id === selectedSessionId)
+		: null;
 
-		const prevDate = subDays(selectedDate, 1);
-		setSelectedDate(prevDate);
-		setFormattedDate(format(prevDate, "yyyy-MM-dd"));
-		// プリロード
-		preloadScheduleData(prevDate);
-	};
+	// 前のセッションに移動
+	const handlePreviousSession = () => {
+		if (!selectedSessionId || !Array.isArray(sessions) || sessions.length === 0)
+			return;
 
-	// 次の日に移動
-	const handleNextDay = () => {
-		if (!selectedDate) return;
-
-		const nextDate = addDays(selectedDate, 1);
-		setSelectedDate(nextDate);
-		setFormattedDate(format(nextDate, "yyyy-MM-dd"));
-		// プリロード
-		preloadScheduleData(nextDate);
-	};
-
-	// 特定の日付に直接移動
-	const handleDateSelect = (dateStr: string) => {
-		// 日付文字列をそのままformattedDateに設定
-		setFormattedDate(dateStr);
-		// 日付オブジェクトをselectedDateに設定
-		setSelectedDate(parseISO(dateStr));
-	};
-
-	// 日付変更時の処理
-	const handleDateChange = (date: Date | null) => {
-		if (date) {
-			setSelectedDate(date);
-			setFormattedDate(format(date, "yyyy-MM-dd"));
-			preloadScheduleData(date);
+		const currentIndex = sessions.findIndex((s) => s.id === selectedSessionId);
+		if (currentIndex > 0) {
+			const prevSession = sessions[currentIndex - 1];
+			setSelectedSessionId(prevSession.id);
+			preloadSessionData(prevSession.id);
 		}
+	};
+
+	// 次のセッションに移動
+	const handleNextSession = () => {
+		if (!selectedSessionId || !Array.isArray(sessions) || sessions.length === 0)
+			return;
+
+		const currentIndex = sessions.findIndex((s) => s.id === selectedSessionId);
+		if (currentIndex < sessions.length - 1) {
+			const nextSession = sessions[currentIndex + 1];
+			setSelectedSessionId(nextSession.id);
+			preloadSessionData(nextSession.id);
+		}
+	};
+
+	// セッション選択時の処理
+	const handleSessionChange = (sessionId: number) => {
+		setSelectedSessionId(sessionId);
+		preloadSessionData(sessionId);
 	};
 
 	// 現在実施中のトークかどうかを判定
 	const isLiveTalk = (talk: Talk) => {
-		if (!talk.presentationStartTime || !talk.presentationDate) return false;
+		if (!talk.presentationStartTime || !currentSession) return false;
 
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		const talkDate = parseISO(talk.presentationDate);
-		const presentationDay = new Date(
-			talkDate.getFullYear(),
-			talkDate.getMonth(),
-			talkDate.getDate(),
+		const sessionDate = parseISO(currentSession.date);
+		const sessionDay = new Date(
+			sessionDate.getFullYear(),
+			sessionDate.getMonth(),
+			sessionDate.getDate(),
 		);
 
 		// 日付が一致するか確認
-		if (today.getTime() !== presentationDay.getTime()) {
+		if (today.getTime() !== sessionDay.getTime()) {
 			return false;
 		}
 
@@ -113,19 +130,22 @@ export default function SchedulePage() {
 	};
 
 	// ローディング表示
-	if (isDatesLoading) {
+	if (isSessionsLoading) {
 		return (
 			<div className="flex items-center justify-center min-h-[60vh]">
 				<div className="flex flex-col items-center">
 					<Info className="h-10 w-10 animate-spin text-blue-500" />
-					<p className="mt-4 text-lg">スケジュール情報を読み込んでいます...</p>
+					<p className="mt-4 text-lg">セッション情報を読み込んでいます...</p>
 				</div>
 			</div>
 		);
 	}
 
-	// 利用可能な日付がない場合
-	if (!isDatesLoading && (!dates || dates.length === 0)) {
+	// セッションがない場合
+	if (
+		!isSessionsLoading &&
+		(!Array.isArray(sessions) || sessions.length === 0)
+	) {
 		return (
 			<div className="container mx-auto px-4 py-12">
 				<Button variant="ghost" size="sm" asChild className="mb-8">
@@ -139,8 +159,8 @@ export default function SchedulePage() {
 					<h1 className="text-3xl font-bold tracking-tight mb-6">
 						ライトニングトークスケジュール
 					</h1>
-					<p className="text-lg text-muted-foreground">
-						現在予定されているトークはありません
+					<p className="text-lg text-muted-foreground mb-4">
+						現在予定されているセッションはありません
 					</p>
 				</div>
 			</div>
@@ -160,37 +180,95 @@ export default function SchedulePage() {
 				ライトニングトークスケジュール
 			</h1>
 
-			{/* 日付選択エリア - 上部に配置 */}
+			{/* セッション選択エリア - 上部に配置 */}
 			<div className="mb-6">
 				<Card>
 					<CardContent className="p-4">
-						{/* 現在の日付表示と前後ボタン */}
+						{/* 現在のセッション表示と前後ボタン */}
 						<div className="flex items-center justify-between mb-4">
-							<Button variant="outline" size="icon" onClick={handlePreviousDay}>
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={handlePreviousSession}
+								disabled={
+									!selectedSessionId ||
+									!Array.isArray(sessions) ||
+									sessions.findIndex((s) => s.id === selectedSessionId) === 0
+								}
+							>
 								<ChevronLeft className="h-4 w-4" />
 							</Button>
 							<div className="text-lg font-medium text-center px-4">
-								{selectedDate ? format(selectedDate, "yyyy年MM月dd日") : ""}
+								{currentSession ? (
+									<div className="flex items-center space-x-2">
+										<span>第{currentSession.sessionNumber}回</span>
+										{currentSession.title && (
+											<span>- {currentSession.title}</span>
+										)}
+									</div>
+								) : (
+									"セッションを選択してください"
+								)}
 							</div>
-							<Button variant="outline" size="icon" onClick={handleNextDay}>
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={handleNextSession}
+								disabled={
+									!selectedSessionId ||
+									!Array.isArray(sessions) ||
+									sessions.findIndex((s) => s.id === selectedSessionId) ===
+										sessions.length - 1
+								}
+							>
 								<ChevronRight className="h-4 w-4" />
 							</Button>
 						</div>
-
-						{/* 日付選択コンポーネント */}
-						<EnhancedDatePicker
-							selectedDate={selectedDate}
-							onDateChange={handleDateChange}
-							scheduleDates={dates}
-						/>
 					</CardContent>
 				</Card>
 			</div>
 
-			{/* トーク一覧と日付リストのレイアウト */}
+			{/* トーク一覧とセッションリストのレイアウト */}
 			<div className="flex flex-col lg:flex-row gap-6">
 				{/* 左側: トーク一覧 */}
 				<div className="flex-1">
+					{currentSession && (
+						<div className="mb-4">
+							<Card className="bg-muted/50">
+								<CardContent className="p-4">
+									<div className="flex flex-col space-y-2 text-sm">
+										<div className="flex items-center justify-between">
+											<span className="font-medium">開催日時:</span>
+											<span>
+												{format(
+													parseISO(currentSession.date),
+													"yyyy年MM月dd日",
+												)}{" "}
+												{currentSession.startTime} - {currentSession.endTime}
+											</span>
+										</div>
+										<div className="flex items-center justify-between">
+											<span className="font-medium">会場:</span>
+											<span>{currentSession.venue}</span>
+										</div>
+										{currentSession.archiveUrl && (
+											<div className="flex items-center justify-between">
+												<span className="font-medium">アーカイブ:</span>
+												<Link
+													href={currentSession.archiveUrl}
+													target="_blank"
+													className="text-blue-600 hover:text-blue-800 underline"
+												>
+													録画を見る
+												</Link>
+											</div>
+										)}
+									</div>
+								</CardContent>
+							</Card>
+						</div>
+					)}
+
 					{isTalksLoading ? (
 						<div className="flex justify-center py-12">
 							<Info className="h-8 w-8 animate-spin text-blue-500" />
@@ -200,60 +278,67 @@ export default function SchedulePage() {
 							{talks.map((talk) => (
 								<Card key={talk.id} className="overflow-hidden">
 									<CardContent className="p-0">
-										<div className="grid md:grid-cols-3 gap-6">
-											<div className="relative aspect-video md:aspect-square">
-												{talk.imageUrl && (
-													<Image
-														src={talk.imageUrl}
-														alt={talk.title}
-														fill
-														className="object-cover"
-													/>
+										<div className="flex">
+											{/* 左側: 発表時間 */}
+											<div className="flex flex-col items-center bg-black/40 justify-center px-4 py-6 min-w-24 border-r">
+												<div className="text-xs font-medium mb-1">開始時間</div>
+												<div className="text-lg font-bold">
+													{formatTime(talk.presentationStartTime)}
+												</div>
+												{isLiveTalk(talk) && (
+													<Badge
+														variant="destructive"
+														className="animate-pulse mt-2 text-xs px-2 py-0.5"
+													>
+														LIVE
+													</Badge>
 												)}
 											</div>
-											<div className="p-6 md:col-span-2">
-												<div className="flex items-center gap-2 mb-4">
-													<Badge
-														variant="outline"
-														className="bg-purple-50 text-purple-700 border-purple-200"
-													>
-														発表時間: {talk.presentationStartTime || "時間未定"}
-													</Badge>
-													<Badge variant="outline">{talk.venue}</Badge>
-													{isLiveTalk(talk) && (
-														<Badge
-															variant="destructive"
-															className="animate-pulse"
-														>
-															ライブ配信中
-														</Badge>
+
+											{/* 中央: 画像 */}
+											{/* <div className="relative w-48 flex-shrink-0">
+												<div className="relative aspect-video">
+													{talk.imageUrl && (
+														<Image
+															src={talk.imageUrl}
+															alt={talk.title}
+															fill
+															className="object-fill"
+														/>
 													)}
+												</div>
+											</div> */}
+
+											{/* 右側: 詳細情報 */}
+											<div className="flex-1 p-6">
+												<div className="flex items-center gap-2 mb-3">
+													<Badge variant="outline" className="text-xs">
+														{talk.topic}
+													</Badge>
 												</div>
 
 												<h3 className="text-xl font-semibold mb-2">
 													{talk.title}
 												</h3>
-												<p className="text-md text-muted-foreground mb-4">
+												<p className="text-md text-muted-foreground mb-3">
 													発表者:{" "}
 													{talk.fullname && talk.fullname !== "anonymous"
 														? talk.fullname
 														: talk.presenter}
 												</p>
-												<p className="text-sm text-muted-foreground mb-4">
+												<p className="text-sm text-muted-foreground mb-4 line-clamp-2">
 													{talk.description}
 												</p>
 
-												<div className="flex items-center text-sm text-muted-foreground mb-6">
-													<Clock className="h-4 w-4 mr-1" />
-													<span>{talk.duration} 分</span>
-													<div className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
-														{talk.topic}
+												<div className="flex items-center justify-between">
+													<div className="flex items-center text-sm text-muted-foreground">
+														<Clock className="h-4 w-4 mr-1" />
+														<span>{talk.duration} 分</span>
 													</div>
+													<Button variant="outline" size="sm" asChild>
+														<Link href={`/talk/${talk.id}`}>詳細を見る</Link>
+													</Button>
 												</div>
-
-												<Button variant="outline" asChild>
-													<Link href={`/talk/${talk.id}`}>詳細を見る</Link>
-												</Button>
 											</div>
 										</div>
 									</CardContent>
@@ -263,21 +348,21 @@ export default function SchedulePage() {
 					) : (
 						<div className="text-center py-12 bg-accent rounded-lg">
 							<p className="text-lg text-muted-foreground">
-								この日に予定されているトークはありません
+								このセッションに予定されているトークはありません
 							</p>
 						</div>
 					)}
 				</div>
 
-				{/* 右側: 予定がある日付リスト - パネル表示 */}
+				{/* 右側: セッション一覧 - パネル表示 */}
 				<div className="lg:w-80 flex-shrink-0">
 					<Card className="sticky top-4 h-full">
 						<CardContent className="p-4 h-full">
 							<div className="h-full max-h-[500px] overflow-y-auto">
-								<EnhancedDateList
-									dates={dates}
-									selectedDate={formattedDate}
-									onDateSelect={handleDateSelect}
+								<EnhancedSessionList
+									sessions={Array.isArray(sessions) ? sessions : []}
+									selectedSessionId={selectedSessionId}
+									onSessionSelect={handleSessionChange}
 								/>
 							</div>
 						</CardContent>
