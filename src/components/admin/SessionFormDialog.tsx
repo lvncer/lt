@@ -178,10 +178,7 @@ export default function SessionFormDialog({
                 <FormItem>
                   <FormLabel>開催日</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                    />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormDescription>
                     セッションの開催日を選択してください
@@ -225,7 +222,7 @@ export default function SessionFormDialog({
                         <SelectValue placeholder="開催場所を選択してください" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white">
                       {VENUE_OPTIONS.map((venue) => (
                         <SelectItem key={venue} value={venue}>
                           {venue}

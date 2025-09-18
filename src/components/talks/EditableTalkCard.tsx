@@ -522,9 +522,12 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 </p>
                 <div className="text-sm text-muted-foreground">
                   <p>発表時間: {talk.duration} 分</p>
-                  <p>発表日: {talk.presentationDate || "未定"}</p>
-                  <p>発表場所: {talk.venue || "未定"}</p>
+                  <p>発表日: {talk.sessionDate || talk.presentationDate || "未定"}</p>
+                  <p>発表場所: {talk.sessionVenue || talk.venue || "未定"}</p>
                   <p>開始時刻: {talk.presentationStartTime || "未定"}</p>
+                  {talk.sessionNumber && (
+                    <p>セッション: 第{talk.sessionNumber}回</p>
+                  )}
                   {talk.hasPresentationUrl && talk.presentationUrl && (
                     <p>
                       プレゼン資料:{" "}
