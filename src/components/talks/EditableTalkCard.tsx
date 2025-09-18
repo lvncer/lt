@@ -141,22 +141,29 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
     form.reset();
   };
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateTalk({
-      id: talk.id,
-      title: values.title,
-      duration: values.duration,
-      topic: values.topic,
-      description: values.description,
-      image_url: values.imageUrl,
-      session_id: values.sessionId,
-      has_presentation: values.hasPresentationUrl,
-      presentation_url: values.presentationUrl,
-      allow_archive: values.allowArchive,
-      archive_url: values.archiveUrl,
-      presentation_start_time: values.presentationStartTime,
-    });
-    setIsEditing(false);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await updateTalk({
+        id: talk.id,
+        title: values.title,
+        duration: values.duration,
+        topic: values.topic,
+        description: values.description,
+        image_url: values.imageUrl,
+        session_id: values.sessionId,
+        has_presentation: values.hasPresentationUrl,
+        presentation_url: values.presentationUrl,
+        allow_archive: values.allowArchive,
+        archive_url: values.archiveUrl,
+        presentation_start_time: values.presentationStartTime,
+      });
+      setIsEditing(false);
+      // ページリロードして最新データを取得
+      window.location.reload();
+    } catch (error) {
+      console.error("トーク更新エラー:", error);
+      // エラー時はフォームを開いたままにする
+    }
   };
 
   const handleDeleteClick = () => {
