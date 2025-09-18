@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { talks } from "@/lib/db/schema";
+import { talks, users, ltSessions } from "@/lib/db/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
@@ -16,14 +16,47 @@ export async function GET(
 	}
 
 	try {
-		const result = await db.select().from(talks).where(eq(talks.id, talkId));
+		// talksテーブルとlt_sessions、usersテーブルをJOINしてセッション情報を含めて取得
+		const result = await db
+			.select({
+				// talks テーブルのフィールド
+				id: talks.id,
+				presenter: talks.presenter,
+				email: talks.email,
+				title: talks.title,
+				duration: talks.duration,
+				topic: talks.topic,
+				description: talks.description,
+				status: talks.status,
+				dateSubmitted: talks.dateSubmitted,
+				imageUrl: talks.imageUrl,
+				sessionId: talks.sessionId,
+				userId: talks.userId,
+				fullname: talks.fullname,
+				hasPresentationUrl: talks.hasPresentationUrl,
+				presentationUrl: talks.presentationUrl,
+				presentationStartTime: talks.presentationStartTime,
+				// セッション情報（JOINで取得）
+				sessionNumber: ltSessions.sessionNumber,
+				sessionDate: ltSessions.date,
+				sessionVenue: ltSessions.venue,
+				sessionTitle: ltSessions.title,
+				sessionStartTime: ltSessions.startTime,
+				sessionEndTime: ltSessions.endTime,
+				sessionArchiveUrl: ltSessions.archiveUrl,
+			})
+			.from(talks)
+			.leftJoin(users, eq(talks.userId, users.id))
+			.leftJoin(ltSessions, eq(talks.sessionId, ltSessions.id))
+			.where(eq(talks.id, talkId));
 
 		if (result.length === 0) {
 			return NextResponse.json({ error: "Talk not found" }, { status: 404 });
 		}
 
 		return NextResponse.json(result[0]);
-	} catch {
+	} catch (error) {
+		console.error("GET /api/talk/[id] error:", error);
 		return NextResponse.json({ error: "Database error" }, { status: 500 });
 	}
 }

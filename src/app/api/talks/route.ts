@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { talks } from "@/lib/db/schema";
+import { talks, users, ltSessions } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 import {
@@ -24,8 +24,6 @@ export async function POST(req: Request) {
 			fullname,
 			has_presentation,
 			presentation_url,
-			allow_archive,
-			archive_url,
 			presentation_start_time,
 		} = body;
 
@@ -53,8 +51,6 @@ export async function POST(req: Request) {
 				fullname,
 				hasPresentationUrl: has_presentation,
 				presentationUrl: presentation_url,
-				allowArchive: allow_archive,
-				archiveUrl: archive_url,
 				presentationStartTime: presentation_start_time,
 			})
 			.returning({ id: talks.id });
@@ -91,9 +87,38 @@ export async function POST(req: Request) {
 // GET: 登録されたトーク一覧を取得
 export async function GET() {
 	try {
+		// talksテーブルとlt_sessions、usersテーブルをJOINしてセッション情報を含めて取得
 		const result = await db
-			.select()
+			.select({
+				// talks テーブルのフィールド
+				id: talks.id,
+				presenter: talks.presenter,
+				email: talks.email,
+				title: talks.title,
+				duration: talks.duration,
+				topic: talks.topic,
+				description: talks.description,
+				status: talks.status,
+				dateSubmitted: talks.dateSubmitted,
+				imageUrl: talks.imageUrl,
+				sessionId: talks.sessionId,
+				userId: talks.userId,
+				fullname: talks.fullname,
+				hasPresentationUrl: talks.hasPresentationUrl,
+				presentationUrl: talks.presentationUrl,
+				presentationStartTime: talks.presentationStartTime,
+				// セッション情報（JOINで取得）
+				sessionNumber: ltSessions.sessionNumber,
+				sessionDate: ltSessions.date,
+				sessionVenue: ltSessions.venue,
+				sessionTitle: ltSessions.title,
+				sessionStartTime: ltSessions.startTime,
+				sessionEndTime: ltSessions.endTime,
+				sessionArchiveUrl: ltSessions.archiveUrl,
+			})
 			.from(talks)
+			.leftJoin(users, eq(talks.userId, users.id))
+			.leftJoin(ltSessions, eq(talks.sessionId, ltSessions.id))
 			.orderBy(desc(talks.dateSubmitted));
 
 		return NextResponse.json(result, { status: 200 });
@@ -120,8 +145,6 @@ export async function PUT(req: Request) {
 			session_id,
 			has_presentation,
 			presentation_url,
-			allow_archive,
-			archive_url,
 			presentation_start_time,
 		} = body;
 
@@ -144,8 +167,6 @@ export async function PUT(req: Request) {
 				sessionId: session_id,
 				hasPresentationUrl: has_presentation,
 				presentationUrl: presentation_url,
-				allowArchive: allow_archive,
-				archiveUrl: archive_url,
 				presentationStartTime: presentation_start_time,
 			})
 			.where(eq(talks.id, id));

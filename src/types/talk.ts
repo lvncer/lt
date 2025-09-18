@@ -16,6 +16,7 @@ export type Talk = BaseTalk & {
 	sessionTitle?: string | null;
 	sessionStartTime?: string | null;
 	sessionEndTime?: string | null;
+	sessionArchiveUrl?: string | null;
 };
 
 // 型を再エクスポート

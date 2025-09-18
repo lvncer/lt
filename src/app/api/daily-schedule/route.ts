@@ -1,33 +1,22 @@
 import { db } from "@/lib/db";
-import { talks, users } from "@/lib/db/schema";
-import { eq, and, asc, sql } from "drizzle-orm";
+import { talks, users, ltSessions } from "@/lib/db/schema";
+import { eq, asc, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { format } from "date-fns";
 
-// GET: 指定された日付のトークスケジュールを取得
+// GET: 指定されたセッションのトークスケジュールを取得
 export async function GET(req: NextRequest) {
 	try {
 		const { searchParams } = new URL(req.url);
-		const date = searchParams.get("date");
+		const sessionId = searchParams.get("sessionId");
 
-		if (!date) {
+		if (!sessionId) {
 			return NextResponse.json(
-				{ error: "日付パラメータが必要です" },
+				{ error: "セッションIDパラメータが必要です" },
 				{ status: 400 },
 			);
 		}
 
-		// 日付をYYYY-MM-DD形式に正規化
-		let normalizedDate = date;
-		try {
-			// ISO形式やその他の形式からDateオブジェクトを生成しYYYY-MM-DD形式に変換
-			normalizedDate = format(new Date(date), "yyyy-MM-dd");
-		} catch (e) {
-			console.error("日付正規化エラー:", e);
-			// エラーが発生した場合は元の日付を使用
-		}
-
-		// 正規化された日付でトークを検索（usersテーブルとJOIN）
+		// セッション情報を含めてトークを検索（lt_sessionsとusersテーブルとJOIN）
 		const result = await db
 			.select({
 				id: talks.id,
@@ -40,21 +29,27 @@ export async function GET(req: NextRequest) {
 				status: talks.status,
 				dateSubmitted: talks.dateSubmitted,
 				imageUrl: talks.imageUrl,
-				presentationDate: talks.presentationDate,
-				venue: talks.venue,
 				userId: talks.userId,
 				fullname: users.fullname, // usersテーブルからfullnameを取得
 				hasPresentationUrl: talks.hasPresentationUrl,
 				presentationUrl: talks.presentationUrl,
-				allowArchive: talks.allowArchive,
-				archiveUrl: talks.archiveUrl,
 				presentationStartTime: talks.presentationStartTime,
+				// セッション情報を含める
+				sessionId: ltSessions.id,
+				sessionNumber: ltSessions.sessionNumber,
+				sessionDate: ltSessions.date,
+				sessionTitle: ltSessions.title,
+				sessionVenue: ltSessions.venue,
+				sessionStartTime: ltSessions.startTime,
+				sessionEndTime: ltSessions.endTime,
+				sessionArchiveUrl: ltSessions.archiveUrl,
 			})
 			.from(talks)
 			.leftJoin(users, eq(talks.userId, users.id))
+			.leftJoin(ltSessions, eq(talks.sessionId, ltSessions.id))
 			.where(
 				and(
-					sql`DATE(${talks.presentationDate}) = ${normalizedDate}::DATE`,
+					eq(talks.sessionId, Number.parseInt(sessionId)),
 					eq(talks.status, "approved"),
 				),
 			)

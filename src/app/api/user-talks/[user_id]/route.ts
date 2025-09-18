@@ -18,7 +18,7 @@ export async function GET(
 	try {
 		const result = await db
 			.select({
-				// talks テーブルのすべてのフィールド
+				// talks テーブルのフィールド
 				id: talks.id,
 				presenter: talks.presenter,
 				email: talks.email,
@@ -29,15 +29,11 @@ export async function GET(
 				status: talks.status,
 				dateSubmitted: talks.dateSubmitted,
 				imageUrl: talks.imageUrl,
-				presentationDate: talks.presentationDate,
-				venue: talks.venue,
 				sessionId: talks.sessionId,
 				userId: talks.userId,
 				fullname: talks.fullname,
 				hasPresentationUrl: talks.hasPresentationUrl,
 				presentationUrl: talks.presentationUrl,
-				allowArchive: talks.allowArchive,
-				archiveUrl: talks.archiveUrl,
 				presentationStartTime: talks.presentationStartTime,
 				// セッション情報（JOINで取得）
 				sessionNumber: ltSessions.sessionNumber,
@@ -46,6 +42,7 @@ export async function GET(
 				sessionTitle: ltSessions.title,
 				sessionStartTime: ltSessions.startTime,
 				sessionEndTime: ltSessions.endTime,
+				sessionArchiveUrl: ltSessions.archiveUrl,
 			})
 			.from(talks)
 			.leftJoin(ltSessions, eq(talks.sessionId, ltSessions.id))

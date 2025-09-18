@@ -2,12 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Calendar, ChevronRight, Radio } from "lucide-react";
+import { Clock, Calendar, ChevronRight, Radio, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Talk, TalkStatus } from "@/types/talk";
 import { useUser } from "@clerk/nextjs";
+
+// 時間表示を時分（HH:MM）形式に統一するヘルパー関数
+const formatTime = (timeString: string | null | undefined): string => {
+	if (!timeString) return "--:--";
+
+	// 時分秒（HH:MM:SS）形式の場合は時分（HH:MM）に変換
+	if (timeString.includes(":") && timeString.split(":").length === 3) {
+		const [hours, minutes] = timeString.split(":");
+		return `${hours}:${minutes}`;
+	}
+
+	// 時分（HH:MM）形式の場合はそのまま返す
+	return timeString;
+};
 
 interface TalkCardProps {
 	talk: Talk;
@@ -28,17 +42,15 @@ export default function TalkCard({
 		rejected: "bg-red-100 text-red-800 border-red-200",
 	};
 
-	const presentationDate = talk.presentationDate
-		? new Date(talk.presentationDate)
-		: new Date();
-	const formattedPresentationDate = presentationDate.toLocaleDateString(
-		"ja-JP",
-		{
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-		},
-	);
+	// セッション情報から日付を取得
+	const sessionDate = talk.sessionDate ? new Date(talk.sessionDate) : null;
+	const formattedSessionDate = sessionDate
+		? sessionDate.toLocaleDateString("ja-JP", {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			})
+		: "未定";
 
 	// ユーザーのメールアドレスとトークのメールアドレスが条件を満たすかチェック
 	const isSIWUser =
@@ -54,16 +66,16 @@ export default function TalkCard({
 
 	// ライブ中かどうかを判断するロジック
 	const isLive = (() => {
-		if (!talk.presentationDate || !talk.presentationStartTime) {
+		if (!sessionDate || !talk.presentationStartTime) {
 			return false;
 		}
 
 		const now = new Date();
 		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 		const presentationDay = new Date(
-			presentationDate.getFullYear(),
-			presentationDate.getMonth(),
-			presentationDate.getDate(),
+			sessionDate.getFullYear(),
+			sessionDate.getMonth(),
+			sessionDate.getDate(),
 		);
 
 		// 日付が一致するか確認
@@ -163,18 +175,27 @@ export default function TalkCard({
 						{talk.description}
 					</p>
 
-					<div className="flex items-center text-sm text-muted-foreground mb-3">
-						<Clock className="w-4 h-4 mr-1" />
-						<span>{talk.duration} min</span>
-						<div className="mx-2 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
-						<Calendar className="w-4 h-4 mr-1" />
-						<span>{formattedPresentationDate}</span>
+					<div className="flex flex-wrap items-center text-sm text-muted-foreground mb-3 gap-x-2 gap-y-1">
+						<div className="flex items-center">
+							<Clock className="w-4 h-4 mr-1" />
+							<span>{talk.duration} min</span>
+						</div>
+						<div className="w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+						<div className="flex items-center">
+							<Calendar className="w-4 h-4 mr-1" />
+							<span>{formattedSessionDate}</span>
+						</div>
 						{talk.presentationStartTime && (
 							<>
-								<div className="mx-1 w-1 h-1 rounded-full bg-muted-foreground/30"></div>
-								<span>{talk.presentationStartTime}</span>
+								<div className="w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+								<span>{formatTime(talk.presentationStartTime)}</span>
 							</>
 						)}
+						<div className="w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+						<div className="flex items-center">
+							<MapPin className="w-4 h-4 mr-1" />
+							<span>{talk.sessionVenue || "未定"}</span>
+						</div>
 					</div>
 
 					<div className="flex items-center justify-between">

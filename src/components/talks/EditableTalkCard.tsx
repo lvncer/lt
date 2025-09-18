@@ -19,6 +19,20 @@ import {
 } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+
+// 時間表示を時分（HH:MM）形式に統一するヘルパー関数
+const formatTime = (timeString: string | null | undefined): string => {
+	if (!timeString) return "--:--";
+
+	// 時分秒（HH:MM:SS）形式の場合は時分（HH:MM）に変換
+	if (timeString.includes(":") && timeString.split(":").length === 3) {
+		const [hours, minutes] = timeString.split(":");
+		return `${hours}:${minutes}`;
+	}
+
+	// 時分（HH:MM）形式の場合はそのまま返す
+	return timeString;
+};
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Calendar } from "lucide-react";
 import { TALK_DURATIONS, TALK_IMAGE_URLS, TALK_TOPICS } from "@/lib/data";
@@ -67,8 +81,6 @@ const formSchema = z.object({
 		}),
 	hasPresentationUrl: z.boolean(),
 	presentationUrl: z.string().optional(),
-	allowArchive: z.boolean(),
-	archiveUrl: z.string().optional(),
 	presentationStartTime: z
 		.string()
 		.min(1, { message: "発表開始時刻を入力してください" })
@@ -106,8 +118,6 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 			description: "",
 			hasPresentationUrl: false,
 			presentationUrl: "",
-			allowArchive: false,
-			archiveUrl: "",
 			presentationStartTime: "",
 		},
 	});
@@ -130,8 +140,6 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 			sessionId: talk.sessionId || 0,
 			hasPresentationUrl: talk.hasPresentationUrl || false,
 			presentationUrl: talk.presentationUrl || "",
-			allowArchive: talk.allowArchive || false,
-			archiveUrl: talk.archiveUrl || "",
 			presentationStartTime: talk.presentationStartTime || "16:30",
 		});
 	};
@@ -153,8 +161,6 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 				session_id: values.sessionId,
 				has_presentation: values.hasPresentationUrl,
 				presentation_url: values.presentationUrl,
-				allow_archive: values.allowArchive,
-				archive_url: values.archiveUrl,
 				presentation_start_time: values.presentationStartTime,
 			});
 			setIsEditing(false);
@@ -463,58 +469,6 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 								/>
 							)}
 
-							<FormField
-								control={form.control}
-								name="allowArchive"
-								render={({ field }) => (
-									<FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-										<FormControl>
-											<input
-												type="checkbox"
-												checked={field.value}
-												onChange={(e) => {
-													field.onChange(e.target.checked);
-													if (!e.target.checked) {
-														form.setValue("archiveUrl", "");
-													}
-												}}
-												className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-												aria-label="アーカイブとして公開を許可する"
-											/>
-										</FormControl>
-										<div className="space-y-1 leading-none">
-											<FormLabel>アーカイブとして公開を許可する</FormLabel>
-											<FormDescription>
-												発表内容をアーカイブとして公開することを許可する場合はチェックしてください。
-											</FormDescription>
-										</div>
-									</FormItem>
-								)}
-							/>
-
-							{form.watch("allowArchive") && (
-								<FormField
-									control={form.control}
-									name="archiveUrl"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>アーカイブURL</FormLabel>
-											<div className="mb-1" />
-											<FormControl>
-												<Input
-													placeholder="https://example.com/archive"
-													{...field}
-												/>
-											</FormControl>
-											<FormDescription>
-												発表内容のアーカイブURLを入力してください（YouTube、Vimeoなど）。
-											</FormDescription>
-											<FormMessage className="text-red-400 text-sm" />
-										</FormItem>
-									)}
-								/>
-							)}
-
 							<div className="flex gap-2">
 								<Button
 									type="submit"
@@ -558,12 +512,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 								</p>
 								<div className="text-sm text-muted-foreground">
 									<p>発表時間: {talk.duration} 分</p>
-									<p>
-										発表日:{" "}
-										{talk.sessionDate || talk.presentationDate || "未定"}
-									</p>
-									<p>発表場所: {talk.sessionVenue || talk.venue || "未定"}</p>
-									<p>開始時刻: {talk.presentationStartTime || "未定"}</p>
+									<p>発表日: {talk.sessionDate || "未定"}</p>
+									<p>発表場所: {talk.sessionVenue || "未定"}</p>
+									<p>開始時刻: {formatTime(talk.presentationStartTime)}</p>
 									{talk.sessionNumber && (
 										<p>セッション: 第{talk.sessionNumber}回</p>
 									)}
@@ -577,19 +528,6 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 												className="text-blue-600 hover:underline break-all"
 											>
 												{talk.presentationUrl}
-											</a>
-										</p>
-									)}
-									{talk.allowArchive && talk.archiveUrl && (
-										<p>
-											アーカイブ:{" "}
-											<a
-												href={talk.archiveUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-blue-600 hover:underline break-all"
-											>
-												{talk.archiveUrl}
 											</a>
 										</p>
 									)}

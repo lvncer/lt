@@ -4,22 +4,47 @@
 
 フォーマットは Keep a Changelog に基づいており、 このプロジェクトは Semantic Versioning に準拠しています。
 
+## [1.3.1] - 2025-09-18
+
+- pr
+
+  - [https://github.com/lvncer/lt/pull/107](https://github.com/lvncer/lt/pull/107)
+  - [https://github.com/lvncer/lt/pull/108](https://github.com/lvncer/lt/pull/108)
+
+- 追加
+
+  - husky, lint-staged, biome の導入
+  - .env.example の追加
+  - dependabot による自動マージを github actions に追加
+
+- 変更
+
+  - 一部コンポーネントボタンのレイアウト変更
+  - スケジュールページを日付からセッションごとの表示に変更
+
+- 削除
+  - talks テーブルと lt_sessions テーブルを正規化し、不要なカラムを削除
+
 ## [1.3.0] - 2025-09-18
+
+- pr
+
+  - [https://github.com/lvncer/lt/pull/106](https://github.com/lvncer/lt/pull/106)
 
 - 追加
 
   - docs/に API 仕様書、データベース設計書、マイグレーション用のファイルを追加
   - LT セッション用のテーブルを追加
-  - LTの投稿時間が16:30-18:00の間になるようにバリデーションを追加
+  - LT の投稿時間が 16:30-18:00 の間になるようにバリデーションを追加
   - 管理者用ページからセッションの操作ができるように追加
 
 - 変更
 
   - 既存の LT がセッションに紐付けられるように変更
-  - ダッシュボードページのLTの日付表示をセッション表示に変更
+  - ダッシュボードページの LT の日付表示をセッション表示に変更
 
 - 修正
-  - 編集ページで自分のLTが発表順に並ぶように修正
+  - 編集ページで自分の LT が発表順に並ぶように修正
 
 ## [1.2.0] - 2025-08-24
 
