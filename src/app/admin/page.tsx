@@ -6,33 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Search,
-  Mail,
-  ExternalLink,
-  Clock,
-  Calendar,
-  MapPin,
-  Plus,
-  Edit,
-  Trash2,
+	CheckCircle2,
+	XCircle,
+	AlertCircle,
+	Search,
+	Mail,
+	ExternalLink,
+	Clock,
+	Calendar,
+	MapPin,
+	Plus,
+	Edit,
+	Trash2,
 } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
 } from "@/components/ui/table";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -46,706 +46,720 @@ import SessionDeleteDialog from "@/components/admin/SessionDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
-  const { talks: fetchedTalks } = useTalks();
-  const [talks, setTalks] = useState<Talk[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const { isLoaded, user } = useUser();
-  const router = useRouter();
-  const { updateTalkStatus } = useUpdateTalkStatus();
-  
-  // セッション管理用
-  const { sessions, isLoading: sessionsLoading, refetch: refetchSessions } = useLtSessions();
-  const { createSession, updateSession, deleteSession, isSubmitting } = useSessionManagement();
-  const { toast } = useToast();
-  
-  // ダイアログ状態管理
-  const [sessionFormOpen, setSessionFormOpen] = useState(false);
-  const [sessionDeleteOpen, setSessionDeleteOpen] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<LtSession | null>(null);
+	const { talks: fetchedTalks } = useTalks();
+	const [talks, setTalks] = useState<Talk[]>([]);
+	const [searchQuery, setSearchQuery] = useState("");
+	const { isLoaded, user } = useUser();
+	const router = useRouter();
+	const { updateTalkStatus } = useUpdateTalkStatus();
 
-  // 管理者権限チェック
-  useEffect(() => {
-    if (isLoaded && user) {
-      const role = user?.publicMetadata?.role;
-      if (role !== "admin") {
-        alert("管理者権限が必要です。");
-        router.replace("/");
-      }
-    }
-  }, [isLoaded, user, router]);
+	// セッション管理用
+	const {
+		sessions,
+		isLoading: sessionsLoading,
+		refetch: refetchSessions,
+	} = useLtSessions();
+	const { createSession, updateSession, deleteSession, isSubmitting } =
+		useSessionManagement();
+	const { toast } = useToast();
 
-  const handleStatusUpdate = async (
-    id: number,
-    status: "approved" | "rejected" | "pending"
-  ) => {
-    const updatedTalk = await updateTalkStatus(id, status);
-    if (updatedTalk) {
-      setTalks((prevTalks) =>
-        prevTalks.map((talk) =>
-          talk.id === updatedTalk.id ? updatedTalk : talk
-        )
-      );
-    }
-  };
+	// ダイアログ状態管理
+	const [sessionFormOpen, setSessionFormOpen] = useState(false);
+	const [sessionDeleteOpen, setSessionDeleteOpen] = useState(false);
+	const [selectedSession, setSelectedSession] = useState<LtSession | null>(
+		null,
+	);
 
-  // セッション関連のハンドラー
-  const handleCreateSession = () => {
-    setSelectedSession(null);
-    setSessionFormOpen(true);
-  };
+	// 管理者権限チェック
+	useEffect(() => {
+		if (isLoaded && user) {
+			const role = user?.publicMetadata?.role;
+			if (role !== "admin") {
+				alert("管理者権限が必要です。");
+				router.replace("/");
+			}
+		}
+	}, [isLoaded, user, router]);
 
-  const handleEditSession = (session: LtSession) => {
-    setSelectedSession(session);
-    setSessionFormOpen(true);
-  };
+	const handleStatusUpdate = async (
+		id: number,
+		status: "approved" | "rejected" | "pending",
+	) => {
+		const updatedTalk = await updateTalkStatus(id, status);
+		if (updatedTalk) {
+			setTalks((prevTalks) =>
+				prevTalks.map((talk) =>
+					talk.id === updatedTalk.id ? updatedTalk : talk,
+				),
+			);
+		}
+	};
 
-  const handleDeleteSession = (session: LtSession) => {
-    setSelectedSession(session);
-    setSessionDeleteOpen(true);
-  };
+	// セッション関連のハンドラー
+	const handleCreateSession = () => {
+		setSelectedSession(null);
+		setSessionFormOpen(true);
+	};
 
-  const handleSessionFormSubmit = async (formData: {
-    sessionNumber: number;
-    date: string;
-    title?: string;
-    venue: string;
-    startTime: string;
-    endTime: string;
-  }) => {
-    try {
-      if (selectedSession) {
-        // 編集
-        await updateSession({
-          id: selectedSession.id,
-          session_number: formData.sessionNumber,
-          date: formData.date,
-          title: formData.title || undefined,
-          venue: formData.venue,
-          start_time: formData.startTime,
-          end_time: formData.endTime,
-        });
-        toast({
-          title: "セッション更新完了",
-          description: `第${formData.sessionNumber}回セッションを更新しました。`,
-        });
-      } else {
-        // 新規作成
-        await createSession({
-          session_number: formData.sessionNumber,
-          date: formData.date,
-          title: formData.title || undefined,
-          venue: formData.venue,
-          start_time: formData.startTime,
-          end_time: formData.endTime,
-        });
-        toast({
-          title: "セッション作成完了",
-          description: `第${formData.sessionNumber}回セッションを作成しました。`,
-        });
-      }
-      refetchSessions();
-      setSessionFormOpen(false);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "セッションの処理に失敗しました。";
-      toast({
-        title: "エラー",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      throw error;
-    }
-  };
+	const handleEditSession = (session: LtSession) => {
+		setSelectedSession(session);
+		setSessionFormOpen(true);
+	};
 
-  const handleSessionDeleteConfirm = async () => {
-    if (!selectedSession) return;
-    
-    try {
-      await deleteSession(selectedSession.id);
-      toast({
-        title: "セッション削除完了",
-        description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
-      });
-      refetchSessions();
-      setSessionDeleteOpen(false);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "セッションの削除に失敗しました。";
-      toast({
-        title: "エラー",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      throw error;
-    }
-  };
+	const handleDeleteSession = (session: LtSession) => {
+		setSelectedSession(session);
+		setSessionDeleteOpen(true);
+	};
 
-  useEffect(() => {
-    if (fetchedTalks) {
-      setTalks(fetchedTalks);
-    }
-  }, [fetchedTalks]);
+	const handleSessionFormSubmit = async (formData: {
+		sessionNumber: number;
+		date: string;
+		title?: string;
+		venue: string;
+		startTime: string;
+		endTime: string;
+	}) => {
+		try {
+			if (selectedSession) {
+				// 編集
+				await updateSession({
+					id: selectedSession.id,
+					session_number: formData.sessionNumber,
+					date: formData.date,
+					title: formData.title || undefined,
+					venue: formData.venue,
+					start_time: formData.startTime,
+					end_time: formData.endTime,
+				});
+				toast({
+					title: "セッション更新完了",
+					description: `第${formData.sessionNumber}回セッションを更新しました。`,
+				});
+			} else {
+				// 新規作成
+				await createSession({
+					session_number: formData.sessionNumber,
+					date: formData.date,
+					title: formData.title || undefined,
+					venue: formData.venue,
+					start_time: formData.startTime,
+					end_time: formData.endTime,
+				});
+				toast({
+					title: "セッション作成完了",
+					description: `第${formData.sessionNumber}回セッションを作成しました。`,
+				});
+			}
+			refetchSessions();
+			setSessionFormOpen(false);
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: "セッションの処理に失敗しました。";
+			toast({
+				title: "エラー",
+				description: errorMessage,
+				variant: "destructive",
+			});
+			throw error;
+		}
+	};
 
-  // Filter talks based on search query
-  const filteredTalks = talks.filter(
-    (talk: Talk) =>
-      talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      talk.presenter.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      talk.topic.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+	const handleSessionDeleteConfirm = async () => {
+		if (!selectedSession) return;
 
-  // Count by status
-  const pendingCount = talks.filter(
-    (talk: Talk) => talk.status === "pending"
-  ).length;
-  const approvedCount = talks.filter(
-    (talk: Talk) => talk.status === "approved"
-  ).length;
-  const rejectedCount = talks.filter(
-    (talk: Talk) => talk.status === "rejected"
-  ).length;
+		try {
+			await deleteSession(selectedSession.id);
+			toast({
+				title: "セッション削除完了",
+				description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
+			});
+			refetchSessions();
+			setSessionDeleteOpen(false);
+		} catch (error: unknown) {
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: "セッションの削除に失敗しました。";
+			toast({
+				title: "エラー",
+				description: errorMessage,
+				variant: "destructive",
+			});
+			throw error;
+		}
+	};
 
-  const renderStatusBadge = (status: string | null) => {
-    if (status === "approved") {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-green-100 text-green-800 border-green-200"
-        >
-          Approved
-        </Badge>
-      );
-    } else if (status === "rejected") {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-red-100 text-red-800 border-red-200"
-        >
-          Rejected
-        </Badge>
-      );
-    } else {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-yellow-100 text-yellow-800 border-yellow-200"
-        >
-          Pending
-        </Badge>
-      );
-    }
-  };
+	useEffect(() => {
+		if (fetchedTalks) {
+			setTalks(fetchedTalks);
+		}
+	}, [fetchedTalks]);
 
-  return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-4">
-          Admin Dashboard
-        </h1>
-        <p className="text-muted-foreground max-w-3xl">
-          Manage lightning talk submissions, approve or reject talks, and
-          oversee the schedule.
-        </p>
-      </div>
+	// Filter talks based on search query
+	const filteredTalks = talks.filter(
+		(talk: Talk) =>
+			talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			talk.presenter.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			talk.topic.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{pendingCount}</div>
-              <div className="text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 w-8 h-8 rounded-full flex items-center justify-center">
-                <AlertCircle className="h-5 w-5" />
-              </div>
-            </div>
-            <CardDescription className="text-xs mt-2">
-              Awaiting review
-            </CardDescription>
-          </CardContent>
-        </Card>
+	// Count by status
+	const pendingCount = talks.filter(
+		(talk: Talk) => talk.status === "pending",
+	).length;
+	const approvedCount = talks.filter(
+		(talk: Talk) => talk.status === "approved",
+	).length;
+	const rejectedCount = talks.filter(
+		(talk: Talk) => talk.status === "rejected",
+	).length;
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Approved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{approvedCount}</div>
-              <div className="text-green-500 bg-green-100 dark:bg-green-900/30 w-8 h-8 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
-            </div>
-            <CardDescription className="text-xs mt-2">
-              Ready for presentation
-            </CardDescription>
-          </CardContent>
-        </Card>
+	const renderStatusBadge = (status: string | null) => {
+		if (status === "approved") {
+			return (
+				<Badge
+					variant="outline"
+					className="bg-green-100 text-green-800 border-green-200"
+				>
+					Approved
+				</Badge>
+			);
+		} else if (status === "rejected") {
+			return (
+				<Badge
+					variant="outline"
+					className="bg-red-100 text-red-800 border-red-200"
+				>
+					Rejected
+				</Badge>
+			);
+		} else {
+			return (
+				<Badge
+					variant="outline"
+					className="bg-yellow-100 text-yellow-800 border-yellow-200"
+				>
+					Pending
+				</Badge>
+			);
+		}
+	};
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{rejectedCount}</div>
-              <div className="text-red-500 bg-red-100 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center">
-                <XCircle className="h-5 w-5" />
-              </div>
-            </div>
-            <CardDescription className="text-xs mt-2">
-              Not approved
-            </CardDescription>
-          </CardContent>
-        </Card>
-      </div>
+	return (
+		<div className="container mx-auto px-4 py-12">
+			<div className="mb-8">
+				<h1 className="text-3xl font-bold tracking-tight mb-4">
+					Admin Dashboard
+				</h1>
+				<p className="text-muted-foreground max-w-3xl">
+					Manage lightning talk submissions, approve or reject talks, and
+					oversee the schedule.
+				</p>
+			</div>
 
-      <div className="relative w-full max-w-sm mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search talks..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 w-full"
-        />
-      </div>
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+				<Card>
+					<CardHeader className="pb-2">
+						<CardTitle className="text-sm font-medium">Pending</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="flex items-center justify-between">
+							<div className="text-2xl font-bold">{pendingCount}</div>
+							<div className="text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 w-8 h-8 rounded-full flex items-center justify-center">
+								<AlertCircle className="h-5 w-5" />
+							</div>
+						</div>
+						<CardDescription className="text-xs mt-2">
+							Awaiting review
+						</CardDescription>
+					</CardContent>
+				</Card>
 
-      <Tabs defaultValue="all">
-        <TabsList>
-          <TabsTrigger value="all">All Talks</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="approved">Approved</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          <TabsTrigger value="sessions">Sessions</TabsTrigger>
-        </TabsList>
+				<Card>
+					<CardHeader className="pb-2">
+						<CardTitle className="text-sm font-medium">Approved</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="flex items-center justify-between">
+							<div className="text-2xl font-bold">{approvedCount}</div>
+							<div className="text-green-500 bg-green-100 dark:bg-green-900/30 w-8 h-8 rounded-full flex items-center justify-center">
+								<CheckCircle2 className="h-5 w-5" />
+							</div>
+						</div>
+						<CardDescription className="text-xs mt-2">
+							Ready for presentation
+						</CardDescription>
+					</CardContent>
+				</Card>
 
-        <TabsContent value="all" className="mt-6">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Presenter</TableHead>
-                    <TableHead>Topic</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTalks.map((talk) => (
-                    <TableRow key={talk.id}>
-                      <TableCell className="font-medium max-w-[200px] truncate">
-                        {talk.title}
-                      </TableCell>
-                      <TableCell className="max-w-[150px]">
-                        <div className="truncate">{talk.presenter}</div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <Mail className="h-3 w-3" />
-                          {talk.email}
-                        </div>
-                      </TableCell>
-                      <TableCell>{talk.topic}</TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                          {talk.duration} min
-                        </div>
-                      </TableCell>
-                      <TableCell>{renderStatusBadge(talk.status)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button size="sm" variant="ghost" asChild>
-                            <Link href={`/talk/${talk.id}`} target="_blank">
-                              <ExternalLink className="h-4 w-4" />
-                            </Link>
-                          </Button>
+				<Card>
+					<CardHeader className="pb-2">
+						<CardTitle className="text-sm font-medium">Rejected</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="flex items-center justify-between">
+							<div className="text-2xl font-bold">{rejectedCount}</div>
+							<div className="text-red-500 bg-red-100 dark:bg-red-900/30 w-8 h-8 rounded-full flex items-center justify-center">
+								<XCircle className="h-5 w-5" />
+							</div>
+						</div>
+						<CardDescription className="text-xs mt-2">
+							Not approved
+						</CardDescription>
+					</CardContent>
+				</Card>
+			</div>
 
-                          {talk.status !== "approved" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "approved")
-                              }
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                            </Button>
-                          )}
+			<div className="relative w-full max-w-sm mb-6">
+				<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+				<Input
+					placeholder="Search talks..."
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					className="pl-10 w-full"
+				/>
+			</div>
 
-                          {talk.status !== "rejected" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "rejected")
-                              }
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+			<Tabs defaultValue="all">
+				<TabsList>
+					<TabsTrigger value="all">All Talks</TabsTrigger>
+					<TabsTrigger value="pending">Pending</TabsTrigger>
+					<TabsTrigger value="approved">Approved</TabsTrigger>
+					<TabsTrigger value="rejected">Rejected</TabsTrigger>
+					<TabsTrigger value="sessions">Sessions</TabsTrigger>
+				</TabsList>
 
-                  {filteredTalks.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No talks found
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+				<TabsContent value="all" className="mt-6">
+					<Card>
+						<CardContent className="p-0">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Title</TableHead>
+										<TableHead>Presenter</TableHead>
+										<TableHead>Topic</TableHead>
+										<TableHead>Duration</TableHead>
+										<TableHead>Status</TableHead>
+										<TableHead className="text-right">Actions</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{filteredTalks.map((talk) => (
+										<TableRow key={talk.id}>
+											<TableCell className="font-medium max-w-[200px] truncate">
+												{talk.title}
+											</TableCell>
+											<TableCell className="max-w-[150px]">
+												<div className="truncate">{talk.presenter}</div>
+												<div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+													<Mail className="h-3 w-3" />
+													{talk.email}
+												</div>
+											</TableCell>
+											<TableCell>{talk.topic}</TableCell>
+											<TableCell className="whitespace-nowrap">
+												<div className="flex items-center gap-1">
+													<Clock className="h-3.5 w-3.5 text-muted-foreground" />
+													{talk.duration} min
+												</div>
+											</TableCell>
+											<TableCell>{renderStatusBadge(talk.status)}</TableCell>
+											<TableCell className="text-right">
+												<div className="flex items-center justify-end gap-2">
+													<Button size="sm" variant="ghost" asChild>
+														<Link href={`/talk/${talk.id}`} target="_blank">
+															<ExternalLink className="h-4 w-4" />
+														</Link>
+													</Button>
 
-        <TabsContent value="pending" className="mt-6">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Presenter</TableHead>
-                    <TableHead>Topic</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTalks
-                    .filter((talk) => talk.status === "pending")
-                    .map((talk) => (
-                      <TableRow key={talk.id}>
-                        <TableCell className="font-medium max-w-[200px] truncate">
-                          {talk.title}
-                        </TableCell>
-                        <TableCell className="max-w-[150px]">
-                          <div className="truncate">{talk.presenter}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <Mail className="h-3 w-3" />
-                            {talk.email}
-                          </div>
-                        </TableCell>
-                        <TableCell>{talk.topic}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            {talk.duration} min
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talk/${talk.id}`} target="_blank">
-                                <ExternalLink className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "approved")
-                              }
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "rejected")
-                              }
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+													{talk.status !== "approved" && (
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "approved")
+															}
+														>
+															<CheckCircle2 className="h-4 w-4" />
+														</Button>
+													)}
 
-                  {filteredTalks.filter((talk) => talk.status === "pending")
-                    .length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No pending talks
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+													{talk.status !== "rejected" && (
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "rejected")
+															}
+														>
+															<XCircle className="h-4 w-4" />
+														</Button>
+													)}
+												</div>
+											</TableCell>
+										</TableRow>
+									))}
 
-        <TabsContent value="approved" className="mt-6">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Presenter</TableHead>
-                    <TableHead>Topic</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTalks
-                    .filter((talk) => talk.status === "approved")
-                    .map((talk) => (
-                      <TableRow key={talk.id}>
-                        <TableCell className="font-medium max-w-[200px] truncate">
-                          {talk.title}
-                        </TableCell>
-                        <TableCell className="max-w-[150px]">
-                          <div className="truncate">{talk.presenter}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <Mail className="h-3 w-3" />
-                            {talk.email}
-                          </div>
-                        </TableCell>
-                        <TableCell>{talk.topic}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            {talk.duration} min
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talk/${talk.id}`} target="_blank">
-                                <ExternalLink className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "rejected")
-                              }
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+									{filteredTalks.length === 0 && (
+										<TableRow>
+											<TableCell colSpan={6} className="text-center py-8">
+												<div className="text-muted-foreground">
+													No talks found
+												</div>
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</TabsContent>
 
-                  {filteredTalks.filter((talk) => talk.status === "approved")
-                    .length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No approved talks
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+				<TabsContent value="pending" className="mt-6">
+					<Card>
+						<CardContent className="p-0">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Title</TableHead>
+										<TableHead>Presenter</TableHead>
+										<TableHead>Topic</TableHead>
+										<TableHead>Duration</TableHead>
+										<TableHead className="text-right">Actions</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{filteredTalks
+										.filter((talk) => talk.status === "pending")
+										.map((talk) => (
+											<TableRow key={talk.id}>
+												<TableCell className="font-medium max-w-[200px] truncate">
+													{talk.title}
+												</TableCell>
+												<TableCell className="max-w-[150px]">
+													<div className="truncate">{talk.presenter}</div>
+													<div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+														<Mail className="h-3 w-3" />
+														{talk.email}
+													</div>
+												</TableCell>
+												<TableCell>{talk.topic}</TableCell>
+												<TableCell className="whitespace-nowrap">
+													<div className="flex items-center gap-1">
+														<Clock className="h-3.5 w-3.5 text-muted-foreground" />
+														{talk.duration} min
+													</div>
+												</TableCell>
+												<TableCell className="text-right">
+													<div className="flex items-center justify-end gap-2">
+														<Button size="sm" variant="ghost" asChild>
+															<Link href={`/talk/${talk.id}`} target="_blank">
+																<ExternalLink className="h-4 w-4" />
+															</Link>
+														</Button>
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "approved")
+															}
+														>
+															<CheckCircle2 className="h-4 w-4" />
+														</Button>
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "rejected")
+															}
+														>
+															<XCircle className="h-4 w-4" />
+														</Button>
+													</div>
+												</TableCell>
+											</TableRow>
+										))}
 
-        <TabsContent value="rejected" className="mt-6">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Presenter</TableHead>
-                    <TableHead>Topic</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTalks
-                    .filter((talk) => talk.status === "rejected")
-                    .map((talk) => (
-                      <TableRow key={talk.id}>
-                        <TableCell className="font-medium max-w-[200px] truncate">
-                          {talk.title}
-                        </TableCell>
-                        <TableCell className="max-w-[150px]">
-                          <div className="truncate">{talk.presenter}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <Mail className="h-3 w-3" />
-                            {talk.email}
-                          </div>
-                        </TableCell>
-                        <TableCell>{talk.topic}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                            {talk.duration} min
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button size="sm" variant="ghost" asChild>
-                              <Link href={`/talk/${talk.id}`} target="_blank">
-                                <ExternalLink className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-                              onClick={() =>
-                                handleStatusUpdate(talk.id, "approved")
-                              }
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+									{filteredTalks.filter((talk) => talk.status === "pending")
+										.length === 0 && (
+										<TableRow>
+											<TableCell colSpan={5} className="text-center py-8">
+												<div className="text-muted-foreground">
+													No pending talks
+												</div>
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</TabsContent>
 
-                  {filteredTalks.filter((talk) => talk.status === "rejected")
-                    .length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          No rejected talks
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+				<TabsContent value="approved" className="mt-6">
+					<Card>
+						<CardContent className="p-0">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Title</TableHead>
+										<TableHead>Presenter</TableHead>
+										<TableHead>Topic</TableHead>
+										<TableHead>Duration</TableHead>
+										<TableHead className="text-right">Actions</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{filteredTalks
+										.filter((talk) => talk.status === "approved")
+										.map((talk) => (
+											<TableRow key={talk.id}>
+												<TableCell className="font-medium max-w-[200px] truncate">
+													{talk.title}
+												</TableCell>
+												<TableCell className="max-w-[150px]">
+													<div className="truncate">{talk.presenter}</div>
+													<div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+														<Mail className="h-3 w-3" />
+														{talk.email}
+													</div>
+												</TableCell>
+												<TableCell>{talk.topic}</TableCell>
+												<TableCell className="whitespace-nowrap">
+													<div className="flex items-center gap-1">
+														<Clock className="h-3.5 w-3.5 text-muted-foreground" />
+														{talk.duration} min
+													</div>
+												</TableCell>
+												<TableCell className="text-right">
+													<div className="flex items-center justify-end gap-2">
+														<Button size="sm" variant="ghost" asChild>
+															<Link href={`/talk/${talk.id}`} target="_blank">
+																<ExternalLink className="h-4 w-4" />
+															</Link>
+														</Button>
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "rejected")
+															}
+														>
+															<XCircle className="h-4 w-4" />
+														</Button>
+													</div>
+												</TableCell>
+											</TableRow>
+										))}
 
-        <TabsContent value="sessions" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>LTセッション管理</CardTitle>
-                  <CardDescription>
-                    セッションの作成・編集・削除を行います
-                  </CardDescription>
-                </div>
-                <Button onClick={handleCreateSession}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  新規セッション
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {sessionsLoading ? (
-                <div className="flex justify-center py-8">
-                  <Calendar className="h-8 w-8 animate-spin text-blue-500" />
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>第○回</TableHead>
-                      <TableHead>開催日</TableHead>
-                      <TableHead>タイトル</TableHead>
-                      <TableHead>開催場所</TableHead>
-                      <TableHead>時間</TableHead>
-                      <TableHead className="text-right">操作</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sessions.map((session) => (
-                      <TableRow key={session.id}>
-                        <TableCell className="font-medium">
-                          第{session.sessionNumber}回
-                        </TableCell>
-                        <TableCell>{session.date}</TableCell>
-                        <TableCell>
-                          {session.title || `第${session.sessionNumber}回 LT大会`}
-                        </TableCell>
-                        <TableCell className="max-w-[200px]">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3 text-muted-foreground" />
-                            <span className="truncate">{session.venue}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            {session.startTime} - {session.endTime}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => handleEditSession(session)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDeleteSession(session)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+									{filteredTalks.filter((talk) => talk.status === "approved")
+										.length === 0 && (
+										<TableRow>
+											<TableCell colSpan={5} className="text-center py-8">
+												<div className="text-muted-foreground">
+													No approved talks
+												</div>
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</TabsContent>
 
-                    {sessions.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
-                          <div className="text-muted-foreground">
-                            セッションが登録されていません
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      {/* セッション作成・編集ダイアログ */}
-      <SessionFormDialog
-        open={sessionFormOpen}
-        onOpenChange={setSessionFormOpen}
-        onSubmit={handleSessionFormSubmit}
-        session={selectedSession}
-        isSubmitting={isSubmitting}
-      />
-      
-      {/* セッション削除確認ダイアログ */}
-      <SessionDeleteDialog
-        open={sessionDeleteOpen}
-        onOpenChange={setSessionDeleteOpen}
-        onConfirm={handleSessionDeleteConfirm}
-        session={selectedSession}
-        isDeleting={isSubmitting}
-      />
-    </div>
-  );
+				<TabsContent value="rejected" className="mt-6">
+					<Card>
+						<CardContent className="p-0">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>Title</TableHead>
+										<TableHead>Presenter</TableHead>
+										<TableHead>Topic</TableHead>
+										<TableHead>Duration</TableHead>
+										<TableHead className="text-right">Actions</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{filteredTalks
+										.filter((talk) => talk.status === "rejected")
+										.map((talk) => (
+											<TableRow key={talk.id}>
+												<TableCell className="font-medium max-w-[200px] truncate">
+													{talk.title}
+												</TableCell>
+												<TableCell className="max-w-[150px]">
+													<div className="truncate">{talk.presenter}</div>
+													<div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+														<Mail className="h-3 w-3" />
+														{talk.email}
+													</div>
+												</TableCell>
+												<TableCell>{talk.topic}</TableCell>
+												<TableCell className="whitespace-nowrap">
+													<div className="flex items-center gap-1">
+														<Clock className="h-3.5 w-3.5 text-muted-foreground" />
+														{talk.duration} min
+													</div>
+												</TableCell>
+												<TableCell className="text-right">
+													<div className="flex items-center justify-end gap-2">
+														<Button size="sm" variant="ghost" asChild>
+															<Link href={`/talk/${talk.id}`} target="_blank">
+																<ExternalLink className="h-4 w-4" />
+															</Link>
+														</Button>
+														<Button
+															size="sm"
+															variant="outline"
+															className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+															onClick={() =>
+																handleStatusUpdate(talk.id, "approved")
+															}
+														>
+															<CheckCircle2 className="h-4 w-4" />
+														</Button>
+													</div>
+												</TableCell>
+											</TableRow>
+										))}
+
+									{filteredTalks.filter((talk) => talk.status === "rejected")
+										.length === 0 && (
+										<TableRow>
+											<TableCell colSpan={5} className="text-center py-8">
+												<div className="text-muted-foreground">
+													No rejected talks
+												</div>
+											</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				<TabsContent value="sessions" className="mt-6">
+					<Card>
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<div>
+									<CardTitle>LTセッション管理</CardTitle>
+									<CardDescription>
+										セッションの作成・編集・削除を行います
+									</CardDescription>
+								</div>
+								<Button onClick={handleCreateSession}>
+									<Plus className="h-4 w-4 mr-2" />
+									新規セッション
+								</Button>
+							</div>
+						</CardHeader>
+						<CardContent>
+							{sessionsLoading ? (
+								<div className="flex justify-center py-8">
+									<Calendar className="h-8 w-8 animate-spin text-blue-500" />
+								</div>
+							) : (
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>第○回</TableHead>
+											<TableHead>開催日</TableHead>
+											<TableHead>タイトル</TableHead>
+											<TableHead>開催場所</TableHead>
+											<TableHead>時間</TableHead>
+											<TableHead className="text-right">操作</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{sessions.map((session) => (
+											<TableRow key={session.id}>
+												<TableCell className="font-medium">
+													第{session.sessionNumber}回
+												</TableCell>
+												<TableCell>{session.date}</TableCell>
+												<TableCell>
+													{session.title ||
+														`第${session.sessionNumber}回 LT大会`}
+												</TableCell>
+												<TableCell className="max-w-[200px]">
+													<div className="flex items-center gap-1">
+														<MapPin className="h-3 w-3 text-muted-foreground" />
+														<span className="truncate">{session.venue}</span>
+													</div>
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center gap-1">
+														<Clock className="h-3 w-3 text-muted-foreground" />
+														{session.startTime} - {session.endTime}
+													</div>
+												</TableCell>
+												<TableCell className="text-right">
+													<div className="flex items-center justify-end gap-2">
+														<Button
+															size="sm"
+															variant="ghost"
+															onClick={() => handleEditSession(session)}
+														>
+															<Edit className="h-4 w-4" />
+														</Button>
+														<Button
+															size="sm"
+															variant="ghost"
+															className="text-red-600 hover:text-red-700 hover:bg-red-50"
+															onClick={() => handleDeleteSession(session)}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</div>
+												</TableCell>
+											</TableRow>
+										))}
+
+										{sessions.length === 0 && (
+											<TableRow>
+												<TableCell colSpan={6} className="text-center py-8">
+													<div className="text-muted-foreground">
+														セッションが登録されていません
+													</div>
+												</TableCell>
+											</TableRow>
+										)}
+									</TableBody>
+								</Table>
+							)}
+						</CardContent>
+					</Card>
+				</TabsContent>
+			</Tabs>
+
+			{/* セッション作成・編集ダイアログ */}
+			<SessionFormDialog
+				open={sessionFormOpen}
+				onOpenChange={setSessionFormOpen}
+				onSubmit={handleSessionFormSubmit}
+				session={selectedSession}
+				isSubmitting={isSubmitting}
+			/>
+
+			{/* セッション削除確認ダイアログ */}
+			<SessionDeleteDialog
+				open={sessionDeleteOpen}
+				onOpenChange={setSessionDeleteOpen}
+				onConfirm={handleSessionDeleteConfirm}
+				session={selectedSession}
+				isDeleting={isSubmitting}
+			/>
+		</div>
+	);
 }

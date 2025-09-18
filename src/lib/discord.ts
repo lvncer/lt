@@ -4,124 +4,126 @@
  */
 
 export interface TalkNotificationData {
-  title: string;
-  presenter: string;
-  topic: string;
-  duration: number;
-  description?: string;
-  sessionId?: number;
-  talkId: number;
+	title: string;
+	presenter: string;
+	topic: string;
+	duration: number;
+	description?: string;
+	sessionId?: number;
+	talkId: number;
 }
 
 /**
  * Discord Webhookに送信するメッセージを生成
  */
 function createDiscordMessage(talk: TalkNotificationData): object {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const talkUrl = `${baseUrl}/talk/${talk.talkId}`;
+	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+	const talkUrl = `${baseUrl}/talk/${talk.talkId}`;
 
-  // セッション情報（sessionIdから取得する場合はここで処理）
-  const sessionInfo = talk.sessionId ? `セッション${talk.sessionId}` : "セッション未定";
+	// セッション情報（sessionIdから取得する場合はここで処理）
+	const sessionInfo = talk.sessionId
+		? `セッション${talk.sessionId}`
+		: "セッション未定";
 
-  return {
-    embeds: [
-      {
-        title: "🎤 新しいライトニングトークが投稿されました！",
-        description: `**${talk.title}**`,
-        color: 0x00ff00, // 緑色
-        fields: [
-          {
-            name: "発表者",
-            value: talk.presenter,
-            inline: true,
-          },
-          {
-            name: "トピック",
-            value: talk.topic,
-            inline: true,
-          },
-          {
-            name: "発表時間",
-            value: `${talk.duration}分`,
-            inline: true,
-          },
-          {
-            name: "セッション",
-            value: sessionInfo,
-            inline: true,
-          },
-          {
-            name: "説明",
-            value: talk.description
-              ? talk.description.length > 200
-                ? talk.description.substring(0, 200) + "..."
-                : talk.description
-              : "説明なし",
-            inline: false,
-          },
-          {
-            name: "詳細を見る",
-            value: `[トークページを開く](${talkUrl})`,
-            inline: false,
-          },
-        ],
-        timestamp: new Date().toISOString(),
-        footer: {
-          text: "Lightning Talk Platform",
-        },
-      },
-    ],
-  };
+	return {
+		embeds: [
+			{
+				title: "🎤 新しいライトニングトークが投稿されました！",
+				description: `**${talk.title}**`,
+				color: 0x00ff00, // 緑色
+				fields: [
+					{
+						name: "発表者",
+						value: talk.presenter,
+						inline: true,
+					},
+					{
+						name: "トピック",
+						value: talk.topic,
+						inline: true,
+					},
+					{
+						name: "発表時間",
+						value: `${talk.duration}分`,
+						inline: true,
+					},
+					{
+						name: "セッション",
+						value: sessionInfo,
+						inline: true,
+					},
+					{
+						name: "説明",
+						value: talk.description
+							? talk.description.length > 200
+								? talk.description.substring(0, 200) + "..."
+								: talk.description
+							: "説明なし",
+						inline: false,
+					},
+					{
+						name: "詳細を見る",
+						value: `[トークページを開く](${talkUrl})`,
+						inline: false,
+					},
+				],
+				timestamp: new Date().toISOString(),
+				footer: {
+					text: "Lightning Talk Platform",
+				},
+			},
+		],
+	};
 }
 
 /**
  * Discord Webhookに通知を送信
  */
 export async function sendDiscordNotification(
-  talk: TalkNotificationData
+	talk: TalkNotificationData,
 ): Promise<void> {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+	const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
-  if (!webhookUrl) {
-    console.warn("Discord Webhook URL not configured. Skipping notification.");
-    return;
-  }
+	if (!webhookUrl) {
+		console.warn("Discord Webhook URL not configured. Skipping notification.");
+		return;
+	}
 
-  try {
-    const message = createDiscordMessage(talk);
+	try {
+		const message = createDiscordMessage(talk);
 
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(message),
-    });
+		const response = await fetch(webhookUrl, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(message),
+		});
 
-    if (!response.ok) {
-      throw new Error(
-        `Discord API error: ${response.status} ${response.statusText}`
-      );
-    }
+		if (!response.ok) {
+			throw new Error(
+				`Discord API error: ${response.status} ${response.statusText}`,
+			);
+		}
 
-    console.log("Discord notification sent successfully for talk:", talk.title);
-  } catch (error) {
-    // エラーログを出力するが、メイン処理は継続
-    console.error("Failed to send Discord notification:", error);
-    console.error("Talk data:", talk);
-  }
+		console.log("Discord notification sent successfully for talk:", talk.title);
+	} catch (error) {
+		// エラーログを出力するが、メイン処理は継続
+		console.error("Failed to send Discord notification:", error);
+		console.error("Talk data:", talk);
+	}
 }
 
 /**
  * 非同期でDiscord通知を送信（メイン処理をブロックしない）
  */
 export function sendDiscordNotificationAsync(talk: TalkNotificationData): void {
-  // 非同期で実行し、エラーが発生してもメイン処理に影響しない
-  setImmediate(async () => {
-    try {
-      await sendDiscordNotification(talk);
-    } catch (error) {
-      console.error("Async Discord notification failed:", error);
-    }
-  });
+	// 非同期で実行し、エラーが発生してもメイン処理に影響しない
+	setImmediate(async () => {
+		try {
+			await sendDiscordNotification(talk);
+		} catch (error) {
+			console.error("Async Discord notification failed:", error);
+		}
+	});
 }

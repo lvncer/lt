@@ -16,7 +16,21 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"style": {
+				"useTemplate": "warn",
+				"noNonNullAssertion": "warn"
+			},
+			"suspicious": {
+				"noGlobalIsNan": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"correctness": {
+				"noUnusedFunctionParameters": "warn"
+			},
+			"a11y": {
+				"noLabelWithoutControl": "warn"
+			}
 		}
 	},
 	"javascript": {
