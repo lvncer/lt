@@ -17,7 +17,7 @@ export async function POST() {
   }
 
   try {
-    const results: any[] = [];
+    const results: { session: string; count: number; talks: { id: number; title: string }[] }[] = [];
 
     // 2025-05-30のトークを第1回セッションに紐づけ
     const result1 = await db

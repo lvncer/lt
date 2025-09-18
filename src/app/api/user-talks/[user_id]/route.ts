@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { talks, ltSessions } from "@/lib/db/schema";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 // 動的ルーティングからuser_idを取得してtalksを取得するAPI

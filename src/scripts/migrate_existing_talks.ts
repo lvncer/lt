@@ -3,7 +3,7 @@
  */
 import { db } from "@/lib/db";
 import { talks } from "@/lib/db/schema";
-import { eq, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 async function migrateExistingTalks() {
   try {
