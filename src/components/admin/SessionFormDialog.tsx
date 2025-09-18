@@ -181,7 +181,6 @@ export default function SessionFormDialog({
                     <Input
                       type="date"
                       {...field}
-                      min={new Date().toISOString().split("T")[0]}
                     />
                   </FormControl>
                   <FormDescription>
