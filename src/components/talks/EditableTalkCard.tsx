@@ -519,7 +519,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 								<Button
 									type="submit"
 									variant="outline"
-									className="flex items-center gap-2"
+									className="flex items-center gap-2 bg-blue-500 hover:bg-blue-700 border-blue-200 text-white"
 								>
 									<Save className="h-4 w-4" />
 									保存
@@ -607,7 +607,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 							)}
 						</div>
 
-						<div className="flex gap-2">
+						<div className="flex gap-2 justify-end">
 							<Button
 								variant="outline"
 								size="sm"
@@ -621,7 +621,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 								variant="outline"
 								size="sm"
 								onClick={handleDeleteClick}
-								className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+								className="flex items-center gap-3 bg-red-500 hover:bg-red-700 border-red-200 text-white"
 							>
 								<Trash2 className="h-4 w-4" />
 								削除
@@ -651,6 +651,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 									variant="destructive"
 									onClick={handleDeleteConfirm}
 									disabled={isDeleting}
+									className="bg-red-500 hover:bg-red-700"
 								>
 									{isDeleting ? "削除中..." : "削除"}
 								</Button>
