@@ -20,12 +20,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Calendar } from "lucide-react";
 import {
   TALK_DURATIONS,
   TALK_IMAGE_URLS,
   TALK_TOPICS,
-  TALK_VENUES,
 } from "@/lib/data";
+import { useLtSessions } from "@/hooks/useLtSessions";
 import {
   Select,
   SelectContent,
@@ -57,11 +58,8 @@ const formSchema = z.object({
     message: "カテゴリーを選択してください",
   }),
   imageUrl: z.string(),
-  presentationDate: z.string().min(1, {
-    message: "発表日を選択してください",
-  }),
-  venue: z.string().min(1, {
-    message: "発表場所を選択してください",
+  sessionId: z.number().min(1, {
+    message: "セッションを選択してください",
   }),
   description: z
     .string()
@@ -75,9 +73,15 @@ const formSchema = z.object({
   presentationUrl: z.string().optional(),
   allowArchive: z.boolean(),
   archiveUrl: z.string().optional(),
-  presentationStartTime: z.string().min(1, {
-    message: "発表開始時刻を入力してください",
-  }),
+  presentationStartTime: z.string()
+    .min(1, { message: "発表開始時刻を入力してください" })
+    .refine((time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      const timeInMinutes = hours * 60 + minutes;
+      return timeInMinutes >= 16 * 60 + 30 && timeInMinutes <= 18 * 60;
+    }, {
+      message: "発表時間は16:30-18:00の間で設定してください",
+    }),
 });
 
 interface EditableTalkCardProps {
@@ -88,6 +92,8 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { deleteTalk, isDeleting } = useDeleteTalk();
+  // 編集ページでは過去も含め全てのセッションを取得
+  const { sessions: allSessions, isLoading: sessionsLoading } = useLtSessions();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,8 +102,7 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       duration: 10,
       topic: "",
       imageUrl: "",
-      presentationDate: new Date().toISOString(),
-      venue: "",
+      sessionId: 0,
       description: "",
       hasPresentationUrl: false,
       presentationUrl: "",
@@ -122,13 +127,12 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
       topic: talk.topic,
       description: talk.description || "",
       imageUrl: newImageUrl,
-      presentationDate: talk.presentationDate || "",
-      venue: talk.venue || "",
+      sessionId: talk.sessionId || 0,
       hasPresentationUrl: talk.hasPresentationUrl || false,
       presentationUrl: talk.presentationUrl || "",
       allowArchive: talk.allowArchive || false,
       archiveUrl: talk.archiveUrl || "",
-      presentationStartTime: talk.presentationStartTime || "10:00",
+      presentationStartTime: talk.presentationStartTime || "16:30",
     });
   };
 
@@ -137,23 +141,29 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
     form.reset();
   };
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    updateTalk({
-      id: talk.id,
-      title: values.title,
-      duration: values.duration,
-      topic: values.topic,
-      description: values.description,
-      image_url: values.imageUrl,
-      presentation_date: values.presentationDate,
-      venue: values.venue,
-      has_presentation: values.hasPresentationUrl,
-      presentation_url: values.presentationUrl,
-      allow_archive: values.allowArchive,
-      archive_url: values.archiveUrl,
-      presentation_start_time: values.presentationStartTime,
-    });
-    setIsEditing(false);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await updateTalk({
+        id: talk.id,
+        title: values.title,
+        duration: values.duration,
+        topic: values.topic,
+        description: values.description,
+        image_url: values.imageUrl,
+        session_id: values.sessionId,
+        has_presentation: values.hasPresentationUrl,
+        presentation_url: values.presentationUrl,
+        allow_archive: values.allowArchive,
+        archive_url: values.archiveUrl,
+        presentation_start_time: values.presentationStartTime,
+      });
+      setIsEditing(false);
+      // ページリロードして最新データを取得
+      window.location.reload();
+    } catch (error) {
+      console.error("トーク更新エラー:", error);
+      // エラー時はフォームを開いたままにする
+    }
   };
 
   const handleDeleteClick = () => {
@@ -281,50 +291,55 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 
               <FormField
                 control={form.control}
-                name="presentationDate"
+                name="sessionId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>発表日</FormLabel>
+                    <FormLabel required>開催セッション</FormLabel>
                     <div className="mb-1" />
-                    <FormControl required>
-                      <div className="relative">
-                        <Input
-                          type="date"
-                          value={field.value}
-                          onChange={(e) => field.onChange(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage className="text-red-400 text-sm" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>発表場所</FormLabel>
-                    <div className="mb-1" />
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                    <Select 
+                      onValueChange={(value) => field.onChange(parseInt(value, 10))} 
+                      defaultValue={field.value?.toString()}
+                      disabled={sessionsLoading}
                     >
                       <FormControl required>
                         <SelectTrigger>
-                          <SelectValue placeholder="発表場所を選択してください" />
+                          <SelectValue placeholder={
+                            sessionsLoading ? "読み込み中..." : "セッションを選択してください"
+                          } />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-white">
-                        {TALK_VENUES.map((venue) => (
-                          <SelectItem key={venue} value={venue}>
-                            {venue}
+                        {allSessions.map((session) => (
+                          <SelectItem key={session.id} value={session.id.toString()}>
+                            第{session.sessionNumber}回 - {session.date} ({session.venue})
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormDescription>
+                      発表するセッションを選択してください。時間は16:30-18:00です。
+                    </FormDescription>
+                    {form.watch("sessionId") && form.watch("sessionId") > 0 && allSessions.length > 0 && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                        <div className="text-sm text-blue-700">
+                          <div className="font-medium">選択されたセッション:</div>
+                          {(() => {
+                            const selectedSession = allSessions.find(s => s.id === form.watch("sessionId"));
+                            return selectedSession ? (
+                              <div className="mt-1 space-y-1">
+                                <div>第{selectedSession.sessionNumber}回 - {selectedSession.title}</div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  開催日: {selectedSession.date}
+                                </div>
+                                <div>会場: {selectedSession.venue}</div>
+                                <div>時間: {selectedSession.startTime} - {selectedSession.endTime}</div>
+                              </div>
+                            ) : null;
+                          })()}
+                        </div>
+                      </div>
+                    )}
                     <FormMessage className="text-red-400 text-sm" />
                   </FormItem>
                 )}
@@ -360,7 +375,13 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                     <FormLabel required>発表開始時刻</FormLabel>
                     <div className="mb-1" />
                     <FormControl required>
-                      <Input type="time" {...field} className="w-full" />
+                      <Input 
+                        type="time" 
+                        min="16:30"
+                        max="18:00"
+                        {...field} 
+                        className="w-full" 
+                      />
                     </FormControl>
                     <FormMessage className="text-red-400 text-sm" />
                   </FormItem>
@@ -508,9 +529,12 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
                 </p>
                 <div className="text-sm text-muted-foreground">
                   <p>発表時間: {talk.duration} 分</p>
-                  <p>発表日: {talk.presentationDate || "未定"}</p>
-                  <p>発表場所: {talk.venue || "未定"}</p>
+                  <p>発表日: {talk.sessionDate || talk.presentationDate || "未定"}</p>
+                  <p>発表場所: {talk.sessionVenue || talk.venue || "未定"}</p>
                   <p>開始時刻: {talk.presentationStartTime || "未定"}</p>
+                  {talk.sessionNumber && (
+                    <p>セッション: 第{talk.sessionNumber}回</p>
+                  )}
                   {talk.hasPresentationUrl && talk.presentationUrl && (
                     <p>
                       プレゼン資料:{" "}

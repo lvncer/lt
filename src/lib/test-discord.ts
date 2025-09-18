@@ -15,8 +15,7 @@ export const sampleTalkData: TalkNotificationData = {
   duration: 15,
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  venue: "さいたまIT・WEB専門学校 PBLルーム",
-  presentationDate: "2025-06-06",
+  sessionId: 1,
   talkId: 999,
 };
 

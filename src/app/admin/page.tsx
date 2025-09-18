@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Talk } from "@/types/talk";
+import { Talk, LtSession } from "@/types/talk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,11 @@ import {
   Mail,
   ExternalLink,
   Clock,
+  Calendar,
+  MapPin,
+  Plus,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import {
   Table,
@@ -33,8 +38,12 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useTalks } from "@/hooks/useTalks";
 import { useUpdateTalkStatus } from "@/hooks/useUpdateTalkStatus";
+import { useLtSessions, useSessionManagement } from "@/hooks/useLtSessions";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import SessionFormDialog from "@/components/admin/SessionFormDialog";
+import SessionDeleteDialog from "@/components/admin/SessionDeleteDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
   const { talks: fetchedTalks } = useTalks();
@@ -43,6 +52,16 @@ export default function AdminPage() {
   const { isLoaded, user } = useUser();
   const router = useRouter();
   const { updateTalkStatus } = useUpdateTalkStatus();
+  
+  // セッション管理用
+  const { sessions, isLoading: sessionsLoading, refetch: refetchSessions } = useLtSessions();
+  const { createSession, updateSession, deleteSession, isSubmitting } = useSessionManagement();
+  const { toast } = useToast();
+  
+  // ダイアログ状態管理
+  const [sessionFormOpen, setSessionFormOpen] = useState(false);
+  const [sessionDeleteOpen, setSessionDeleteOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<LtSession | null>(null);
 
   // 管理者権限チェック
   useEffect(() => {
@@ -66,6 +85,96 @@ export default function AdminPage() {
           talk.id === updatedTalk.id ? updatedTalk : talk
         )
       );
+    }
+  };
+
+  // セッション関連のハンドラー
+  const handleCreateSession = () => {
+    setSelectedSession(null);
+    setSessionFormOpen(true);
+  };
+
+  const handleEditSession = (session: LtSession) => {
+    setSelectedSession(session);
+    setSessionFormOpen(true);
+  };
+
+  const handleDeleteSession = (session: LtSession) => {
+    setSelectedSession(session);
+    setSessionDeleteOpen(true);
+  };
+
+  const handleSessionFormSubmit = async (formData: {
+    sessionNumber: number;
+    date: string;
+    title?: string;
+    venue: string;
+    startTime: string;
+    endTime: string;
+  }) => {
+    try {
+      if (selectedSession) {
+        // 編集
+        await updateSession({
+          id: selectedSession.id,
+          session_number: formData.sessionNumber,
+          date: formData.date,
+          title: formData.title || undefined,
+          venue: formData.venue,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+        });
+        toast({
+          title: "セッション更新完了",
+          description: `第${formData.sessionNumber}回セッションを更新しました。`,
+        });
+      } else {
+        // 新規作成
+        await createSession({
+          session_number: formData.sessionNumber,
+          date: formData.date,
+          title: formData.title || undefined,
+          venue: formData.venue,
+          start_time: formData.startTime,
+          end_time: formData.endTime,
+        });
+        toast({
+          title: "セッション作成完了",
+          description: `第${formData.sessionNumber}回セッションを作成しました。`,
+        });
+      }
+      refetchSessions();
+      setSessionFormOpen(false);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "セッションの処理に失敗しました。";
+      toast({
+        title: "エラー",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleSessionDeleteConfirm = async () => {
+    if (!selectedSession) return;
+    
+    try {
+      await deleteSession(selectedSession.id);
+      toast({
+        title: "セッション削除完了",
+        description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
+      });
+      refetchSessions();
+      setSessionDeleteOpen(false);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "セッションの削除に失敗しました。";
+      toast({
+        title: "エラー",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw error;
     }
   };
 
@@ -206,6 +315,7 @@ export default function AdminPage() {
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="sessions">Sessions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
@@ -524,7 +634,118 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="sessions" className="mt-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>LTセッション管理</CardTitle>
+                  <CardDescription>
+                    セッションの作成・編集・削除を行います
+                  </CardDescription>
+                </div>
+                <Button onClick={handleCreateSession}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  新規セッション
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {sessionsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Calendar className="h-8 w-8 animate-spin text-blue-500" />
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>第○回</TableHead>
+                      <TableHead>開催日</TableHead>
+                      <TableHead>タイトル</TableHead>
+                      <TableHead>開催場所</TableHead>
+                      <TableHead>時間</TableHead>
+                      <TableHead className="text-right">操作</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((session) => (
+                      <TableRow key={session.id}>
+                        <TableCell className="font-medium">
+                          第{session.sessionNumber}回
+                        </TableCell>
+                        <TableCell>{session.date}</TableCell>
+                        <TableCell>
+                          {session.title || `第${session.sessionNumber}回 LT大会`}
+                        </TableCell>
+                        <TableCell className="max-w-[200px]">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            <span className="truncate">{session.venue}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            {session.startTime} - {session.endTime}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleEditSession(session)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDeleteSession(session)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
+                    {sessions.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8">
+                          <div className="text-muted-foreground">
+                            セッションが登録されていません
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+      
+      {/* セッション作成・編集ダイアログ */}
+      <SessionFormDialog
+        open={sessionFormOpen}
+        onOpenChange={setSessionFormOpen}
+        onSubmit={handleSessionFormSubmit}
+        session={selectedSession}
+        isSubmitting={isSubmitting}
+      />
+      
+      {/* セッション削除確認ダイアログ */}
+      <SessionDeleteDialog
+        open={sessionDeleteOpen}
+        onOpenChange={setSessionDeleteOpen}
+        onConfirm={handleSessionDeleteConfirm}
+        session={selectedSession}
+        isDeleting={isSubmitting}
+      />
     </div>
   );
 }

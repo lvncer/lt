@@ -5,6 +5,8 @@ import {
   integer,
   timestamp,
   boolean,
+  unique,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -20,6 +22,26 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// lt_sessions テーブル
+export const ltSessions = pgTable(
+  "lt_sessions",
+  {
+    id: serial("id").primaryKey(),
+    sessionNumber: integer("session_number").notNull(),
+    date: text("date").notNull(),
+    title: text("title"),
+    venue: text("venue").notNull(),
+    startTime: text("start_time").notNull().default("16:30"),
+    endTime: text("end_time").notNull().default("18:00"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => ({
+    sessionNumberUnique: unique().on(table.sessionNumber),
+    dateIndex: index("lt_sessions_date_idx").on(table.date),
+  })
+);
+
 // talks テーブル
 export const talks = pgTable("talks", {
   id: serial("id").primaryKey(),
@@ -34,6 +56,9 @@ export const talks = pgTable("talks", {
   imageUrl: text("image_url"),
   presentationDate: text("presentation_date"),
   venue: text("venue"),
+  sessionId: integer("session_id").references(() => ltSessions.id, {
+    onDelete: "set null",
+  }),
   userId: integer("user_id").references(() => users.id),
   fullname: text("fullname"),
   // 既存の新機能カラム
@@ -49,15 +74,25 @@ export const usersRelations = relations(users, ({ many }) => ({
   talks: many(talks),
 }));
 
+export const ltSessionsRelations = relations(ltSessions, ({ many }) => ({
+  talks: many(talks),
+}));
+
 export const talksRelations = relations(talks, ({ one }) => ({
   user: one(users, {
     fields: [talks.userId],
     references: [users.id],
+  }),
+  session: one(ltSessions, {
+    fields: [talks.sessionId],
+    references: [ltSessions.id],
   }),
 }));
 
 // 型定義をエクスポート
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type LtSession = typeof ltSessions.$inferSelect;
+export type NewLtSession = typeof ltSessions.$inferInsert;
 export type Talk = typeof talks.$inferSelect;
 export type NewTalk = typeof talks.$inferInsert;

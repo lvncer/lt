@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Info } from "lucide-react";
+import { Info, Calendar,
+} from "lucide-react";
 import {
   TALK_TOPICS,
   TALK_DURATIONS,
   TALK_IMAGE_URLS,
-  TALK_VENUES,
 } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { useUserId } from "@/hooks/useUserId";
 import { useUser } from "@clerk/nextjs";
 import { useGetFullname } from "@/hooks/useGetFullname";
+import { useAvailableSessions } from "@/hooks/useLtSessions";
 
 const formSchema = z.object({
   title: z
@@ -58,11 +59,8 @@ const formSchema = z.object({
     message: "カテゴリーを選択してください",
   }),
   image_url: z.string(),
-  presentation_date: z.string().min(1, {
-    message: "発表日を選択してください",
-  }),
-  venue: z.string().min(1, {
-    message: "発表場所を選択してください",
+  session_id: z.number().min(1, {
+    message: "セッションを選択してください",
   }),
   description: z
     .string()
@@ -76,9 +74,15 @@ const formSchema = z.object({
   presentation_url: z.string().optional(),
   allow_archive: z.boolean(),
   archive_url: z.string().optional(),
-  presentation_start_time: z.string().min(1, {
-    message: "発表開始時刻を入力してください",
-  }),
+  presentation_start_time: z.string()
+    .min(1, { message: "発表開始時刻を入力してください" })
+    .refine((time) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      const timeInMinutes = hours * 60 + minutes;
+      return timeInMinutes >= 16 * 60 + 30 && timeInMinutes <= 18 * 60;
+    }, {
+      message: "発表時間は16:30-18:00の間で設定してください",
+    }),
 });
 
 export default function TalkForm() {
@@ -87,6 +91,7 @@ export default function TalkForm() {
   const { neonid } = useUserId();
   const { user } = useUser();
   const { fullname } = useGetFullname(user?.id || "");
+  const { sessions: availableSessions, isLoading: sessionsLoading } = useAvailableSessions();
 
   // ランダムな画像URLを選択
   const getRandomImageUrl = () => {
@@ -101,14 +106,13 @@ export default function TalkForm() {
       duration: 10,
       topic: "",
       image_url: getRandomImageUrl(),
-      presentation_date: new Date().toISOString().split("T")[0],
-      venue: "",
+      session_id: 0,
       description: "",
       has_presentation: false,
       presentation_url: "",
       allow_archive: false,
       archive_url: "",
-      presentation_start_time: "10:00",
+      presentation_start_time: "16:30",
     },
   });
 
@@ -260,28 +264,6 @@ export default function TalkForm() {
 
         <FormField
           control={form.control}
-          name="presentation_date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel required>発表日</FormLabel>
-              <div className="mb-1" />
-              <FormControl required>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={field.value ? field.value.split("T")[0] : ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage className="text-red-400 text-sm" />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="presentation_start_time"
           render={({ field }) => (
             <FormItem>
@@ -290,13 +272,15 @@ export default function TalkForm() {
               <FormControl required>
                 <Input
                   type="time"
+                  min="16:30"
+                  max="18:00"
                   value={field.value || ""}
                   onChange={(e) => field.onChange(e.target.value)}
                   className="w-full"
                 />
               </FormControl>
               <FormDescription>
-                発表の開始予定時刻を入力してください。
+                発表の開始予定時刻を入力してください。（16:30-18:00）
               </FormDescription>
               <FormMessage className="text-red-400 text-sm" />
             </FormItem>
@@ -305,25 +289,44 @@ export default function TalkForm() {
 
         <FormField
           control={form.control}
-          name="venue"
+          name="session_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel required>発表場所</FormLabel>
+              <FormLabel required>開催セッション</FormLabel>
               <div className="mb-1" />
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={(value) => field.onChange(parseInt(value, 10))} 
+                defaultValue={field.value?.toString()}
+                disabled={sessionsLoading}
+              >
                 <FormControl required>
                   <SelectTrigger>
-                    <SelectValue placeholder="場所を選択してください" />
+                    <SelectValue placeholder={
+                      sessionsLoading ? "読み込み中..." : "セッションを選択してください"
+                    } />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-white">
-                  {TALK_VENUES.map((venue) => (
-                    <SelectItem key={venue} value={venue}>
-                      {venue}
+                  {availableSessions.map((session) => (
+                    <SelectItem key={session.id} value={session.id.toString()}>
+                      {session.displayText}
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+                    </Select>
+                    <FormDescription>
+                      発表するセッションを選択してください。時間は16:30-18:00です。
+                    </FormDescription>
+                    {form.watch("session_id") && availableSessions.length > 0 && (
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          開催日: {
+                            availableSessions.find(s => s.id === form.watch("session_id"))?.date
+                          }
+                        </div>
+                      </div>
+                    )}
               <FormMessage className="text-red-400 text-sm" />
             </FormItem>
           )}
