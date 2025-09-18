@@ -1,92 +1,92 @@
 import {
-  pgTable,
-  serial,
-  text,
-  integer,
-  timestamp,
-  boolean,
-  unique,
-  index,
+	pgTable,
+	serial,
+	text,
+	integer,
+	timestamp,
+	boolean,
+	unique,
+	index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // users テーブル
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  clerkUserId: text("clerk_user_id").notNull().unique(),
-  username: text("username"),
-  email: text("email"),
-  fullname: text("fullname"),
-  imageUrl: text("image_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+	id: serial("id").primaryKey(),
+	clerkUserId: text("clerk_user_id").notNull().unique(),
+	username: text("username"),
+	email: text("email"),
+	fullname: text("fullname"),
+	imageUrl: text("image_url"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // lt_sessions テーブル
 export const ltSessions = pgTable(
-  "lt_sessions",
-  {
-    id: serial("id").primaryKey(),
-    sessionNumber: integer("session_number").notNull(),
-    date: text("date").notNull(),
-    title: text("title"),
-    venue: text("venue").notNull(),
-    startTime: text("start_time").notNull().default("16:30"),
-    endTime: text("end_time").notNull().default("18:00"),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-  },
-  (table) => ({
-    sessionNumberUnique: unique().on(table.sessionNumber),
-    dateIndex: index("lt_sessions_date_idx").on(table.date),
-  })
+	"lt_sessions",
+	{
+		id: serial("id").primaryKey(),
+		sessionNumber: integer("session_number").notNull(),
+		date: text("date").notNull(),
+		title: text("title"),
+		venue: text("venue").notNull(),
+		startTime: text("start_time").notNull().default("16:30"),
+		endTime: text("end_time").notNull().default("18:00"),
+		createdAt: timestamp("created_at").defaultNow(),
+		updatedAt: timestamp("updated_at").defaultNow(),
+	},
+	(table) => ({
+		sessionNumberUnique: unique().on(table.sessionNumber),
+		dateIndex: index("lt_sessions_date_idx").on(table.date),
+	}),
 );
 
 // talks テーブル
 export const talks = pgTable("talks", {
-  id: serial("id").primaryKey(),
-  presenter: text("presenter").notNull(),
-  email: text("email"),
-  title: text("title").notNull(),
-  duration: integer("duration").notNull(),
-  topic: text("topic").notNull(),
-  description: text("description"),
-  status: text("status").default("pending"),
-  dateSubmitted: timestamp("date_submitted").defaultNow(),
-  imageUrl: text("image_url"),
-  presentationDate: text("presentation_date"),
-  venue: text("venue"),
-  sessionId: integer("session_id").references(() => ltSessions.id, {
-    onDelete: "set null",
-  }),
-  userId: integer("user_id").references(() => users.id),
-  fullname: text("fullname"),
-  // 既存の新機能カラム
-  hasPresentationUrl: boolean("has_presentation").default(false),
-  presentationUrl: text("presentation_url"),
-  allowArchive: boolean("allow_archive").default(false),
-  archiveUrl: text("archive_url"),
-  presentationStartTime: text("presentation_start_time"), // 必須フィールド
+	id: serial("id").primaryKey(),
+	presenter: text("presenter").notNull(),
+	email: text("email"),
+	title: text("title").notNull(),
+	duration: integer("duration").notNull(),
+	topic: text("topic").notNull(),
+	description: text("description"),
+	status: text("status").default("pending"),
+	dateSubmitted: timestamp("date_submitted").defaultNow(),
+	imageUrl: text("image_url"),
+	presentationDate: text("presentation_date"),
+	venue: text("venue"),
+	sessionId: integer("session_id").references(() => ltSessions.id, {
+		onDelete: "set null",
+	}),
+	userId: integer("user_id").references(() => users.id),
+	fullname: text("fullname"),
+	// 既存の新機能カラム
+	hasPresentationUrl: boolean("has_presentation").default(false),
+	presentationUrl: text("presentation_url"),
+	allowArchive: boolean("allow_archive").default(false),
+	archiveUrl: text("archive_url"),
+	presentationStartTime: text("presentation_start_time"), // 必須フィールド
 });
 
 // リレーション定義
 export const usersRelations = relations(users, ({ many }) => ({
-  talks: many(talks),
+	talks: many(talks),
 }));
 
 export const ltSessionsRelations = relations(ltSessions, ({ many }) => ({
-  talks: many(talks),
+	talks: many(talks),
 }));
 
 export const talksRelations = relations(talks, ({ one }) => ({
-  user: one(users, {
-    fields: [talks.userId],
-    references: [users.id],
-  }),
-  session: one(ltSessions, {
-    fields: [talks.sessionId],
-    references: [ltSessions.id],
-  }),
+	user: one(users, {
+		fields: [talks.userId],
+		references: [users.id],
+	}),
+	session: one(ltSessions, {
+		fields: [talks.sessionId],
+		references: [ltSessions.id],
+	}),
 }));
 
 // 型定義をエクスポート

@@ -10,71 +10,71 @@ import { useRouter } from "next/navigation";
  * @returns deleteUser関数とisDeleting状態
  */
 export function useDeleteUser() {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { toast } = useToast();
-  const { user } = useUser();
-  const { signOut } = useClerk();
-  const router = useRouter();
+	const [isDeleting, setIsDeleting] = useState(false);
+	const { toast } = useToast();
+	const { user } = useUser();
+	const { signOut } = useClerk();
+	const router = useRouter();
 
-  /**
-   * ユーザーアカウントとすべての関連データを削除する
-   * @returns 削除成功時はtrue、失敗時はfalse
-   */
-  const deleteUser = async (): Promise<boolean> => {
-    if (!user) {
-      toast({
-        title: "エラー",
-        description: "ユーザーが認証されていません。",
-        variant: "destructive",
-      });
-      return false;
-    }
+	/**
+	 * ユーザーアカウントとすべての関連データを削除する
+	 * @returns 削除成功時はtrue、失敗時はfalse
+	 */
+	const deleteUser = async (): Promise<boolean> => {
+		if (!user) {
+			toast({
+				title: "エラー",
+				description: "ユーザーが認証されていません。",
+				variant: "destructive",
+			});
+			return false;
+		}
 
-    setIsDeleting(true);
+		setIsDeleting(true);
 
-    try {
-      const response = await fetch("/api/user-delete", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+		try {
+			const response = await fetch("/api/user-delete", {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete user account");
-      }
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to delete user account");
+			}
 
-      toast({
-        title: "アカウント削除完了",
-        description: "アカウントとすべての投稿が正常に削除されました。",
-      });
+			toast({
+				title: "アカウント削除完了",
+				description: "アカウントとすべての投稿が正常に削除されました。",
+			});
 
-      // Clerkからサインアウト（削除ではなくサインアウトのみ）
-      await signOut();
+			// Clerkからサインアウト（削除ではなくサインアウトのみ）
+			await signOut();
 
-      // ホームページにリダイレクト
-      router.push("/");
+			// ホームページにリダイレクト
+			router.push("/");
 
-      return true;
-    } catch (error) {
-      console.error("Delete user error:", error);
-      toast({
-        title: "削除エラー",
-        description:
-          error instanceof Error
-            ? error.message
-            : "アカウントの削除に失敗しました。もう一度お試しください。",
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+			return true;
+		} catch (error) {
+			console.error("Delete user error:", error);
+			toast({
+				title: "削除エラー",
+				description:
+					error instanceof Error
+						? error.message
+						: "アカウントの削除に失敗しました。もう一度お試しください。",
+				variant: "destructive",
+			});
+			return false;
+		} finally {
+			setIsDeleting(false);
+		}
+	};
 
-  return {
-    deleteUser,
-    isDeleting,
-  };
+	return {
+		deleteUser,
+		isDeleting,
+	};
 }

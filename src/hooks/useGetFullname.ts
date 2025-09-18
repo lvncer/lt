@@ -6,7 +6,7 @@ import useSWR from "swr";
  * API レスポンス型定義
  */
 interface GetFullnameResponse {
-  hashedFullName: string;
+	hashedFullName: string;
 }
 
 /**
@@ -15,7 +15,7 @@ interface GetFullnameResponse {
  * @returns APIレスポンス
  */
 const fetcher = (url: string): Promise<GetFullnameResponse> =>
-  fetch(url).then((res) => res.json());
+	fetch(url).then((res) => res.json());
 
 /**
  * ユーザーのフルネーム（ハッシュ化済み）を取得するカスタムフック
@@ -23,14 +23,14 @@ const fetcher = (url: string): Promise<GetFullnameResponse> =>
  * @returns fullname（ハッシュ化済みフルネーム）、ローディング状態、エラー状態
  */
 export function useGetFullname(userId: string | number) {
-  const { data, error, isLoading } = useSWR<GetFullnameResponse>(
-    userId ? `/api/get-fullname?userId=${userId}` : null,
-    fetcher
-  );
+	const { data, error, isLoading } = useSWR<GetFullnameResponse>(
+		userId ? `/api/get-fullname?userId=${userId}` : null,
+		fetcher,
+	);
 
-  return {
-    fullname: data?.hashedFullName,
-    isLoading,
-    isError: !!error,
-  };
+	return {
+		fullname: data?.hashedFullName,
+		isLoading,
+		isError: !!error,
+	};
 }
