@@ -1,109 +1,99 @@
 # データベース設計書
 
-## 📊 現在のデータベース構造
-
-### 現在の ERD
+## ER 図
 
 ```mermaid
 erDiagram
     users {
-        serial id PK
-        text clerk_user_id UK
-        text username
-        text email
-        text fullname
-        text image_url
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    talks {
-        serial id PK
-        text presenter
-        text email
-        text title
-        integer duration
-        text topic
-        text description
-        text status
-        timestamp date_submitted
-        text image_url
-        text presentation_date
-        text venue "🔥削除予定"
-        integer user_id FK
-        text fullname
-        boolean has_presentation
-        text presentation_url
-        boolean allow_archive
-        text archive_url
-        text presentation_start_time
-    }
-
-    users ||--o{ talks : "1対多"
-```
-
----
-
-## 🚀 新しいデータベース構造（変更後）
-
-### 新しい ERD
-
-```mermaid
-erDiagram
-    users {
-        serial id PK
-        text clerk_user_id UK
-        text username
-        text email
-        text fullname
-        text image_url
-        timestamp created_at
-        timestamp updated_at
+        integer id PK
+        text clerk_user_id UK "Clerk認証ID"
+        text username "ユーザー名"
+        text email "メールアドレス"
+        text fullname "本名"
+        text image_url "ユーザー画像URL"
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
 
     lt_sessions {
-        serial id PK "🆕新規"
-        integer session_number "第○回"
+        integer id PK
+        integer session_number UK "第○回"
         text date "開催日 YYYY-MM-DD"
         text title "セッションタイトル"
         text venue "開催場所"
         text start_time "開始時間 16:30"
         text end_time "終了時間 18:00"
-        timestamp created_at
-        timestamp updated_at
+        text archive_url "アーカイブURL"
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
 
     talks {
-        serial id PK
-        text presenter
-        text email
-        text title
-        integer duration
-        text topic
-        text description
-        text status
-        timestamp date_submitted
-        text image_url
-        text presentation_date "🔄 削除検討中"
-        integer session_id FK "🆕新規"
+        integer id PK
+        integer session_id FK
         integer user_id FK
-        text fullname
-        boolean has_presentation
-        text presentation_url
-        boolean allow_archive
-        text archive_url
-        text presentation_start_time
+        text presenter "発表者名"
+        text fullname "本名"
+        text email "メールアドレス"
+        text title "トークタイトル"
+        text presentation_start_time "開始時刻"
+        integer duration "発表時間(分)"
+        text topic "カテゴリ"
+        text description "説明"
+        text status "承認可否"
+        text image_url "トップ画像URL"
+        boolean has_presentation "スライド資料公開可否"
+        text presentation_url "スライド資料URL"
+        timestamp date_submitted "提出日"
     }
 
     users ||--o{ talks : "1対多"
-    lt_sessions ||--o{ talks : "1対多 🆕"
+    lt_sessions ||--o{ talks : "1対多"
 ```
 
 ---
 
-## 🔥 変更内容詳細
+## テーブル詳細
 
-### 1. 新規テーブル: `lt_sessions`
+### 1. ユーザーテーブル: `users`
+
+```sql
+CREATE TABLE "users" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "clerk_user_id" text NOT NULL,
+  "username" text,
+  "email" text,
+  "fullname" text,
+  "image_url" text,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+```
+
+#### users テーブルのフィールド詳細
+
+| カラム          | 型        | 制約             | 説明                            |
+| --------------- | --------- | ---------------- | ------------------------------- |
+| `id`            | integer   | PK, SERIAL       | 主キー（自動採番）              |
+| `clerk_user_id` | text      | NOT NULL, UNIQUE | Clerk 認証サービスのユーザー ID |
+| `username`      | text      | NULL OK          | ユーザー名                      |
+| `email`         | text      | NULL OK          | メールアドレス                  |
+| `fullname`      | text      | NULL OK          | 本名（ハッシュ化して保存）      |
+| `image_url`     | text      | NULL OK          | プロフィール画像 URL            |
+| `created_at`    | timestamp | DEFAULT now()    | レコード作成日時                |
+| `updated_at`    | timestamp | DEFAULT now()    | レコード更新日時                |
+
+#### users テーブルのインデックス・制約
+
+```sql
+-- 主キー
+CREATE UNIQUE INDEX "users_pkey" ON "users"("id");
+
+-- Clerk認証IDのユニーク制約
+CREATE UNIQUE INDEX "users_clerk_user_id_unique" ON "users"("clerk_user_id");
+```
+
+### 2. セッションテーブル: `lt_sessions`
 
 ```sql
 CREATE TABLE "lt_sessions" (
@@ -114,26 +104,33 @@ CREATE TABLE "lt_sessions" (
   "venue" text NOT NULL,
   "start_time" text NOT NULL DEFAULT '16:30',
   "end_time" text NOT NULL DEFAULT '18:00',
+  "archive_url" text,
   "created_at" timestamp DEFAULT now(),
   "updated_at" timestamp DEFAULT now()
 );
 ```
 
-#### フィールド詳細
+#### lt_sessions テーブルのフィールド詳細
 
-| カラム           | 型      | 制約     | 説明                                       |
-| ---------------- | ------- | -------- | ------------------------------------------ |
-| `id`             | serial  | PK       | 主キー                                     |
-| `session_number` | integer | NOT NULL | 第 ○ 回（1, 2, 3...）                      |
-| `date`           | text    | NOT NULL | 開催日 (YYYY-MM-DD)                        |
-| `title`          | text    | NULL OK  | セッションタイトル（例：「新年 LT 大会」） |
-| `venue`          | text    | NOT NULL | 開催場所                                   |
-| `start_time`     | text    | NOT NULL | 開始時間（固定：16:30）                    |
-| `end_time`       | text    | NOT NULL | 終了時間（固定：18:00）                    |
+| カラム           | 型        | 制約          | 説明                                       |
+| ---------------- | --------- | ------------- | ------------------------------------------ |
+| `id`             | integer   | PK, SERIAL    | 主キー（自動採番）                         |
+| `session_number` | integer   | NOT NULL, UK  | 第 ○ 回（1, 2, 3...）                      |
+| `date`           | text      | NOT NULL      | 開催日 (YYYY-MM-DD)                        |
+| `title`          | text      | NULL OK       | セッションタイトル（例：「新年 LT 大会」） |
+| `venue`          | text      | NOT NULL      | 開催場所                                   |
+| `start_time`     | text      | NOT NULL      | 開始時間（デフォルト：16:30）              |
+| `end_time`       | text      | NOT NULL      | 終了時間（デフォルト：18:00）              |
+| `archive_url`    | text      | NULL OK       | セッション全体のアーカイブ URL             |
+| `created_at`     | timestamp | DEFAULT now() | レコード作成日時                           |
+| `updated_at`     | timestamp | DEFAULT now() | レコード更新日時                           |
 
-#### インデックス・制約
+#### lt_sessions テーブルのインデックス・制約
 
 ```sql
+-- 主キー
+CREATE UNIQUE INDEX "lt_sessions_pkey" ON "lt_sessions"("id");
+
 -- セッション番号のユニーク制約
 CREATE UNIQUE INDEX "lt_sessions_session_number_unique" ON "lt_sessions"("session_number");
 
@@ -141,183 +138,105 @@ CREATE UNIQUE INDEX "lt_sessions_session_number_unique" ON "lt_sessions"("sessio
 CREATE INDEX "lt_sessions_date_idx" ON "lt_sessions"("date");
 ```
 
-### 2. 既存テーブル修正: `talks`
-
-#### 追加カラム
+### 3. トークテーブル: `talks`
 
 ```sql
-ALTER TABLE "talks" ADD COLUMN "session_id" integer;
-ALTER TABLE "talks" ADD CONSTRAINT "talks_session_id_lt_sessions_id_fk"
-    FOREIGN KEY ("session_id") REFERENCES "public"."lt_sessions"("id")
-    ON DELETE SET NULL ON UPDATE NO ACTION;
+CREATE TABLE "talks" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "presenter" text NOT NULL,
+  "email" text,
+  "title" text NOT NULL,
+  "duration" integer NOT NULL,
+  "topic" text NOT NULL,
+  "description" text,
+  "status" text DEFAULT 'pending',
+  "date_submitted" timestamp DEFAULT now(),
+  "image_url" text,
+  "session_id" integer,
+  "user_id" integer,
+  "fullname" text,
+  "has_presentation" boolean DEFAULT false,
+  "presentation_url" text,
+  "presentation_start_time" text
+);
 ```
 
-#### 削除カラム（段階的）
+#### talks テーブルのフィールド詳細
+
+| カラム                    | 型        | 制約          | 説明                                         |
+| ------------------------- | --------- | ------------- | -------------------------------------------- |
+| `id`                      | integer   | PK, SERIAL    | 主キー（自動採番）                           |
+| `presenter`               | text      | NOT NULL      | 発表者名（表示名）                           |
+| `email`                   | text      | NULL OK       | メールアドレス                               |
+| `title`                   | text      | NOT NULL      | トークタイトル                               |
+| `duration`                | integer   | NOT NULL      | 発表時間（分）                               |
+| `topic`                   | text      | NOT NULL      | カテゴリ（例：技術、キャリア等）             |
+| `description`             | text      | NULL OK       | トークの説明                                 |
+| `status`                  | text      | DEFAULT       | 承認ステータス（pending/approved/rejected）  |
+| `date_submitted`          | timestamp | DEFAULT now() | トーク提出日時                               |
+| `image_url`               | text      | NULL OK       | トップ画像 URL                               |
+| `session_id`              | integer   | FK, NULL OK   | セッション ID（lt_sessions.id への外部キー） |
+| `user_id`                 | integer   | FK, NULL OK   | ユーザー ID（users.id への外部キー）         |
+| `fullname`                | text      | NULL OK       | 本名（トーク作成時のスナップショット）       |
+| `has_presentation`        | boolean   | DEFAULT false | スライド資料公開可否                         |
+| `presentation_url`        | text      | NULL OK       | スライド資料 URL                             |
+| `presentation_start_time` | text      | NULL OK       | 発表開始時刻（HH:MM 形式）                   |
+
+#### talks テーブルのインデックス・制約
 
 ```sql
--- フェーズ2で実行予定
--- ALTER TABLE "talks" DROP COLUMN "venue";
--- ALTER TABLE "talks" DROP COLUMN "presentation_date"; -- 検討中
-```
+-- 主キー
+CREATE UNIQUE INDEX "talks_pkey" ON "talks"("id");
 
-#### 制約追加
+-- 外部キー制約
+ALTER TABLE "talks"
+  ADD CONSTRAINT "talks_session_id_lt_sessions_id_fk"
+  FOREIGN KEY ("session_id") REFERENCES "lt_sessions"("id")
+  ON DELETE SET NULL;
 
-```sql
--- セッションIDが設定されている場合の時間制限チェック
--- アプリケーション側で実装予定
-```
-
----
-
-## 📋 リレーション定義（Drizzle ORM）
-
-### 新しいスキーマ定義
-
-```typescript
-// lt_sessions テーブル
-export const ltSessions = pgTable("lt_sessions", {
-  id: serial("id").primaryKey(),
-  sessionNumber: integer("session_number").notNull().unique(),
-  date: text("date").notNull(),
-  title: text("title"),
-  venue: text("venue").notNull(),
-  startTime: text("start_time").notNull().default("16:30"),
-  endTime: text("end_time").notNull().default("18:00"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// talks テーブル（修正版）
-export const talks = pgTable("talks", {
-  // 既存フィールド...
-  sessionId: integer("session_id").references(() => ltSessions.id, {
-    onDelete: "set null",
-  }),
-  // venue: text("venue"), // 🔥削除予定
-});
-
-// リレーション定義
-export const ltSessionsRelations = relations(ltSessions, ({ many }) => ({
-  talks: many(talks),
-}));
-
-export const talksRelations = relations(talks, ({ one, many }) => ({
-  user: one(users, {
-    fields: [talks.userId],
-    references: [users.id],
-  }),
-  session: one(ltSessions, {
-    fields: [talks.sessionId],
-    references: [ltSessions.id],
-  }),
-}));
+ALTER TABLE "talks"
+  ADD CONSTRAINT "talks_user_id_users_id_fk"
+  FOREIGN KEY ("user_id") REFERENCES "users"("id");
 ```
 
 ---
 
-## 🔄 マイグレーション計画
+## リレーション詳細
 
-### マイグレーション 001: セッションテーブル追加
+### `users` → `talks` (1 対多)
 
-1. `lt_sessions`テーブル作成
-2. インデックス・制約追加
-3. 初期データ投入（現在の venue データから）
+- 1 人のユーザーが複数のトークを登録可能
+- `talks.user_id` が `users.id` を参照
+- ユーザー削除時は別途アプリケーション側で制御
 
-### マイグレーション 002: talks テーブル修正
+### `lt_sessions` → `talks` (1 対多)
 
-1. `talks.session_id`カラム追加
-2. 外部キー制約追加
-3. 既存データの移行（venue → session 紐付け）
-
-### マイグレーション 003: クリーンアップ（後日実行）
-
-1. `talks.venue`カラム削除
-2. 不要なインデックス削除
+- 1 つのセッションに複数のトークが紐付く
+- `talks.session_id` が `lt_sessions.id` を参照
+- セッション削除時は `talks.session_id` が NULL に設定される（ON DELETE SET NULL）
 
 ---
 
-## 📊 データ移行戦略
+## データ整合性ルール
 
-### 既存データの処理
+### トーク登録時のバリデーション
 
-```sql
--- Step 1: 既存のvenue情報からセッション作成
-INSERT INTO lt_sessions (session_number, date, venue, start_time, end_time)
-SELECT DISTINCT
-  ROW_NUMBER() OVER (ORDER BY presentation_date) as session_number,
-  presentation_date as date,
-  venue,
-  '16:30' as start_time,
-  '18:00' as end_time
-FROM talks
-WHERE presentation_date IS NOT NULL AND venue IS NOT NULL;
+1. `presentation_start_time` は必須フィールド
+2. 発表開始時刻はセッションの `start_time` から `end_time` の範囲内である必要がある
+3. `session_id` が指定された場合、該当セッションが存在する必要がある
 
--- Step 2: talks テーブルのsession_id更新
-UPDATE talks
-SET session_id = (
-  SELECT s.id
-  FROM lt_sessions s
-  WHERE s.date = talks.presentation_date
-    AND s.venue = talks.venue
-)
-WHERE presentation_date IS NOT NULL AND venue IS NOT NULL;
-```
+### ステータス管理
+
+- **pending**: 提出済み、承認待ち（デフォルト）
+- **approved**: 承認済み（スケジュールに表示される）
+- **rejected**: 却下
 
 ---
 
-## ⚠️ 制約・バリデーション
+## テーブルサイズ情報（参考値）
 
-### アプリケーションレベル制約
-
-1. **時間制限**: `presentation_start_time`は 16:30-18:00 内のみ
-2. **セッション整合性**: session_id が設定されている場合、対応する session が存在する
-3. **重複防止**: 同一 session 内で同じ開始時刻は不可
-
-### データベースレベル制約
-
-1. **セッション番号ユニーク**: `session_number`は重複不可
-2. **外部キー**: session 削除時は talk.session_id を NULL に設定
-3. **NOT NULL**: 必須フィールドの空値防止
-
----
-
-## 🎯 想定されるクエリパターン
-
-### よく実行されるクエリ
-
-```sql
--- 1. 特定日のスケジュール取得（JOIN必須）
-SELECT t.*, s.session_number, s.title, s.venue
-FROM talks t
-JOIN lt_sessions s ON t.session_id = s.id
-WHERE s.date = '2024-01-15' AND t.status = 'approved'
-ORDER BY t.presentation_start_time;
-
--- 2. 利用可能なセッション一覧
-SELECT * FROM lt_sessions
-WHERE date >= CURRENT_DATE
-ORDER BY date;
-
--- 3. セッション別トーク数
-SELECT s.*, COUNT(t.id) as talk_count
-FROM lt_sessions s
-LEFT JOIN talks t ON s.id = t.session_id AND t.status = 'approved'
-GROUP BY s.id
-ORDER BY s.date;
-```
-
----
-
-## 💾 パフォーマンス考慮事項
-
-### インデックス戦略
-
-- `lt_sessions.date`: 日付検索高速化
-- `lt_sessions.session_number`: ユニーク制約 + 検索高速化
-- `talks.session_id`: 外部キー + JOIN 高速化
-
-### クエリ最適化
-
-- セッション情報は比較的少ないデータなのでメモリキャッシュ可能
-- 日付範囲検索が多いため、date フィールドのインデックス必須
-- JOIN クエリが増えるため、適切なインデックス設計が重要
+| テーブル    | テーブルサイズ | インデックスサイズ | 合計サイズ |
+| ----------- | -------------- | ------------------ | ---------- |
+| users       | 8 KB           | 40 KB              | 48 KB      |
+| lt_sessions | 8 KB           | 56 KB              | 64 KB      |
+| talks       | 16 KB          | 48 KB              | 64 KB      |
