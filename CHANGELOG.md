@@ -4,6 +4,16 @@
 
 フォーマットは Keep a Changelog に基づいており、 このプロジェクトは Semantic Versioning に準拠しています。
 
+## [1.3.2] - 2025-10-15
+
+- pr
+
+  - [https://github.com/lvncer/lt/pull/107](https://github.com/lvncer/lt/pull/119)
+
+- 追加
+
+  - 各種ドキュメントの整備
+
 ## [1.3.1] - 2025-09-18
 
 - pr

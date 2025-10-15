@@ -1,6 +1,9 @@
 # Lightning Talks in SIW
 
-このプロジェクトは、SIW（Shonan Institute of Technology）学生を中心に、誰でも LT（ライトニングトーク）を発表・共有できる Web サイトです。
+![license](https://img.shields.io/github/license/lvncer/lt)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lvncer/lt)
+
+このプロジェクトは、SIW（さいたま IT・WEB 専門学校）学生を中心に、誰でも LT（ライトニングトーク）を発表・共有できる Web サイトです。
 
 ## プロジェクトの目的
 
@@ -30,41 +33,33 @@ LT（ライトニングトーク）を通じて、以下の価値を提供しま
 4. 発表当日は、質疑応答や参加者との対話を通じて、さらに知識を深めてください。
    楽しんでご参加ください！
 
-## 環境設定
+## 開発環境のセットアップ
 
-### Discord 通知機能
+プロジェクトを新しい環境でセットアップする場合は、**[開発環境セットアップガイド](docs/design/setup-guide.md)** を参照してください。
 
-新しいトーク投稿時に Discord に通知を送信する機能があります。
-この機能を有効にするには、以下の環境変数を設定してください：
+このガイドには以下の情報が含まれています：
 
-```bash
-# Discord Webhook URL（オプション）
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_URL
-
-# ベースURL（本番環境では適切なドメインを設定）
-NEXT_PUBLIC_BASE_URL=https://your-domain.com
-```
-
-Discord Webhook URL が設定されていない場合、通知機能は無効になりますが、アプリケーションは正常に動作します。
+- 必要な環境変数の設定方法
+- Clerk 認証のセットアップ
+- Neon データベースのセットアップ
+- Discord 通知の設定（オプション）
+- データベースマイグレーション
+- 開発サーバーの起動方法
+- デプロイ手順
+- トラブルシューティング
 
 ## 設計書・ドキュメント
 
+### セットアップ・開発
+
+- **[開発環境セットアップガイド](docs/design/setup-guide.md)** - 環境構築の完全ガイド
+- [貢献ガイド](docs/CONTRIBUTING.md) - コントリビューションガイドライン
+- [コミット規約](docs/COMMIT_CONVENTION.md) - コミットメッセージの規約
+
 ### システム設計
 
-- [API 設計書](docs/design/apis.md) - 現状の API エンドポイントと変更計画
+- [システムアーキテクチャ・機能一覧](docs/design/system-architecture.md) - システムアーキテクチャと機能の一覧
+- [技術スタック](docs/design/tech-stacks.md) - 使用している技術スタックの一覧
+- [API 設計書](docs/design/apis.md) - API エンドポイントの詳細仕様
 - [データベース設計書](docs/design/db.md) - ER 図とテーブル構造
-- [実装計画書](docs/design/implementation-plan.md) - フェーズ別の実装スケジュール
-- [テスト計画書](docs/design/testing-plan.md) - 品質保証のためのテスト戦略
-- [マイグレーション計画](docs/design/) - データベース変更の段階的実行計画
-
-### 開発関連
-
-- [貢献ガイド](docs/CONTRIBUTING.md)
-- [コミット規約](docs/COMMIT_CONVENTION.md)
-
-## コントリビューション（貢献）
-
-このプロジェクトへの貢献を歓迎します。
-詳細は以下のファイルをご覧ください。
-
-- [貢献ガイド](docs/README.md)
+- [マイグレーション計画](docs/migrations/) - データベース変更の段階的実行計画
