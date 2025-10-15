@@ -56,7 +56,7 @@ const formSchema = z.object({
 		.max(30, {
 			message: "タイトルは30文字以下で入力してください",
 		}),
-	duration: z.coerce
+	duration: z
 		.number()
 		.min(5, {
 			message: "発表時間は5分以上を選択してください",
