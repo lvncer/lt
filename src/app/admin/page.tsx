@@ -47,7 +47,6 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
 	const { talks: fetchedTalks } = useTalks();
-	const [talks, setTalks] = useState<Talk[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const { isLoaded, user } = useUser();
 	const router = useRouter();
@@ -85,14 +84,7 @@ export default function AdminPage() {
 		id: number,
 		status: "approved" | "rejected" | "pending",
 	) => {
-		const updatedTalk = await updateTalkStatus(id, status);
-		if (updatedTalk) {
-			setTalks((prevTalks) =>
-				prevTalks.map((talk) =>
-					talk.id === updatedTalk.id ? updatedTalk : talk,
-				),
-			);
-		}
+		await updateTalkStatus(id, status);
 	};
 
 	// セッション関連のハンドラー
@@ -112,58 +104,56 @@ export default function AdminPage() {
 	};
 
 	const handleSessionFormSubmit = async (formData: {
-		sessionNumber: number;
+		isSpecial: boolean;
+		sessionNumber?: number | null;
 		date: string;
 		title?: string;
 		venue: string;
 		startTime: string;
 		endTime: string;
 	}) => {
-		try {
-			if (selectedSession) {
-				// 編集
-				await updateSession({
-					id: selectedSession.id,
-					session_number: formData.sessionNumber,
-					date: formData.date,
-					title: formData.title || undefined,
-					venue: formData.venue,
-					start_time: formData.startTime,
-					end_time: formData.endTime,
-				});
-				toast({
-					title: "セッション更新完了",
-					description: `第${formData.sessionNumber}回セッションを更新しました。`,
-				});
-			} else {
-				// 新規作成
-				await createSession({
-					session_number: formData.sessionNumber,
-					date: formData.date,
-					title: formData.title || undefined,
-					venue: formData.venue,
-					start_time: formData.startTime,
-					end_time: formData.endTime,
-				});
-				toast({
-					title: "セッション作成完了",
-					description: `第${formData.sessionNumber}回セッションを作成しました。`,
-				});
-			}
-			refetchSessions();
-			setSessionFormOpen(false);
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "セッションの処理に失敗しました。";
-			toast({
-				title: "エラー",
-				description: errorMessage,
-				variant: "destructive",
+		if (selectedSession) {
+			// 編集
+			await updateSession({
+				id: selectedSession.id,
+				session_number: formData.isSpecial
+					? undefined
+					: (formData.sessionNumber ?? undefined),
+				date: formData.date,
+				title: formData.title || undefined,
+				venue: formData.venue,
+				start_time: formData.startTime,
+				end_time: formData.endTime,
+				is_special: formData.isSpecial,
 			});
-			throw error;
+			toast({
+				title: "セッション更新完了",
+				description: formData.isSpecial
+					? `特別枠セッションを更新しました。`
+					: `第${formData.sessionNumber}回セッションを更新しました。`,
+			});
+		} else {
+			// 新規作成
+			await createSession({
+				session_number: formData.isSpecial
+					? undefined
+					: formData.sessionNumber!,
+				date: formData.date,
+				title: formData.title || undefined,
+				venue: formData.venue,
+				start_time: formData.startTime,
+				end_time: formData.endTime,
+				is_special: formData.isSpecial,
+			});
+			toast({
+				title: "セッション作成完了",
+				description: formData.isSpecial
+					? `特別枠セッションを作成しました。`
+					: `第${formData.sessionNumber}回セッションを作成しました。`,
+			});
 		}
+		refetchSessions();
+		setSessionFormOpen(false);
 	};
 
 	const handleSessionDeleteConfirm = async () => {
@@ -173,7 +163,9 @@ export default function AdminPage() {
 			await deleteSession(selectedSession.id);
 			toast({
 				title: "セッション削除完了",
-				description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
+				description: selectedSession.isSpecial
+					? "特別枠セッションを削除しました。"
+					: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
 			});
 			refetchSessions();
 			setSessionDeleteOpen(false);
@@ -191,14 +183,8 @@ export default function AdminPage() {
 		}
 	};
 
-	useEffect(() => {
-		if (fetchedTalks) {
-			setTalks(fetchedTalks);
-		}
-	}, [fetchedTalks]);
-
 	// Filter talks based on search query
-	const filteredTalks = talks.filter(
+	const filteredTalks = (fetchedTalks || []).filter(
 		(talk: Talk) =>
 			talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			talk.presenter.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -206,13 +192,13 @@ export default function AdminPage() {
 	);
 
 	// Count by status
-	const pendingCount = talks.filter(
+	const pendingCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "pending",
 	).length;
-	const approvedCount = talks.filter(
+	const approvedCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "approved",
 	).length;
-	const rejectedCount = talks.filter(
+	const rejectedCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "rejected",
 	).length;
 
@@ -685,7 +671,9 @@ export default function AdminPage() {
 										{sessions.map((session) => (
 											<TableRow key={session.id}>
 												<TableCell className="font-medium">
-													第{session.sessionNumber}回
+													{session.isSpecial
+														? "特別枠"
+														: `第${session.sessionNumber}回`}
 												</TableCell>
 												<TableCell>{session.date}</TableCell>
 												<TableCell>

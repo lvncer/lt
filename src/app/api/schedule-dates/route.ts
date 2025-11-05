@@ -22,6 +22,7 @@ export async function GET() {
 				endTime: ltSessions.endTime,
 				archiveUrl: ltSessions.archiveUrl,
 				createdAt: ltSessions.createdAt,
+				isSpecial: ltSessions.isSpecial,
 			})
 			.from(ltSessions)
 			.orderBy(asc(ltSessions.date));

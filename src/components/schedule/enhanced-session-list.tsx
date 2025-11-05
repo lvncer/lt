@@ -41,7 +41,9 @@ export function EnhancedSessionList({
 								<div className="flex items-center justify-between w-full">
 									<div className="flex items-center space-x-2">
 										<Badge variant="outline" className="text-xs">
-											第{session.sessionNumber}回
+											{session.isSpecial
+												? "特別枠"
+												: `第${session.sessionNumber}回`}
 										</Badge>
 										{session.title && (
 											<span className="font-medium text-sm truncate">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -34,17 +34,33 @@ import { Loader2 } from "lucide-react";
 import { LtSession } from "@/types/talk";
 
 // フォームのバリデーションスキーマ
-const sessionFormSchema = z.object({
-	sessionNumber: z
-		.number()
-		.min(1, "第○回は1以上の数値で入力してください")
-		.max(999, "第○回は999以下で入力してください"),
-	date: z.string().min(1, "開催日を入力してください"),
-	title: z.string().optional(),
-	venue: z.string().min(1, "開催場所を選択してください"),
-	startTime: z.string().min(1, "開始時間を入力してください"),
-	endTime: z.string().min(1, "終了時間を入力してください"),
-});
+const sessionFormSchema = z
+	.object({
+		isSpecial: z.boolean(),
+		sessionNumber: z
+			.number()
+			.min(1, "第○回は1以上の数値で入力してください")
+			.max(999, "第○回は999以下で入力してください")
+			.nullable()
+			.optional(),
+		date: z.string().min(1, "開催日を入力してください"),
+		title: z.string().optional(),
+		venue: z.string().min(1, "開催場所を選択してください"),
+		startTime: z.string().min(1, "開始時間を入力してください"),
+		endTime: z.string().min(1, "終了時間を入力してください"),
+	})
+	.superRefine((data, ctx) => {
+		if (
+			!data.isSpecial &&
+			(data.sessionNumber === undefined || data.sessionNumber === null)
+		) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "通常枠では第○回は必須です",
+				path: ["sessionNumber"],
+			});
+		}
+	});
 
 type SessionFormData = z.infer<typeof sessionFormSchema>;
 
@@ -71,10 +87,13 @@ export default function SessionFormDialog({
 }: SessionFormDialogProps) {
 	const isEdit = !!session;
 
+	const [submitError, setSubmitError] = useState<string | null>(null);
+
 	const form = useForm<SessionFormData>({
 		resolver: zodResolver(sessionFormSchema),
 		defaultValues: {
-			sessionNumber: session?.sessionNumber || 1,
+			isSpecial: session?.isSpecial ?? false,
+			sessionNumber: session?.sessionNumber ?? 1,
 			date: session?.date || "",
 			title: session?.title || "",
 			venue: session?.venue || "",
@@ -87,6 +106,7 @@ export default function SessionFormDialog({
 	useEffect(() => {
 		if (session) {
 			form.reset({
+				isSpecial: session.isSpecial ?? false,
 				sessionNumber: session.sessionNumber,
 				date: session.date,
 				title: session.title || "",
@@ -96,6 +116,7 @@ export default function SessionFormDialog({
 			});
 		} else {
 			form.reset({
+				isSpecial: false,
 				sessionNumber: 1,
 				date: "",
 				title: "",
@@ -108,13 +129,22 @@ export default function SessionFormDialog({
 
 	const handleSubmit = async (data: SessionFormData) => {
 		try {
+			setSubmitError(null);
 			await onSubmit(data);
 			if (!isEdit) {
 				form.reset();
 			}
 			onOpenChange(false);
 		} catch (error) {
-			console.error("Session form submit error:", error);
+			const message =
+				error instanceof Error
+					? error.message
+					: "セッションの保存に失敗しました";
+			if (message.includes("既に存在") || message.includes("既存")) {
+				form.setError("sessionNumber", { message });
+			} else {
+				setSubmitError(message);
+			}
 		}
 	};
 
@@ -142,33 +172,74 @@ export default function SessionFormDialog({
 						onSubmit={form.handleSubmit(handleSubmit)}
 						className="space-y-4"
 					>
-						{/* 第○回 */}
+						{/* エラー（全体） */}
+						{submitError && (
+							<div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+								{submitError}
+							</div>
+						)}
+
+						{/* 種別 */}
 						<FormField
 							control={form.control}
-							name="sessionNumber"
+							name="isSpecial"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>第○回</FormLabel>
+									<FormLabel>種別</FormLabel>
 									<FormControl>
-										<Input
-											type="number"
-											min="1"
-											max="999"
-											placeholder="1"
-											{...field}
-											onChange={(e) =>
-												field.onChange(parseInt(e.target.value, 10) || "")
-											}
-											value={field.value || ""}
-										/>
+										<Select
+											onValueChange={(v) => {
+												const isSpecial = v === "special";
+												field.onChange(isSpecial);
+												if (isSpecial) {
+													form.clearErrors("sessionNumber");
+												}
+											}}
+											defaultValue={field.value ? "special" : "normal"}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder="通常枠 / 特別枠" />
+											</SelectTrigger>
+											<SelectContent className="bg-white">
+												<SelectItem value="normal">通常枠</SelectItem>
+												<SelectItem value="special">特別枠</SelectItem>
+											</SelectContent>
+										</Select>
 									</FormControl>
-									<FormDescription>
-										LTセッションの回数を入力してください（例：1, 2, 3...）
-									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
+
+						{/* 第○回（通常枠のみ） */}
+						{!form.watch("isSpecial") && (
+							<FormField
+								control={form.control}
+								name="sessionNumber"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>第○回</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												min="1"
+												max="999"
+												placeholder="1"
+												{...field}
+												onChange={(e) =>
+													field.onChange(parseInt(e.target.value, 10) || "")
+												}
+												value={field.value || ""}
+											/>
+										</FormControl>
+										<FormDescription>
+											LTセッションの回数を入力してください（例：1, 2, 3...）
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 
 						{/* 開催日 */}
 						<FormField
@@ -198,9 +269,15 @@ export default function SessionFormDialog({
 									<FormControl>
 										<Input placeholder="第1回 LT大会" {...field} />
 									</FormControl>
-									<FormDescription>
-										空欄の場合は「第○回 LT大会」が自動設定されます
-									</FormDescription>
+									{form.watch("isSpecial") ? (
+										<FormDescription>
+											空欄の場合は「日付 特別枠」が自動設定されます
+										</FormDescription>
+									) : (
+										<FormDescription>
+											空欄の場合は「第○回 LT大会」が自動設定されます
+										</FormDescription>
+									)}
 									<FormMessage />
 								</FormItem>
 							)}

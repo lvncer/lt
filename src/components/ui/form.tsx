@@ -95,18 +95,16 @@ const FormLabel = React.forwardRef<
 	React.ElementRef<typeof LabelPrimitive.Root>,
 	FormLabelProps
 >(({ className, required, children, ...props }, ref) => {
-	const { error, formItemId } = useFormField();
+	const { formItemId } = useFormField();
 
 	return (
-		<Label
-			ref={ref}
-			className={cn(error && "text-destructive", className)}
-			htmlFor={formItemId}
-			{...props}
-		>
+		<Label ref={ref} className={className} htmlFor={formItemId} {...props}>
 			{children}
 			{required && (
-				<span className="text-red-500 ml-1" aria-label="必須項目">
+				<span
+					className="text-red-600 dark:text-red-400 ml-1"
+					aria-label="必須項目"
+				>
 					*
 				</span>
 			)}
@@ -175,7 +173,10 @@ const FormMessage = React.forwardRef<
 		<p
 			ref={ref}
 			id={formMessageId}
-			className={cn("text-sm font-medium text-destructive", className)}
+			className={cn(
+				"text-sm font-medium text-red-600 dark:text-red-400",
+				className,
+			)}
 			{...props}
 		>
 			{body}

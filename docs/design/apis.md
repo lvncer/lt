@@ -69,7 +69,8 @@
     "sessionTitle": "string",
     "sessionStartTime": "string",
     "sessionEndTime": "string",
-    "sessionArchiveUrl": "string"
+    "sessionArchiveUrl": "string",
+    "sessionIsSpecial": "boolean"
   }
 ]
 ```
@@ -251,14 +252,15 @@
 [
   {
     "id": "number",
-    "sessionNumber": "number",
+    "sessionNumber": "number | null",
     "date": "string (YYYY-MM-DD)",
     "title": "string",
     "venue": "string",
     "startTime": "string (HH:MM)",
     "endTime": "string (HH:MM)",
     "archiveUrl": "string",
-    "createdAt": "timestamp"
+    "createdAt": "timestamp",
+    "isSpecial": "boolean"
   }
 ]
 ```
@@ -404,17 +406,23 @@
   "sessions": [
     {
       "id": "number",
-      "sessionNumber": "number",
+      "sessionNumber": "number | null",
       "date": "string (YYYY-MM-DD)",
       "title": "string",
       "venue": "string",
-      "displayText": "第1回 - 2025-01-01 (Tokyo Office)",
-      "timeRange": "16:30-18:00"
+      "displayText": "第1回 - 2025-01-01 (Tokyo Office) または 特別枠 - 2025-01-01 (Tokyo Office)",
+      "timeRange": "16:30-18:00",
+      "isSpecial": "boolean"
     }
   ],
   "total": "number"
 }
 ```
+
+**備考**:
+
+- 特別枠セッション（`isSpecial: true`）の場合、`sessionNumber` は `null` で `displayText` は「特別枠 - 日付 (会場)」形式
+- 通常枠の場合、`displayText` は「第○回 - 日付 (会場)」形式
 
 ---
 

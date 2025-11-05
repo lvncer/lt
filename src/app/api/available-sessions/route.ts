@@ -22,6 +22,7 @@ export async function GET(request: Request) {
 					venue: ltSessions.venue,
 					startTime: ltSessions.startTime,
 					endTime: ltSessions.endTime,
+					isSpecial: ltSessions.isSpecial,
 				})
 				.from(ltSessions)
 				.orderBy(asc(ltSessions.date), asc(ltSessions.sessionNumber));
@@ -37,6 +38,7 @@ export async function GET(request: Request) {
 					venue: ltSessions.venue,
 					startTime: ltSessions.startTime,
 					endTime: ltSessions.endTime,
+					isSpecial: ltSessions.isSpecial,
 				})
 				.from(ltSessions)
 				.where(gte(ltSessions.date, today))
@@ -50,8 +52,11 @@ export async function GET(request: Request) {
 			date: session.date,
 			title: session.title || `第${session.sessionNumber}回 LT大会`,
 			venue: session.venue,
-			displayText: `第${session.sessionNumber}回 - ${session.date} (${session.venue})`,
+			displayText: session.isSpecial
+				? `特別枠 - ${session.date} (${session.venue})`
+				: `第${session.sessionNumber}回 - ${session.date} (${session.venue})`,
 			timeRange: `${session.startTime}-${session.endTime}`,
+			isSpecial: session.isSpecial,
 		}));
 
 		return NextResponse.json(

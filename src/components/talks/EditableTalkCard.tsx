@@ -326,8 +326,9 @@ export default function EditableTalkCard({ talk }: EditableTalkCardProps) {
 														key={session.id}
 														value={session.id.toString()}
 													>
-														第{session.sessionNumber}回 - {session.date} (
-														{session.venue})
+														{session.isSpecial
+															? `特別枠 - ${session.date} (${session.venue})`
+															: `第${session.sessionNumber}回 - ${session.date} (${session.venue})`}
 													</SelectItem>
 												))}
 											</SelectContent>

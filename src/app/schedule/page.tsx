@@ -201,7 +201,11 @@ export default function SchedulePage() {
 							<div className="text-lg font-medium text-center px-4">
 								{currentSession ? (
 									<div className="flex items-center space-x-2">
-										<span>第{currentSession.sessionNumber}回</span>
+										<span>
+											{currentSession.isSpecial
+												? "特別枠"
+												: `第${currentSession.sessionNumber}回`}
+										</span>
 										{currentSession.title && (
 											<span>- {currentSession.title}</span>
 										)}
