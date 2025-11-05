@@ -69,7 +69,8 @@
     "sessionTitle": "string",
     "sessionStartTime": "string",
     "sessionEndTime": "string",
-    "sessionArchiveUrl": "string"
+    "sessionArchiveUrl": "string",
+    "sessionIsSpecial": "boolean"
   }
 ]
 ```

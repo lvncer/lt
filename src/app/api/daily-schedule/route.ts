@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
 				sessionStartTime: ltSessions.startTime,
 				sessionEndTime: ltSessions.endTime,
 				sessionArchiveUrl: ltSessions.archiveUrl,
+				sessionIsSpecial: ltSessions.isSpecial,
 			})
 			.from(talks)
 			.leftJoin(users, eq(talks.userId, users.id))
