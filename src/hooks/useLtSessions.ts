@@ -48,12 +48,13 @@ export function useLtSessions() {
 // 利用可能セッション取得用Hook（フォーム用）
 interface AvailableSession {
 	id: number;
-	sessionNumber: number;
+	sessionNumber: number | null;
 	date: string;
 	title: string;
 	venue: string;
 	displayText: string;
 	timeRange: string;
+	isSpecial: boolean;
 }
 
 export function useAvailableSessions() {
