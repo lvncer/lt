@@ -169,7 +169,9 @@ export default function AdminPage() {
 			await deleteSession(selectedSession.id);
 			toast({
 				title: "セッション削除完了",
-				description: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
+				description: selectedSession.isSpecial
+					? "特別枠セッションを削除しました。"
+					: `第${selectedSession.sessionNumber}回セッションを削除しました。`,
 			});
 			refetchSessions();
 			setSessionDeleteOpen(false);
