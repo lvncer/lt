@@ -206,10 +206,6 @@ export default function SessionFormDialog({
 											</SelectContent>
 										</Select>
 									</FormControl>
-									<FormDescription>
-										特別枠は番号なしで登録され、タイトル未入力時は「日付
-										特別枠」になります
-									</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -273,9 +269,15 @@ export default function SessionFormDialog({
 									<FormControl>
 										<Input placeholder="第1回 LT大会" {...field} />
 									</FormControl>
-									<FormDescription>
-										空欄の場合は「第○回 LT大会」が自動設定されます
-									</FormDescription>
+									{form.watch("isSpecial") ? (
+										<FormDescription>
+											空欄の場合は「日付 特別枠」が自動設定されます
+										</FormDescription>
+									) : (
+										<FormDescription>
+											空欄の場合は「第○回 LT大会」が自動設定されます
+										</FormDescription>
+									)}
 									<FormMessage />
 								</FormItem>
 							)}
