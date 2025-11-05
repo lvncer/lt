@@ -100,13 +100,16 @@ const FormLabel = React.forwardRef<
 	return (
 		<Label
 			ref={ref}
-			className={cn(error && "text-destructive", className)}
+			className={cn(error && "text-red-600 dark:text-red-400", className)}
 			htmlFor={formItemId}
 			{...props}
 		>
 			{children}
 			{required && (
-				<span className="text-red-500 ml-1" aria-label="必須項目">
+				<span
+					className="text-red-600 dark:text-red-400 ml-1"
+					aria-label="必須項目"
+				>
 					*
 				</span>
 			)}
@@ -175,7 +178,10 @@ const FormMessage = React.forwardRef<
 		<p
 			ref={ref}
 			id={formMessageId}
-			className={cn("text-sm font-medium text-destructive", className)}
+			className={cn(
+				"text-sm font-medium text-red-600 dark:text-red-400",
+				className,
+			)}
 			{...props}
 		>
 			{body}
