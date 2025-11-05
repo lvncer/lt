@@ -27,12 +27,13 @@ export const ltSessions = pgTable(
 	"lt_sessions",
 	{
 		id: serial("id").primaryKey(),
-		sessionNumber: integer("session_number").notNull(),
+		sessionNumber: integer("session_number"),
 		date: text("date").notNull(),
 		title: text("title"),
 		venue: text("venue").notNull(),
 		startTime: text("start_time").notNull().default("16:30"),
 		endTime: text("end_time").notNull().default("18:00"),
+		isSpecial: boolean("is_special").notNull().default(false),
 		archiveUrl: text("archive_url"), // アーカイブURL追加
 		createdAt: timestamp("created_at").defaultNow(),
 		updatedAt: timestamp("updated_at").defaultNow(),

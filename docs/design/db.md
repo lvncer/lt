@@ -17,13 +17,14 @@ erDiagram
 
     lt_sessions {
         integer id PK
-        integer session_number UK "第○回"
+        integer session_number UK "第○回（NULL可、特別枠は未設定）"
         text date "開催日 YYYY-MM-DD"
         text title "セッションタイトル"
         text venue "開催場所"
         text start_time "開始時間 16:30"
         text end_time "終了時間 18:00"
         text archive_url "アーカイブURL"
+        boolean is_special "特別枠フラグ（デフォルト: false）"
         timestamp created_at "作成日時"
         timestamp updated_at "更新日時"
     }
@@ -98,13 +99,14 @@ CREATE UNIQUE INDEX "users_clerk_user_id_unique" ON "users"("clerk_user_id");
 ```sql
 CREATE TABLE "lt_sessions" (
   "id" serial PRIMARY KEY NOT NULL,
-  "session_number" integer NOT NULL,
+  "session_number" integer,
   "date" text NOT NULL,
   "title" text,
   "venue" text NOT NULL,
   "start_time" text NOT NULL DEFAULT '16:30',
   "end_time" text NOT NULL DEFAULT '18:00',
   "archive_url" text,
+  "is_special" boolean NOT NULL DEFAULT false,
   "created_at" timestamp DEFAULT now(),
   "updated_at" timestamp DEFAULT now()
 );
@@ -115,13 +117,14 @@ CREATE TABLE "lt_sessions" (
 | カラム           | 型        | 制約          | 説明                                       |
 | ---------------- | --------- | ------------- | ------------------------------------------ |
 | `id`             | integer   | PK, SERIAL    | 主キー（自動採番）                         |
-| `session_number` | integer   | NOT NULL, UK  | 第 ○ 回（1, 2, 3...）                      |
+| `session_number` | integer   | NULL OK, UK   | 第 ○ 回（1, 2, 3...）。特別枠は未設定        |
 | `date`           | text      | NOT NULL      | 開催日 (YYYY-MM-DD)                        |
 | `title`          | text      | NULL OK       | セッションタイトル（例：「新年 LT 大会」） |
 | `venue`          | text      | NOT NULL      | 開催場所                                   |
 | `start_time`     | text      | NOT NULL      | 開始時間（デフォルト：16:30）              |
 | `end_time`       | text      | NOT NULL      | 終了時間（デフォルト：18:00）              |
 | `archive_url`    | text      | NULL OK       | セッション全体のアーカイブ URL             |
+| `is_special`     | boolean   | NOT NULL      | 特別枠フラグ（true で番号は未設定）        |
 | `created_at`     | timestamp | DEFAULT now() | レコード作成日時                           |
 | `updated_at`     | timestamp | DEFAULT now() | レコード更新日時                           |
 
@@ -137,6 +140,8 @@ CREATE UNIQUE INDEX "lt_sessions_session_number_unique" ON "lt_sessions"("sessio
 -- 日付インデックス（検索高速化）
 CREATE INDEX "lt_sessions_date_idx" ON "lt_sessions"("date");
 ```
+
+補足: PostgreSQL の UNIQUE 制約は NULL を複数許容するため、`session_number` が NULL の特別枠は重複扱いになりません。
 
 ### 3. トークテーブル: `talks`
 
@@ -218,6 +223,15 @@ ALTER TABLE "talks"
 ---
 
 ## データ整合性ルール
+### セッション登録ルール
+
+1. 特別枠（`is_special = true`）の場合:
+   - `session_number` は設定しない（NULL）
+   - `title` が空の場合は自動で「`{date} 特別枠`」を保存
+2. 通常枠（`is_special = false`）の場合:
+   - `session_number` は必須、他レコードと重複不可（409）
+3. 一覧表示:
+   - 特別枠は「特別枠」と表示し、通常枠は「第{session_number}回」
 
 ### トーク登録時のバリデーション
 

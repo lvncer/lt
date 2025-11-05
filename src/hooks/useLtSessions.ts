@@ -108,12 +108,13 @@ export function useSessionManagement() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const createSession = async (sessionData: {
-		session_number: number;
+		session_number?: number;
 		date: string;
 		title?: string;
 		venue: string;
 		start_time?: string;
 		end_time?: string;
+		is_special?: boolean;
 	}) => {
 		try {
 			setIsSubmitting(true);
@@ -132,8 +133,7 @@ export function useSessionManagement() {
 
 			return await response.json();
 		} catch (error) {
-			console.error("createSession error:", error);
-			throw error;
+			throw error as unknown;
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -147,6 +147,7 @@ export function useSessionManagement() {
 		venue?: string;
 		start_time?: string;
 		end_time?: string;
+		is_special?: boolean;
 	}) => {
 		try {
 			setIsSubmitting(true);
@@ -165,8 +166,7 @@ export function useSessionManagement() {
 
 			return await response.json();
 		} catch (error) {
-			console.error("updateSession error:", error);
-			throw error;
+			throw error as unknown;
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -186,8 +186,7 @@ export function useSessionManagement() {
 
 			return await response.json();
 		} catch (error) {
-			console.error("deleteSession error:", error);
-			throw error;
+			throw error as unknown;
 		} finally {
 			setIsSubmitting(false);
 		}

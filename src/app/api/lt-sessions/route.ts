@@ -32,28 +32,37 @@ export async function POST(req: Request) {
 			venue,
 			start_time = "16:30",
 			end_time = "18:00",
+			is_special = false,
 		} = body;
 
-		// バリデーション
-		if (!session_number || !date || !venue) {
+		// バリデーション（共通）
+		if (!date || !venue) {
 			return NextResponse.json(
-				{ error: "session_number, date, venue は必須です" },
+				{ error: "date, venue は必須です" },
 				{ status: 400 },
 			);
 		}
 
-		// 重複する session_number チェック
-		const existingSession = await db
-			.select()
-			.from(ltSessions)
-			.where(eq(ltSessions.sessionNumber, session_number))
-			.limit(1);
+		// 通常枠のみ: 重複する session_number チェック
+		if (!is_special) {
+			if (!session_number) {
+				return NextResponse.json(
+					{ error: "通常枠は session_number が必須です" },
+					{ status: 400 },
+				);
+			}
+			const existingSession = await db
+				.select()
+				.from(ltSessions)
+				.where(eq(ltSessions.sessionNumber, session_number))
+				.limit(1);
 
-		if (existingSession.length > 0) {
-			return NextResponse.json(
-				{ error: `第${session_number}回のセッションは既に存在します` },
-				{ status: 409 },
-			);
+			if (existingSession.length > 0) {
+				return NextResponse.json(
+					{ error: `第${session_number}回のセッションは既に存在します` },
+					{ status: 409 },
+				);
+			}
 		}
 
 		// 時間制限チェック（16:30-18:00）
@@ -70,12 +79,21 @@ export async function POST(req: Request) {
 			);
 		}
 
+		// 特別枠タイトル自動補完
+		const finalTitle =
+			title && title.trim().length > 0
+				? title
+				: is_special
+					? `${date} 特別枠`
+					: title; // 通常枠は空でも可（UI側で任意のまま）
+
 		const result = await db
 			.insert(ltSessions)
 			.values({
-				sessionNumber: session_number,
+				sessionNumber: is_special ? null : session_number,
+				isSpecial: is_special,
 				date,
-				title,
+				title: finalTitle,
 				venue,
 				startTime: start_time,
 				endTime: end_time,
@@ -104,6 +122,7 @@ export async function PUT(req: Request) {
 			venue,
 			start_time = "16:30",
 			end_time = "18:00",
+			is_special,
 		} = body;
 
 		if (!id) {
@@ -127,8 +146,8 @@ export async function PUT(req: Request) {
 			);
 		}
 
-		// session_number の重複チェック（自分以外）
-		if (session_number) {
+		// 通常枠のみ: session_number の重複チェック（自分以外）
+		if (is_special === false && session_number) {
 			const duplicateSession = await db
 				.select()
 				.from(ltSessions)
@@ -157,12 +176,25 @@ export async function PUT(req: Request) {
 			);
 		}
 
+		// 特別枠タイトル自動補完（特別枠へ更新時、タイトル未指定なら付与）
+		let nextTitle = title;
+		if (is_special === true && (!nextTitle || nextTitle.trim().length === 0)) {
+			if (date) {
+				nextTitle = `${date} 特別枠`;
+			} else if (existingSession[0]?.date) {
+				nextTitle = `${existingSession[0].date} 特別枠`;
+			}
+		}
+
 		const result = await db
 			.update(ltSessions)
 			.set({
-				...(session_number && { sessionNumber: session_number }),
+				...(is_special !== undefined && { isSpecial: is_special }),
+				...(is_special === true && { sessionNumber: null }),
+				...(is_special === false &&
+					session_number && { sessionNumber: session_number }),
 				...(date && { date }),
-				...(title && { title }),
+				...(nextTitle !== undefined && { title: nextTitle }),
 				...(venue && { venue }),
 				startTime: start_time,
 				endTime: end_time,

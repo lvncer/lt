@@ -112,58 +112,54 @@ export default function AdminPage() {
 	};
 
 	const handleSessionFormSubmit = async (formData: {
-		sessionNumber: number;
+		isSpecial: boolean;
+		sessionNumber?: number;
 		date: string;
 		title?: string;
 		venue: string;
 		startTime: string;
 		endTime: string;
 	}) => {
-		try {
-			if (selectedSession) {
-				// 編集
-				await updateSession({
-					id: selectedSession.id,
-					session_number: formData.sessionNumber,
-					date: formData.date,
-					title: formData.title || undefined,
-					venue: formData.venue,
-					start_time: formData.startTime,
-					end_time: formData.endTime,
-				});
-				toast({
-					title: "セッション更新完了",
-					description: `第${formData.sessionNumber}回セッションを更新しました。`,
-				});
-			} else {
-				// 新規作成
-				await createSession({
-					session_number: formData.sessionNumber,
-					date: formData.date,
-					title: formData.title || undefined,
-					venue: formData.venue,
-					start_time: formData.startTime,
-					end_time: formData.endTime,
-				});
-				toast({
-					title: "セッション作成完了",
-					description: `第${formData.sessionNumber}回セッションを作成しました。`,
-				});
-			}
-			refetchSessions();
-			setSessionFormOpen(false);
-		} catch (error: unknown) {
-			const errorMessage =
-				error instanceof Error
-					? error.message
-					: "セッションの処理に失敗しました。";
-			toast({
-				title: "エラー",
-				description: errorMessage,
-				variant: "destructive",
+		if (selectedSession) {
+			// 編集
+			await updateSession({
+				id: selectedSession.id,
+				session_number: formData.isSpecial ? undefined : formData.sessionNumber,
+				date: formData.date,
+				title: formData.title || undefined,
+				venue: formData.venue,
+				start_time: formData.startTime,
+				end_time: formData.endTime,
+				is_special: formData.isSpecial,
 			});
-			throw error;
+			toast({
+				title: "セッション更新完了",
+				description: formData.isSpecial
+					? `特別枠セッションを更新しました。`
+					: `第${formData.sessionNumber}回セッションを更新しました。`,
+			});
+		} else {
+			// 新規作成
+			await createSession({
+				session_number: formData.isSpecial
+					? undefined
+					: formData.sessionNumber!,
+				date: formData.date,
+				title: formData.title || undefined,
+				venue: formData.venue,
+				start_time: formData.startTime,
+				end_time: formData.endTime,
+				is_special: formData.isSpecial,
+			});
+			toast({
+				title: "セッション作成完了",
+				description: formData.isSpecial
+					? `特別枠セッションを作成しました。`
+					: `第${formData.sessionNumber}回セッションを作成しました。`,
+			});
 		}
+		refetchSessions();
+		setSessionFormOpen(false);
 	};
 
 	const handleSessionDeleteConfirm = async () => {
@@ -685,7 +681,9 @@ export default function AdminPage() {
 										{sessions.map((session) => (
 											<TableRow key={session.id}>
 												<TableCell className="font-medium">
-													第{session.sessionNumber}回
+													{session.isSpecial
+														? "特別枠"
+														: `第${session.sessionNumber}回`}
 												</TableCell>
 												<TableCell>{session.date}</TableCell>
 												<TableCell>
