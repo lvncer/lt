@@ -36,11 +36,12 @@ import { LtSession } from "@/types/talk";
 // フォームのバリデーションスキーマ
 const sessionFormSchema = z
 	.object({
-		isSpecial: z.boolean().default(false),
+		isSpecial: z.boolean(),
 		sessionNumber: z
-			.number({ invalid_type_error: "数値を入力してください" })
+			.number()
 			.min(1, "第○回は1以上の数値で入力してください")
 			.max(999, "第○回は999以下で入力してください")
+			.nullable()
 			.optional(),
 		date: z.string().min(1, "開催日を入力してください"),
 		title: z.string().optional(),
@@ -92,7 +93,7 @@ export default function SessionFormDialog({
 		resolver: zodResolver(sessionFormSchema),
 		defaultValues: {
 			isSpecial: session?.isSpecial ?? false,
-			sessionNumber: session?.sessionNumber || 1,
+			sessionNumber: session?.sessionNumber ?? 1,
 			date: session?.date || "",
 			title: session?.title || "",
 			venue: session?.venue || "",

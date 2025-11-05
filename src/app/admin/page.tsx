@@ -113,7 +113,7 @@ export default function AdminPage() {
 
 	const handleSessionFormSubmit = async (formData: {
 		isSpecial: boolean;
-		sessionNumber?: number;
+		sessionNumber?: number | null;
 		date: string;
 		title?: string;
 		venue: string;
@@ -124,7 +124,9 @@ export default function AdminPage() {
 			// 編集
 			await updateSession({
 				id: selectedSession.id,
-				session_number: formData.isSpecial ? undefined : formData.sessionNumber,
+				session_number: formData.isSpecial
+					? undefined
+					: (formData.sessionNumber ?? undefined),
 				date: formData.date,
 				title: formData.title || undefined,
 				venue: formData.venue,
