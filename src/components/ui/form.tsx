@@ -95,15 +95,10 @@ const FormLabel = React.forwardRef<
 	React.ElementRef<typeof LabelPrimitive.Root>,
 	FormLabelProps
 >(({ className, required, children, ...props }, ref) => {
-	const { error, formItemId } = useFormField();
+	const { formItemId } = useFormField();
 
 	return (
-		<Label
-			ref={ref}
-			className={cn(error && "text-red-600 dark:text-red-400", className)}
-			htmlFor={formItemId}
-			{...props}
-		>
+		<Label ref={ref} className={className} htmlFor={formItemId} {...props}>
 			{children}
 			{required && (
 				<span
