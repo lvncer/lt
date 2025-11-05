@@ -47,7 +47,6 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminPage() {
 	const { talks: fetchedTalks } = useTalks();
-	const [talks, setTalks] = useState<Talk[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const { isLoaded, user } = useUser();
 	const router = useRouter();
@@ -85,14 +84,7 @@ export default function AdminPage() {
 		id: number,
 		status: "approved" | "rejected" | "pending",
 	) => {
-		const updatedTalk = await updateTalkStatus(id, status);
-		if (updatedTalk) {
-			setTalks((prevTalks) =>
-				prevTalks.map((talk) =>
-					talk.id === updatedTalk.id ? updatedTalk : talk,
-				),
-			);
-		}
+		await updateTalkStatus(id, status);
 	};
 
 	// セッション関連のハンドラー
@@ -191,14 +183,8 @@ export default function AdminPage() {
 		}
 	};
 
-	useEffect(() => {
-		if (fetchedTalks) {
-			setTalks(fetchedTalks);
-		}
-	}, [fetchedTalks]);
-
 	// Filter talks based on search query
-	const filteredTalks = talks.filter(
+	const filteredTalks = (fetchedTalks || []).filter(
 		(talk: Talk) =>
 			talk.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			talk.presenter.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -206,13 +192,13 @@ export default function AdminPage() {
 	);
 
 	// Count by status
-	const pendingCount = talks.filter(
+	const pendingCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "pending",
 	).length;
-	const approvedCount = talks.filter(
+	const approvedCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "approved",
 	).length;
-	const rejectedCount = talks.filter(
+	const rejectedCount = (fetchedTalks || []).filter(
 		(talk: Talk) => talk.status === "rejected",
 	).length;
 
