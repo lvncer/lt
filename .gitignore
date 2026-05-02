@@ -55,3 +55,6 @@ public/sql/
 
 # mcp files
 .mcp.json
+
+# clerk configuration (can include secrets)
+/.clerk/
