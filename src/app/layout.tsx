@@ -8,9 +8,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "SIW LightningTalks - Share Quick Tech Presentations",
+	title: "SIW LightningTalks",
 	description:
-		"A platform for registering and sharing lightning talks with your tech community",
+		"コミュニティとともに、プレゼンテーションを共有・見るためのプラットフォームです。",
 };
 
 export default function RootLayout({

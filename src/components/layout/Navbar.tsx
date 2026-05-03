@@ -67,7 +67,7 @@ export default function Navbar() {
 						className="flex items-center gap-2 font-semibold text-lg transition-colors hover:text-primary"
 					>
 						<Zap className="w-5 h-5 text-purple-500" />
-						<span>LightningTalks</span>
+						<span className="text-2xl font-normal">siw lt</span>
 					</Link>
 
 					{/* Desktop Navigation */}
