@@ -11,9 +11,9 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
+			<PopularTopics />
 			<LastTalks lastTalks={SAMPLE_TALKS} />
 			<HowItWorks />
-			<PopularTopics />
 			<CTA />
 		</>
 	);
