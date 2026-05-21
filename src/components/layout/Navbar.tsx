@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Zap, Menu, X, Home, List, PlusCircle, Bookmark } from "lucide-react";
+import { Menu, X, Home, List, PlusCircle, Bookmark } from "lucide-react";
 import { useUser, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function Navbar() {
 	const [isScrolled, setIsScrolled] = useState(false);
@@ -66,8 +67,14 @@ export default function Navbar() {
 						href="/"
 						className="flex items-center gap-2 font-semibold text-lg transition-colors hover:text-primary"
 					>
-						<Zap className="w-5 h-5 text-purple-500" />
-						<span>LightningTalks</span>
+						<Image
+							src="/images/top-icon-image.png"
+							alt="siw lt"
+							className="-mt-1 mr-2"
+							width={40}
+							height={40}
+						/>
+						<span className="text-2xl font-normal">SIW lightning talks</span>
 					</Link>
 
 					{/* Desktop Navigation */}

@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-export default function HeroSection() {
+export default function Hero() {
 	return (
 		<div className="relative overflow-hidden">
 			<div className="container mx-auto px-4 py-32">
